@@ -56,7 +56,32 @@ export interface LanguageContextType {
   languages: LanguageInfo[];
 }
 
-const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+// Safe default fallback translation resolver when rendering outside or prior to LanguageProvider mounting
+const resolveDefaultTranslation = (key: string, fallback?: string): string => {
+  if (!key) return "";
+  const parts = key.split(".");
+  let curr: any = en;
+  for (const part of parts) {
+    if (curr == null || typeof curr !== "object") {
+      return fallback !== undefined ? fallback : key;
+    }
+    curr = curr[part];
+  }
+  return typeof curr === "string" ? curr : fallback !== undefined ? fallback : key;
+};
+
+export const defaultLanguageContext: LanguageContextType = {
+  currentLanguage: "en",
+  language: "en",
+  setLanguage: () => {},
+  toggleLanguage: () => {},
+  t: resolveDefaultTranslation,
+  isRTL: false,
+  dir: "ltr",
+  languages: SUPPORTED_LANGUAGES
+};
+
+const LanguageContext = createContext<LanguageContextType>(defaultLanguageContext);
 
 const STORAGE_KEY = "hunar_language";
 const LEGACY_STORAGE_KEY = "hunar_lang";
@@ -180,7 +205,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <LanguageContext.Provider value={contextValue}>
-      <div dir={dir} className="w-full min-h-full">
+      <div dir={dir} className="w-full min-h-full flex flex-col flex-1">
         {children}
       </div>
     </LanguageContext.Provider>
@@ -190,7 +215,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 export function useLanguage(): LanguageContextType {
   const context = useContext(LanguageContext);
   if (!context) {
-    throw new Error("useLanguage must be used within a LanguageProvider");
+    return defaultLanguageContext;
   }
   return context;
 }
