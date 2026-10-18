@@ -19,6 +19,7 @@ import {
   SEED_PRODUCTS,
   SEED_INQUIRIES
 } from "@/lib/data";
+import { tinyFish } from "@tinyfish/core";
 
 interface ToastState {
   id: string;
@@ -27,7 +28,14 @@ interface ToastState {
   type: "success" | "info" | "whatsapp";
 }
 
+export interface AuthResponse {
+  success: boolean;
+  user?: UserAccount;
+  error?: string;
+}
+
 interface HunarContextType {
+  tinyFish: typeof tinyFish;
   language: "en" | "hi";
   setLanguage: (lang: "en" | "hi") => void;
   toggleLanguage: () => void;
@@ -47,7 +55,15 @@ interface HunarContextType {
 
   // Role-based auth & Demo account states
   currentUser: UserAccount;
-  login: (email: string, password?: string) => Promise<UserAccount | null>;
+  login: (email: string, password?: string) => Promise<AuthResponse>;
+  loginAsDemo: (role: "SELLER" | "CUSTOMER") => UserAccount;
+  register: (userData: {
+    name: string;
+    email: string;
+    password: string;
+    role: "SELLER" | "CUSTOMER";
+    city?: string;
+  }) => Promise<AuthResponse>;
   logout: () => void;
   switchDemoRole: (role: "SELLER" | "CUSTOMER") => void;
 
@@ -86,14 +102,8 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [products, setProducts] = useState<Product[]>(SEED_PRODUCTS);
   const [inquiries, setInquiries] = useState<CustomerInquiry[]>(SEED_INQUIRIES);
-  const [savedProductIds, setSavedProductIds] = useState<string[]>([
-    "prod-khurja-tea-set",
-    "prod-mithila-tree-of-life"
-  ]);
-  const [savedCreatorIds, setSavedCreatorIds] = useState<string[]>([
-    "creator-sunita",
-    "creator-arif"
-  ]);
+  const [savedProductIds, setSavedProductIds] = useState<string[]>([]);
+  const [savedCreatorIds, setSavedCreatorIds] = useState<string[]>([]);
   const [completedMilestones, setCompletedMilestones] = useState<Record<string, boolean>>({
     m1: true,
     m2: true,
@@ -104,6 +114,34 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
     mh_m2: true
   });
   const [toast, setToast] = useState<ToastState | null>(null);
+
+  // Helper to load user-specific saved collections (Wishlist & Shortlists)
+  const loadUserSavedData = (user: UserAccount) => {
+    if (typeof window === "undefined") return;
+    try {
+      const userFavsKey = `hunar_saved_products_${user.id}`;
+      const savedFavs = localStorage.getItem(userFavsKey);
+      if (savedFavs) {
+        setSavedProductIds(JSON.parse(savedFavs));
+      } else if (user.id === "demo-customer-priya") {
+        setSavedProductIds(["prod-khurja-tea-set", "prod-mithila-tree-of-life"]);
+      } else {
+        setSavedProductIds([]);
+      }
+
+      const userArtistsKey = `hunar_saved_creators_${user.id}`;
+      const savedArtists = localStorage.getItem(userArtistsKey);
+      if (savedArtists) {
+        setSavedCreatorIds(JSON.parse(savedArtists));
+      } else if (user.id === "demo-customer-priya") {
+        setSavedCreatorIds(["creator-sunita", "creator-arif"]);
+      } else {
+        setSavedCreatorIds([]);
+      }
+    } catch {
+      // ignore in SSR
+    }
+  };
 
   // Load from local storage in browser
   useEffect(() => {
@@ -116,22 +154,35 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
 
       const savedUser = localStorage.getItem("hunar_user_account");
       if (savedUser) {
-        setCurrentUser(JSON.parse(savedUser));
-      }
-
-      const savedFavs = localStorage.getItem("hunar_saved_products");
-      if (savedFavs) {
-        setSavedProductIds(JSON.parse(savedFavs));
-      }
-
-      const savedArtists = localStorage.getItem("hunar_saved_creators");
-      if (savedArtists) {
-        setSavedCreatorIds(JSON.parse(savedArtists));
+        const parsed = JSON.parse(savedUser) as UserAccount;
+        setCurrentUser(parsed);
+        loadUserSavedData(parsed);
+      } else {
+        loadUserSavedData(DEMO_ACCOUNTS[0]);
       }
     } catch {
       // ignore in SSR
     }
   }, []);
+
+  // Synchronize TinyFish reactive client-side/edge indexing engine
+  useEffect(() => {
+    try {
+      const prodCol = tinyFish.getCollection<Product>("products");
+      prodCol.clear();
+      prodCol.insertBatch(products);
+
+      const oppCol = tinyFish.getCollection<Opportunity>("opportunities");
+      oppCol.clear();
+      oppCol.insertBatch(opportunities);
+
+      const creatorCol = tinyFish.getCollection<Creator>("creators");
+      creatorCol.clear();
+      creatorCol.insertBatch(creators);
+    } catch (err) {
+      console.error("TinyFish indexing sync error:", err);
+    }
+  }, [products, opportunities, creators]);
 
   const toggleLanguage = () => {
     const next = language === "en" ? "hi" : "en";
@@ -153,28 +204,139 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
 
   const dismissToast = () => setToast(null);
 
-  // Authentication & Demo preset handling
-  const login = async (email: string, password?: string): Promise<UserAccount | null> => {
+  // Local helper for persistent registered custom accounts
+  const getLocalRegisteredUsers = (): UserAccount[] => {
+    if (typeof window === "undefined") return [];
+    try {
+      const raw = localStorage.getItem("hunar_registered_users");
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const saveLocalRegisteredUser = (user: UserAccount) => {
+    if (typeof window === "undefined") return;
+    try {
+      const current = getLocalRegisteredUsers();
+      const filtered = current.filter((u) => u.email.toLowerCase() !== user.email.toLowerCase());
+      filtered.push(user);
+      localStorage.setItem("hunar_registered_users", JSON.stringify(filtered));
+    } catch {
+      // ignore
+    }
+  };
+
+  // Dedicated 1-Click Demo Profiles Login
+  const loginAsDemo = (role: "SELLER" | "CUSTOMER"): UserAccount => {
+    const target = role === "SELLER" ? DEMO_ACCOUNTS[0] : DEMO_ACCOUNTS[1];
+    setCurrentUser(target);
+    loadUserSavedData(target);
+    try {
+      localStorage.setItem("hunar_user_account", JSON.stringify(target));
+      document.cookie = `hunar_user_role=${target.role}; path=/; max-age=604800`;
+      document.cookie = `hunar_user_id=${target.id}; path=/; max-age=604800`;
+      document.cookie = `hunar_user_name=${encodeURIComponent(target.name)}; path=/; max-age=604800`;
+    } catch {
+      // ignore
+    }
+
+    showToast(
+      language === "hi" ? "डेमो खाता सक्रिय" : "Demo Profile Active",
+      language === "hi"
+        ? `${target.name} (${target.role === "SELLER" ? "कारीगर स्टूडियो" : "कला संरक्षक"}) के रूप में प्रवेश किया गया`
+        : `Signed in as demo: ${target.name} (${target.role})`,
+      "info"
+    );
+
+    return target;
+  };
+
+  // Manual Credentials Authentication: Strictly checks entered email & password
+  const login = async (email: string, password?: string): Promise<AuthResponse> => {
     try {
       const normalizedEmail = email.trim().toLowerCase();
-      const matched = DEMO_ACCOUNTS.find(
-        (a) => a.email.toLowerCase() === normalizedEmail
-      );
+      if (!normalizedEmail) {
+        return { success: false, error: "Please enter your email address." };
+      }
+      if (!password) {
+        return { success: false, error: "Please enter your password." };
+      }
 
-      const userToSet: UserAccount = matched || {
-        id: `user-${Date.now()}`,
-        name: normalizedEmail.includes("seller") || normalizedEmail.includes("artisan") ? "Studio Artisan" : "Patron Member",
-        email: normalizedEmail,
-        role: normalizedEmail.includes("seller") || normalizedEmail.includes("artisan") ? "SELLER" : "CUSTOMER",
-        city: "Delhi NCR",
-        avatarUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&auto=format&fit=crop&q=80"
-      };
+      // 1. Try server API authentication
+      let serverUser: UserAccount | null = null;
+      let serverError: string | null = null;
 
-      setCurrentUser(userToSet);
       try {
-        localStorage.setItem("hunar_user_account", JSON.stringify(userToSet));
-        document.cookie = `hunar_user_role=${userToSet.role}; path=/; max-age=604800`;
-        document.cookie = `hunar_user_id=${userToSet.id}; path=/; max-age=604800`;
+        const res = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: normalizedEmail, password })
+        });
+        const data = await res.json();
+        if (res.ok && data.success && data.data) {
+          serverUser = data.data;
+        } else {
+          serverError = data.error || "Invalid email or password.";
+        }
+      } catch (e) {
+        console.warn("Server auth endpoint unavailable, falling back to local verification:", e);
+      }
+
+      // If server responded with an error (e.g. 401), honor it strictly
+      if (serverError && !serverUser) {
+        return { success: false, error: serverError };
+      }
+
+      if (serverUser) {
+        setCurrentUser(serverUser);
+        loadUserSavedData(serverUser);
+        try {
+          localStorage.setItem("hunar_user_account", JSON.stringify(serverUser));
+          document.cookie = `hunar_user_role=${serverUser.role}; path=/; max-age=604800`;
+          document.cookie = `hunar_user_id=${serverUser.id}; path=/; max-age=604800`;
+          document.cookie = `hunar_user_name=${encodeURIComponent(serverUser.name)}; path=/; max-age=604800`;
+        } catch {
+          // ignore
+        }
+
+        showToast(
+          language === "hi" ? "लॉगिन सफल" : "Authentication Successful",
+          language === "hi"
+            ? `${serverUser.name} (${serverUser.role === "SELLER" ? "कारीगर स्टूडियो" : "कला संरक्षक"}) के रूप में स्वागत है`
+            : `Signed in as ${serverUser.name} (${serverUser.role})`,
+          "success"
+        );
+
+        return { success: true, user: serverUser };
+      }
+
+      // 2. Client-side local verification fallback
+      const localUsers = getLocalRegisteredUsers();
+      const allKnown = [...DEMO_ACCOUNTS, ...localUsers];
+      const matched = allKnown.find((a) => a.email.toLowerCase() === normalizedEmail);
+
+      if (!matched) {
+        return {
+          success: false,
+          error: "No account found with this email. Please check your credentials or register."
+        };
+      }
+
+      if (matched.password && matched.password !== password) {
+        return {
+          success: false,
+          error: "Invalid email or password."
+        };
+      }
+
+      setCurrentUser(matched);
+      loadUserSavedData(matched);
+      try {
+        localStorage.setItem("hunar_user_account", JSON.stringify(matched));
+        document.cookie = `hunar_user_role=${matched.role}; path=/; max-age=604800`;
+        document.cookie = `hunar_user_id=${matched.id}; path=/; max-age=604800`;
+        document.cookie = `hunar_user_name=${encodeURIComponent(matched.name)}; path=/; max-age=604800`;
       } catch {
         // ignore
       }
@@ -182,31 +344,198 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
       showToast(
         language === "hi" ? "लॉगिन सफल" : "Authentication Successful",
         language === "hi"
-          ? `${userToSet.name} (${userToSet.role === "SELLER" ? "कारीगर स्टूडियो" : "कला संरक्षक"}) के रूप में स्वागत है`
-          : `Signed in as ${userToSet.name} (${userToSet.role})`,
+          ? `${matched.name} (${matched.role === "SELLER" ? "कारीगर स्टूडियो" : "कला संरक्षक"}) के रूप में स्वागत है`
+          : `Signed in as ${matched.name} (${matched.role})`,
         "success"
       );
 
-      return userToSet;
+      return { success: true, user: matched };
     } catch (err) {
       console.error("Login failed:", err);
-      return null;
+      return { success: false, error: "An unexpected authentication error occurred." };
     }
   };
 
-  const logout = () => {
-    const defaultUser = DEMO_ACCOUNTS[1]; // Switch to customer by default
-    setCurrentUser(defaultUser);
+  // Register a new user account
+  const register = async (userData: {
+    name: string;
+    email: string;
+    password: string;
+    role: "SELLER" | "CUSTOMER";
+    city?: string;
+  }): Promise<AuthResponse> => {
     try {
-      localStorage.setItem("hunar_user_account", JSON.stringify(defaultUser));
-      document.cookie = `hunar_user_role=; path=/; max-age=0`;
-      document.cookie = `hunar_user_id=; path=/; max-age=0`;
+      const normalizedEmail = userData.email.trim().toLowerCase();
+
+      if (!userData.name || !userData.name.trim()) {
+        return { success: false, error: "Please enter your full name." };
+      }
+      if (!normalizedEmail || !normalizedEmail.includes("@")) {
+        return { success: false, error: "Please enter a valid email address." };
+      }
+      if (!userData.password || userData.password.length < 6) {
+        return { success: false, error: "Password must be at least 6 characters." };
+      }
+
+      // Check client-side duplicate
+      const localUsers = getLocalRegisteredUsers();
+      if ([...DEMO_ACCOUNTS, ...localUsers].some((u) => u.email.toLowerCase() === normalizedEmail)) {
+        return { success: false, error: "An account with this email already exists. Please sign in instead." };
+      }
+
+      // 1. Try server register endpoint
+      let serverUser: UserAccount | null = null;
+      let serverError: string | null = null;
+
+      try {
+        const res = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...userData, email: normalizedEmail })
+        });
+        const data = await res.json();
+        if (res.ok && data.success && data.data) {
+          serverUser = data.data;
+        } else {
+          serverError = data.error || "Failed to create account.";
+        }
+      } catch (e) {
+        console.warn("Server register endpoint error, falling back locally:", e);
+      }
+
+      if (serverError && !serverUser) {
+        return { success: false, error: serverError };
+      }
+
+      const generatedUuid =
+        typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+          ? crypto.randomUUID()
+          : `user-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+
+      const initialsFallback = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(
+        userData.name.trim()
+      )}&backgroundColor=b4461f,2d583b`;
+
+      const newUser: UserAccount = serverUser || {
+        id: generatedUuid,
+        name: userData.name.trim(),
+        email: normalizedEmail,
+        password: userData.password,
+        role: userData.role,
+        city: userData.city?.trim() || "Delhi NCR",
+        avatarUrl: initialsFallback,
+        isVerified: true,
+        tagline: userData.role === "SELLER" ? "Studio Artisan & Craftsman" : "Art Patron & Collector",
+        onboardingCompleted: userData.role === "SELLER" ? false : true
+      };
+
+      saveLocalRegisteredUser(newUser);
+
+      // Initialize empty user-scoped relational tables/arrays
+      try {
+        localStorage.setItem(`hunar_saved_products_${newUser.id}`, JSON.stringify([]));
+        localStorage.setItem(`hunar_saved_creators_${newUser.id}`, JSON.stringify([]));
+      } catch {
+        // ignore
+      }
+      setSavedProductIds([]);
+      setSavedCreatorIds([]);
+
+      // If new user is a seller, register their creator profile so they appear in creator discovery
+      if (newUser.role === "SELLER") {
+        const username = newUser.email.split("@")[0].replace(/[^a-zA-Z0-9_-]/g, "");
+        const newCreator: Creator = {
+          id: `creator-${newUser.id}`,
+          name: newUser.name,
+          nameHindi: newUser.name,
+          username,
+          phone: "+91 98765 43210",
+          whatsapp: "919876543210",
+          city: newUser.city,
+          state: "India",
+          primaryArtForm: "Crafts & Studio Art",
+          artFormHindi: "शिल्प एवं स्टूडियो कला",
+          languages: ["Hindi", "English"],
+          experienceLevel: "Artisan Studio",
+          bio: `Verified creator studio on Hunar. Based in ${newUser.city}.`,
+          bioHindi: `हुनर पर सत्यापित शिल्प स्टूडियो। ${newUser.city} में स्थित।`,
+          avatarUrl: newUser.avatarUrl,
+          coverImage: "https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=1200&auto=format&fit=crop&q=80",
+          isVerified: true,
+          minPricing: 1500,
+          hourlyRate: 500,
+          unitPricingLabel: "Commissions from ₹1,500",
+          sixMonthIncomeGoal: 35000,
+          currentMonthlyIncome: 15000,
+          rating: 5.0,
+          reviewsCount: 1,
+          completedGigsCount: 1,
+          skills: ["Handcrafted", "Studio Commission"],
+          badges: ["New Creator", "Direct Artisan"],
+          whatsappInquiryText: "Namaste! I saw your Hunar Card. I would like to inquire about your craft.",
+          portfolioImages: []
+        };
+        setCreators((prev) => [newCreator, ...prev]);
+      }
+
+      setCurrentUser(newUser);
+      loadUserSavedData(newUser);
+      try {
+        localStorage.setItem("hunar_user_account", JSON.stringify(newUser));
+        document.cookie = `hunar_user_role=${newUser.role}; path=/; max-age=604800`;
+        document.cookie = `hunar_user_id=${newUser.id}; path=/; max-age=604800`;
+        document.cookie = `hunar_user_name=${encodeURIComponent(newUser.name)}; path=/; max-age=604800`;
+      } catch {
+        // ignore
+      }
+
+      showToast(
+        language === "hi" ? "खाता सफलतापूर्वक बना" : "Account Created",
+        language === "hi"
+          ? `हुनर में स्वागत है, ${newUser.name}!`
+          : `Welcome to Hunar, ${newUser.name}! Your ${newUser.role === "SELLER" ? "Artisan Studio" : "Patron"} account is active.`,
+        "success"
+      );
+
+      return { success: true, user: newUser };
+    } catch (err) {
+      console.error("Registration failed:", err);
+      return { success: false, error: "An unexpected registration error occurred." };
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
     } catch {
       // ignore
     }
+
+    try {
+      localStorage.removeItem("hunar_user_account");
+      document.cookie = "hunar_user_role=; path=/; max-age=0";
+      document.cookie = "hunar_user_id=; path=/; max-age=0";
+      document.cookie = "hunar_user_name=; path=/; max-age=0";
+    } catch {
+      // ignore
+    }
+
+    // Reset to clean unauthenticated guest state
+    const guestUser: UserAccount = {
+      id: "guest",
+      name: "Guest",
+      email: "",
+      role: "CUSTOMER",
+      city: "Delhi NCR",
+      avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80"
+    };
+    setCurrentUser(guestUser);
+    setSavedProductIds([]);
+    setSavedCreatorIds([]);
+
     showToast(
-      language === "hi" ? "लॉगआउट" : "Signed Out",
-      language === "hi" ? "अतिथि सत्र पर वापस ले जाया गया।" : "Switched to guest session.",
+      language === "hi" ? "लॉगआउट सफल" : "Signed Out",
+      language === "hi" ? "आप अपने सत्र से सफलतापूर्वक बाहर हो चुके हैं।" : "You have been signed out of your account.",
       "info"
     );
   };
@@ -214,10 +543,12 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
   const switchDemoRole = (role: "SELLER" | "CUSTOMER") => {
     const target = role === "SELLER" ? DEMO_ACCOUNTS[0] : DEMO_ACCOUNTS[1];
     setCurrentUser(target);
+    loadUserSavedData(target);
     try {
       localStorage.setItem("hunar_user_account", JSON.stringify(target));
       document.cookie = `hunar_user_role=${target.role}; path=/; max-age=604800`;
       document.cookie = `hunar_user_id=${target.id}; path=/; max-age=604800`;
+      document.cookie = `hunar_user_name=${encodeURIComponent(target.name)}; path=/; max-age=604800`;
     } catch {
       // ignore
     }
@@ -252,7 +583,7 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
       const exists = prev.includes(productId);
       const next = exists ? prev.filter((id) => id !== productId) : [...prev, productId];
       try {
-        localStorage.setItem("hunar_saved_products", JSON.stringify(next));
+        localStorage.setItem(`hunar_saved_products_${currentUser.id}`, JSON.stringify(next));
       } catch {
         // ignore
       }
@@ -272,7 +603,7 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
       const exists = prev.includes(creatorId);
       const next = exists ? prev.filter((id) => id !== creatorId) : [...prev, creatorId];
       try {
-        localStorage.setItem("hunar_saved_creators", JSON.stringify(next));
+        localStorage.setItem(`hunar_saved_creators_${currentUser.id}`, JSON.stringify(next));
       } catch {
         // ignore
       }
@@ -306,7 +637,7 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
       status: (prodData.status as Product["status"]) || "Live",
       dimensions: prodData.dimensions || "Handcrafted dimensions",
       material: prodData.material || "Raw organic clay & minerals",
-      sellerId: currentUser.id || "user-rohit-seller",
+      sellerId: currentUser.id || "demo-seller-rohit",
       sellerName: currentUser.name || "Rohit Sharma",
       sellerCity: currentUser.city || "Khurja / Delhi NCR",
       sellerAvatar: currentUser.avatarUrl,
@@ -317,6 +648,13 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
     };
 
     setProducts((prev) => [newProduct, ...prev]);
+
+    // Enqueue in TinyFish offline-ready sync queue & in-memory index
+    try {
+      tinyFish.enqueueDraft(newProduct);
+    } catch (err) {
+      console.warn("TinyFish draft enqueue error:", err);
+    }
 
     showToast(
       language === "hi" ? "कलाकृति सफलतापूर्वक सूचीबद्ध!" : "Product Published to Studio Catalog",
@@ -333,6 +671,14 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
     setProducts((prev) =>
       prev.map((p) => (p.id === id ? { ...p, ...updates } : p))
     );
+
+    // Enqueue update in TinyFish offline-ready sync queue
+    try {
+      tinyFish.getSyncQueue().enqueue("products", "update", { id, ...updates });
+    } catch (err) {
+      console.warn("TinyFish update enqueue error:", err);
+    }
+
     showToast(
       language === "hi" ? "उत्पाद अद्यतन हुआ" : "Product Updated",
       language === "hi" ? "कलाकृति का विवरण सहेज लिया गया है।" : "Catalog item details updated successfully.",
@@ -342,6 +688,12 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
 
   const deleteProduct = (id: string) => {
     setProducts((prev) => prev.filter((p) => p.id !== id));
+    try {
+      tinyFish.getCollection<Product>("products").delete(id);
+      tinyFish.getSyncQueue().enqueue("products", "delete", { id });
+    } catch {
+      // ignore
+    }
     showToast(
       language === "hi" ? "उत्पाद हटाया गया" : "Product Removed",
       language === "hi" ? "कलाकृति को स्टूडियो कैटलॉग से हटा दिया गया।" : "Item removed from studio catalog.",
@@ -354,6 +706,14 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
       prev.map((p) => {
         if (p.id === id) {
           const nextStatus = p.status === "Live" ? "Draft" : "Live";
+
+          // Enqueue status update in TinyFish offline-ready sync queue
+          try {
+            tinyFish.enqueueStatusUpdate(id, nextStatus);
+          } catch (err) {
+            console.warn("TinyFish status enqueue error:", err);
+          }
+
           showToast(
             language === "hi" ? "स्थिति बदली गई" : "Visibility Toggled",
             language === "hi" ? `उत्पाद स्थिति अब '${nextStatus}' है।` : `Product visibility set to '${nextStatus}'.`,
@@ -370,11 +730,11 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
   const createInquiry = (inqData: Partial<CustomerInquiry>): CustomerInquiry => {
     const newInquiry: CustomerInquiry = {
       id: `inq-${Date.now()}`,
-      customerId: currentUser.id || "user-priya-customer",
+      customerId: currentUser.id || "demo-customer-priya",
       customerName: inqData.customerName || currentUser.name || "Priya Nair",
       customerPhone: inqData.customerPhone || currentUser.phone || "+91 98711 44220",
       customerEmail: inqData.customerEmail || currentUser.email || "priya.patron@hunar.in",
-      sellerId: inqData.sellerId || "user-rohit-seller",
+      sellerId: inqData.sellerId || "demo-seller-rohit",
       sellerName: inqData.sellerName || "Rohit Sharma",
       sellerAvatar: inqData.sellerAvatar || "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&auto=format&fit=crop&q=80",
       productId: inqData.productId,
@@ -600,12 +960,32 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
 
     setCreators((prev) => [fullCreator, ...prev]);
 
+    setCurrentUser((prev) => {
+      const updated: UserAccount = {
+        ...prev,
+        city: newCreatorData.city || prev.city,
+        bio: newCreatorData.bio || prev.bio,
+        artCategory: newCreatorData.primaryArtForm || prev.artCategory,
+        tagline: newCreatorData.primaryArtForm
+          ? `${newCreatorData.primaryArtForm} Studio Master`
+          : prev.tagline,
+        onboardingCompleted: true
+      };
+      try {
+        localStorage.setItem("hunar_user_account", JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
+
     return fullCreator;
   };
 
   return (
     <HunarContext.Provider
       value={{
+        tinyFish,
         language,
         setLanguage,
         toggleLanguage,
@@ -626,6 +1006,8 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
         // Auth & Roles
         currentUser,
         login,
+        loginAsDemo,
+        register,
         logout,
         switchDemoRole,
 

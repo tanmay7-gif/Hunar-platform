@@ -41,9 +41,8 @@ export default function SellerInquiriesPage() {
   const [selectedStatus, setSelectedStatus] = useState<CustomerInquiry["status"]>("Crafting in Progress");
   const [statusNote, setStatusNote] = useState("");
 
-  const sellerInquiries = inquiries.filter(
-    (inq) => inq.sellerId === currentUser.id || inq.sellerName === currentUser.name || currentUser.role === "SELLER"
-  );
+  // Strict user isolation: Inquiries addressed strictly to this authenticated artisan
+  const sellerInquiries = inquiries.filter((inq) => inq.sellerId === currentUser.id);
 
   const filteredInquiries = sellerInquiries.filter((inq) => {
     if (stageFilter === "PENDING") return inq.status === "Under Review";
@@ -173,7 +172,7 @@ export default function SellerInquiriesPage() {
         {filteredInquiries.map((lead) => {
           const badge = getStageBadge(lead.status);
           const whatsappUrl = `https://wa.me/${(lead.customerPhone || "919871144220").replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
-            `Namaste ${lead.customerName}! I am Rohit Sharma from Khurja Ceramic Studio. I received your commission request for "${lead.productTitle || "Custom Brief"}" on Hunar. Let's discuss your requirements!`
+            `Namaste ${lead.customerName}! I am ${currentUser.name} from ${currentUser.city || "Hunar Artisan Studio"}. I received your commission request for "${lead.productTitle || "Custom Brief"}" on Hunar. Let's discuss your requirements!`
           )}`;
 
           return (

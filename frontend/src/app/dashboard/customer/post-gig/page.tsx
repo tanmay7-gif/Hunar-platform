@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useHunar } from "@/context/HunarContext";
+import { useTinyFishPricingBenchmark } from "@tinyfish/core";
 import {
   MapPin,
   Calendar,
@@ -13,7 +14,8 @@ import {
   FilePlus,
   Palette,
   HeartHandshake,
-  DollarSign
+  DollarSign,
+  Sparkles
 } from "lucide-react";
 
 export default function PostRequirementPage() {
@@ -33,6 +35,9 @@ export default function PostRequirementPage() {
   const [deliveryFormat, setDeliveryFormat] = useState<"On-site Commission" | "Physical Artwork">("On-site Commission");
   const [requirementsList, setRequirementsList] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // TinyFish zero-latency dynamic pricing benchmark calculated client-side from indexed listings
+  const pricingBenchmark = useTinyFishPricingBenchmark(projectType, city);
 
   const projectTypes = [
     {
@@ -93,7 +98,7 @@ export default function PostRequirementPage() {
         customerName: currentUser.name,
         customerEmail: currentUser.email,
         customerPhone: currentUser.phone || "+91 98711 44220",
-        sellerId: "user-rohit-seller",
+        sellerId: "guild-pool",
         sellerName: "Artisans Guild Pool",
         type: "custom_commission",
         requirements: `${title ? `${title}: ` : ""}${description}`,
@@ -265,6 +270,46 @@ export default function PostRequirementPage() {
                 className="w-full pl-9 pr-3 py-2 rounded-sm border border-[#D3CBBE] text-xs focus:outline-none focus:border-[#B4461F] bg-[#FDFCF9] text-[#1A1816]"
               />
             </div>
+          </div>
+
+          {/* TinyFish Client-Side Pricing Benchmark Hint */}
+          <div className="sm:col-span-2 lg:col-span-3 bg-[#FAF7F2] border border-[#E6E1D8] rounded-sm p-3.5 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs">
+            <div className="flex items-start gap-2.5">
+              <div className="w-7 h-7 rounded-full bg-[#B4461F]/10 flex items-center justify-center shrink-0 mt-0.5">
+                <Sparkles className="w-3.5 h-3.5 text-[#B4461F]" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-serif font-semibold text-[#1E2229]">
+                    Artisan Pricing Benchmark: {pricingBenchmark.category}
+                    {pricingBenchmark.city ? ` in ${pricingBenchmark.city}` : ""}
+                  </span>
+                  <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-xs bg-[#2D583B]/10 text-[#2D583B]">
+                    {pricingBenchmark.marketTier}
+                  </span>
+                  <span className="text-[10px] text-[#635C53]">
+                    ({pricingBenchmark.sampleCount} listings indexed)
+                  </span>
+                </div>
+                <p className="text-[11px] text-[#635C53] mt-0.5">
+                  25th–75th Percentile:{" "}
+                  <strong className="text-[#1E2229]">
+                    ₹{pricingBenchmark.p25.toLocaleString("en-IN")} – ₹{pricingBenchmark.p75.toLocaleString("en-IN")}
+                  </strong>{" "}
+                  (Median ₹{pricingBenchmark.p50.toLocaleString("en-IN")}) • {pricingBenchmark.notes}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setBudgetMin(pricingBenchmark.suggestedMin);
+                setBudgetMax(pricingBenchmark.suggestedMax);
+              }}
+              className="shrink-0 px-3 py-1.5 text-[11px] font-semibold text-[#B4461F] border border-[#B4461F]/30 hover:bg-[#B4461F]/5 rounded-sm transition-colors cursor-pointer"
+            >
+              Apply Range (₹{pricingBenchmark.suggestedMin.toLocaleString("en-IN")} - ₹{pricingBenchmark.suggestedMax.toLocaleString("en-IN")})
+            </button>
           </div>
         </div>
 

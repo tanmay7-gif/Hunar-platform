@@ -4,13 +4,13 @@ import { db } from "../config/db";
 export const AuthController = {
   login: (req: Request, res: Response) => {
     try {
-      const { email, password, role } = req.body;
+      const { email, password } = req.body;
 
-      if (!email) {
-        return res.status(400).json({ error: "Email is required" });
+      if (!email || !password) {
+        return res.status(400).json({ error: "Both email and password are required" });
       }
 
-      const account = db.authenticate(email);
+      const account = db.authenticate(email, password);
       if (account) {
         return res.status(200).json({
           success: true,
@@ -19,26 +19,51 @@ export const AuthController = {
         });
       }
 
-      // Default fallback for custom user
-      const fallbackUser = {
-        id: `user-${Date.now()}`,
-        name: email.split("@")[0],
-        email,
-        role: role || "CUSTOMER",
-        city: "Delhi NCR",
-        avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
-        isVerified: true,
-      };
-
-      return res.status(200).json({
-        success: true,
-        user: fallbackUser,
-        token: `demo-jwt-token-${fallbackUser.id}`,
+      // Strict failure: do not fabricate fallback user or default to demo accounts
+      return res.status(401).json({
+        success: false,
+        error: "Invalid email or password. Please check your credentials or register an account."
       });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Authentication error";
       return res.status(500).json({ error: message });
     }
+  },
+
+  register: (req: Request, res: Response) => {
+    try {
+      const { name, email, password, role, city } = req.body;
+
+      if (!name || !email || !password) {
+        return res.status(400).json({ error: "Name, email, and password are required" });
+      }
+
+      const existing = db.authenticate(email);
+      if (existing) {
+        return res.status(400).json({ error: "An account with this email already exists" });
+      }
+
+      const newUser = db.registerAccount({
+        name,
+        email,
+        password,
+        role: role === "SELLER" ? "SELLER" : "CUSTOMER",
+        city: city || "Delhi NCR",
+      });
+
+      return res.status(201).json({
+        success: true,
+        user: newUser,
+        token: `demo-jwt-token-${newUser.id}`,
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Registration error";
+      return res.status(500).json({ error: message });
+    }
+  },
+
+  logout: (req: Request, res: Response) => {
+    return res.status(200).json({ success: true, message: "Logged out successfully" });
   },
 
   getCurrentUser: (req: Request, res: Response) => {

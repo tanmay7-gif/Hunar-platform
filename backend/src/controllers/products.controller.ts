@@ -90,7 +90,7 @@ export const ProductsController = {
         status: status || "Live",
         dimensions,
         material,
-        sellerId: sellerId || "user-rohit-seller",
+        sellerId: sellerId || "demo-seller-rohit",
         sellerName: sellerName || "Rohit Sharma",
         sellerCity: sellerCity || "Khurja / Delhi NCR",
         sellerAvatar: sellerAvatar || "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80",

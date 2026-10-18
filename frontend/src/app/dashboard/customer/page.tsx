@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { useHunar } from "@/context/HunarContext";
+import { useTinyFishQuery } from "@tinyfish/core";
 import { Product, CustomerInquiry, Creator } from "@/lib/data";
 import {
   Search,
@@ -50,6 +51,7 @@ export default function CustomerDashboardPage() {
   const [priceRange, setPriceRange] = useState<string>("All");
   const [selectedFormat, setSelectedFormat] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [sortBy, setSortBy] = useState<string>("relevance");
 
   // Tabs: "marketplace" | "activity" | "saved"
   const [activeTab, setActiveTab] = useState<"marketplace" | "activity" | "saved">("marketplace");
@@ -88,29 +90,38 @@ export default function CustomerDashboardPage() {
     { id: "On-site Commission", label: isHindi ? "साइट पर कला / लाइव सर्विस" : "On-site Commission / Mural" }
   ];
 
-  // Filtering Logic
-  const filteredProducts = products.filter((item) => {
-    if (selectedCategory !== "All" && item.category !== selectedCategory) return false;
-    if (selectedCity !== "All" && !item.sellerCity.toLowerCase().includes(selectedCity.toLowerCase())) return false;
-    if (selectedFormat !== "All" && item.deliveryFormat !== selectedFormat) return false;
+  // Numeric price range conversion for TinyFish indexing engine
+  const priceFilter = useMemo(() => {
+    if (priceRange === "under3000") return { max: 2999 };
+    if (priceRange === "3000to10000") return { min: 3000, max: 10000 };
+    if (priceRange === "10000to25000") return { min: 10000, max: 25000 };
+    if (priceRange === "above25000") return { min: 25000 };
+    return undefined;
+  }, [priceRange]);
 
-    if (priceRange === "under3000" && item.price >= 3000) return false;
-    if (priceRange === "3000to10000" && (item.price < 3000 || item.price > 10000)) return false;
-    if (priceRange === "10000to25000" && (item.price < 10000 || item.price > 25000)) return false;
-    if (priceRange === "above25000" && item.price < 25000) return false;
-
-    if (searchQuery.trim() !== "") {
-      const q = searchQuery.toLowerCase();
-      const matchTitle = item.title.toLowerCase().includes(q);
-      const matchSeller = item.sellerName.toLowerCase().includes(q);
-      const matchCity = item.sellerCity.toLowerCase().includes(q);
-      const matchDesc = item.description.toLowerCase().includes(q);
-      const matchMat = item.material?.toLowerCase().includes(q) || false;
-      return matchTitle || matchSeller || matchCity || matchDesc || matchMat;
-    }
-
-    return true;
-  });
+  // TinyFish Reactive Query: instant sub-millisecond edge indexing across all craft facets
+  const {
+    items: filteredProducts,
+    totalCount: totalFilteredCount,
+    executionTimeMs,
+    facets: liveFacets
+  } = useTinyFishQuery<Product>(
+    "products",
+    {
+      text: searchQuery,
+      facets: {
+        category: selectedCategory !== "All" ? selectedCategory : undefined,
+        sellerCity: selectedCity !== "All" ? selectedCity : undefined,
+        deliveryFormat: selectedFormat !== "All" ? selectedFormat : undefined
+      },
+      range: {
+        price: priceFilter
+      },
+      sortBy: sortBy === "priceAsc" ? "price" : sortBy === "priceDesc" ? "price" : "relevance",
+      sortOrder: sortBy === "priceAsc" ? "asc" : "desc"
+    },
+    [searchQuery, selectedCategory, selectedCity, selectedFormat, priceFilter, sortBy]
+  );
 
   // Handle Commission Form Submission
   const handleCommissionSubmit = (e: React.FormEvent) => {
@@ -333,32 +344,65 @@ export default function CustomerDashboardPage() {
             <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-1">
               {categories.map((cat) => {
                 const isSelected = selectedCategory === cat.id;
+                const facetCount = cat.id === "All" 
+                  ? products.length 
+                  : (liveFacets.category?.[cat.id.toLowerCase()] || liveFacets.category?.[cat.id] || 0);
+
                 return (
                   <button
                     key={cat.id}
                     onClick={() => setSelectedCategory(cat.id)}
-                    className={`px-3 py-1.5 rounded-sm text-xs font-medium whitespace-nowrap transition-colors duration-150 ${
+                    className={`px-3 py-1.5 rounded-sm text-xs font-medium whitespace-nowrap transition-colors duration-150 flex items-center gap-1.5 ${
                       isSelected
                         ? "bg-[#B4461F] text-white"
                         : "bg-[#FAF6ED] text-[#535A66] hover:bg-[#F3EADB] border border-[#E8DEC8]"
                     }`}
                   >
-                    {cat.label}
+                    <span>{cat.label}</span>
+                    <span className={`text-[10px] px-1 rounded-xs ${isSelected ? "bg-white/20 text-white" : "bg-[#E8DEC8]/60 text-[#8A7561]"}`}>
+                      {facetCount}
+                    </span>
                   </button>
                 );
               })}
             </div>
           </div>
 
-          {/* Results Count Strip */}
-          <div className="flex items-center justify-between text-xs text-[#635C53] px-1">
-            <p>
-              {filteredProducts.length} {isHindi ? "हस्तनिर्मित कृतियां उपलब्ध" : "verified handmade artworks found"}
-            </p>
-            <span className="text-[11px] text-[#2D583B] font-semibold flex items-center gap-1">
-              <CheckCircle2 className="w-3.5 h-3.5 text-[#2D583B]" />
-              {isHindi ? "100% बिचौलिया-मुक्त • सीधा कारीगर भुगतान" : "Zero Middleman Cut • Direct WhatsApp Channel"}
-            </span>
+          {/* Results Count Strip & TinyFish Zero-Latency Telemetry */}
+          <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-[#635C53] px-1">
+            <div className="flex flex-wrap items-center gap-3">
+              <p className="font-medium text-[#1E2229]">
+                {filteredProducts.length} {isHindi ? "हस्तनिर्मित कृतियां उपलब्ध" : "verified handmade artworks found"}
+              </p>
+
+              {/* TinyFish Edge Indexing Benchmark Badge */}
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-xs bg-[#FAF7F2] border border-[#E8DEC8] text-[10px] text-[#8A7561]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#2D583B]"></span>
+                <span className="font-mono text-[#B4461F] font-semibold">{executionTimeMs}ms</span>
+                <span>{isHindi ? "• टाइनीफिश एज अनुक्रमित" : "• TinyFish zero-latency indexed"}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              {/* Snappy Sort Dropdown */}
+              <div className="flex items-center gap-1.5">
+                <span className="text-[11px] text-[#8A7561]">{isHindi ? "क्रम:" : "Sort:"}</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="px-2 py-1 rounded-xs bg-[#FDFCF9] border border-[#D3CBBE] text-xs text-[#1A1816] focus:outline-none focus:border-[#B4461F]"
+                >
+                  <option value="relevance">{isHindi ? "प्रासंगिकता (Relevance)" : "Relevance (Default)"}</option>
+                  <option value="priceAsc">{isHindi ? "कीमत: कम से अधिक" : "Price: Low to High"}</option>
+                  <option value="priceDesc">{isHindi ? "कीमत: अधिक से कम" : "Price: High to Low"}</option>
+                </select>
+              </div>
+
+              <span className="text-[11px] text-[#2D583B] font-semibold hidden sm:flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#2D583B]" />
+                {isHindi ? "100% बिचौलिया-मुक्त • सीधा कारीगर भुगतान" : "Zero Middleman Cut • Direct Studio Settlement"}
+              </span>
+            </div>
           </div>
 
           {/* Product Cards Grid */}

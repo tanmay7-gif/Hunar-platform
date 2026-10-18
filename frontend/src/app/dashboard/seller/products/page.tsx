@@ -19,8 +19,12 @@ import {
   Sparkles,
   Search,
   Layers,
-  AlertCircle
+  AlertCircle,
+  Wifi,
+  WifiOff,
+  RefreshCw
 } from "lucide-react";
+import { useTinyFishSyncQueue } from "@tinyfish/core";
 
 export default function SellerProductsPage() {
   const {
@@ -33,6 +37,9 @@ export default function SellerProductsPage() {
     addProduct,
     showToast
   } = useHunar();
+
+  // TinyFish offline-ready sync queue for craft inventory drafts and status changes
+  const { queue, pendingCount, isOnline, isSyncing, flushQueue } = useTinyFishSyncQueue();
 
   const isHindi = language === "hi";
 
@@ -57,9 +64,7 @@ export default function SellerProductsPage() {
   const [editStock, setEditStock] = useState<number>(1);
   const [editLeadTime, setEditLeadTime] = useState<string>("");
 
-  const sellerProducts = products.filter(
-    (p) => p.sellerId === currentUser.id || p.sellerName === currentUser.name || currentUser.role === "SELLER"
-  );
+  const sellerProducts = products.filter((p) => p.sellerId === currentUser.id);
 
   const filteredProducts = sellerProducts.filter((p) => {
     const matchStatus = statusFilter === "ALL" || p.status === statusFilter;
@@ -110,7 +115,7 @@ export default function SellerProductsPage() {
                 Studio Workbench
               </span>
               <span className="text-xs text-[#E5A93B] font-mono">
-                Rohit Sharma • Khurja Ceramic Heritage
+                {currentUser.name} • {currentUser.city || "Craft Studio"}
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#FAF7F2]">
@@ -121,7 +126,39 @@ export default function SellerProductsPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5 shrink-0">
+          <div className="flex items-center gap-2.5 flex-wrap md:flex-nowrap shrink-0">
+            {/* TinyFish Offline Sync Status Indicator */}
+            <div className="flex items-center gap-2 px-3 py-2 rounded-sm text-xs font-mono border bg-[#252B35] border-[#374151]">
+              {isSyncing ? (
+                <>
+                  <RefreshCw className="w-3.5 h-3.5 text-[#E5A93B] animate-spin" />
+                  <span className="text-[#E5A93B]">Syncing {pendingCount}...</span>
+                </>
+              ) : !isOnline ? (
+                <>
+                  <WifiOff className="w-3.5 h-3.5 text-[#E5A93B]" />
+                  <span className="text-[#E5A93B]">Offline ({pendingCount} pending)</span>
+                </>
+              ) : pendingCount > 0 ? (
+                <>
+                  <Wifi className="w-3.5 h-3.5 text-[#2D583B]" />
+                  <span className="text-[#FAF7F2]">{pendingCount} local draft(s)</span>
+                  <button
+                    type="button"
+                    onClick={() => flushQueue()}
+                    className="ml-1 text-[11px] underline text-[#E5A93B] hover:text-[#FAF7F2] cursor-pointer"
+                  >
+                    Sync
+                  </button>
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#2D583B]" />
+                  <span className="text-[#FAF7F2]/80">Sync: Live</span>
+                </>
+              )}
+            </div>
+
             <button
               onClick={() => setIsAddDrawerOpen(true)}
               className="px-4 py-2.5 rounded-sm bg-[#2A313D] hover:bg-[#343C4B] text-[#FAF7F2] text-xs font-medium transition-colors duration-150 flex items-center gap-1.5 border border-[#3E4756]"
@@ -157,7 +194,9 @@ export default function SellerProductsPage() {
           </div>
           <div>
             <span className="text-[#8A7561] text-[10px] uppercase font-semibold">Patron Views:</span>
-            <p className="font-semibold text-base text-[#2D583B] mt-0.5">1,420 visits</p>
+            <p className="font-semibold text-base text-[#2D583B] mt-0.5">
+              {currentUser.id === "demo-seller-rohit" ? "1,420" : "0"} visits
+            </p>
           </div>
         </div>
       </div>
@@ -229,7 +268,40 @@ export default function SellerProductsPage() {
       </div>
 
       {/* Product Display (Grid or Table) */}
-      {viewMode === "grid" ? (
+      {sellerProducts.length === 0 ? (
+        <div className="bg-white rounded-sm border border-[#E8E2D7] shadow-[0_2px_8px_rgba(0,0,0,0.04)] p-12 text-center space-y-4">
+          <Package className="w-12 h-12 text-[#D3CBBE] mx-auto stroke-1" />
+          <div className="space-y-1.5 max-w-md mx-auto">
+            <h3 className="font-serif font-bold text-lg text-[#1E2229]">
+              {isHindi ? "अभी तक कोई कलाकृति सूचीबद्ध नहीं है" : "You haven't listed any artworks yet."}
+            </h3>
+            <p className="text-xs text-[#635C53] leading-relaxed">
+              {isHindi
+                ? "अपनी पहली रचना जोड़ने के लिए '+ New Artwork' पर टैप करें।"
+                : "You haven't listed any artworks yet. Tap '+ New Artwork' to add your first creation."}
+            </p>
+          </div>
+          <div className="pt-2 flex items-center justify-center gap-3">
+            <button
+              onClick={() => setIsAddDrawerOpen(true)}
+              className="btn-terracotta px-5 py-2.5 rounded-sm text-xs font-medium inline-flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              <span>+ New Artwork</span>
+            </button>
+          </div>
+        </div>
+      ) : filteredProducts.length === 0 ? (
+        <div className="bg-white rounded-sm border border-[#E8E2D7] shadow-[0_2px_8px_rgba(0,0,0,0.04)] p-12 text-center space-y-3">
+          <Search className="w-8 h-8 text-[#D3CBBE] mx-auto" />
+          <h3 className="font-serif font-bold text-base text-[#1E2229]">
+            {isHindi ? "कोई मेल नहीं मिला" : "No Artworks Match Your Filter"}
+          </h3>
+          <p className="text-xs text-[#635C53]">
+            {isHindi ? "फ़िल्टर साफ़ करें या अन्य खोज शब्द आज़माएं।" : "Try clearing search keywords or status filter."}
+          </p>
+        </div>
+      ) : viewMode === "grid" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredProducts.map((product) => {
             const isLive = product.status === "Live";

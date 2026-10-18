@@ -17,7 +17,7 @@ export interface HunarDatabase {
 
 const SEED_ACCOUNTS: UserAccount[] = [
   {
-    id: "user-rohit-seller",
+    id: "demo-seller-rohit",
     name: "Rohit Sharma",
     email: "rohit.potter@hunar.in",
     password: "demo_artisan_2026",
@@ -35,7 +35,7 @@ const SEED_ACCOUNTS: UserAccount[] = [
     isVerified: true,
   },
   {
-    id: "user-priya-customer",
+    id: "demo-customer-priya",
     name: "Priya Nair",
     email: "priya.patron@hunar.in",
     password: "demo_buyer_2026",
@@ -108,7 +108,7 @@ const SEED_PRODUCTS: Product[] = [
     viewsCount: 142,
     dimensions: "14in height x 6in dia",
     material: "Natural alluvial river clay",
-    sellerId: "user-rohit-seller",
+    sellerId: "demo-seller-rohit",
     sellerName: "Rohit Sharma",
     sellerCity: "Khurja / Delhi NCR",
     sellerAvatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80",
@@ -122,11 +122,11 @@ const SEED_PRODUCTS: Product[] = [
 const SEED_INQUIRIES: CustomerInquiry[] = [
   {
     id: "inq-101",
-    customerId: "user-priya-customer",
+    customerId: "demo-customer-priya",
     customerName: "Priya Nair",
     customerPhone: "+91 98711 44220",
     customerEmail: "priya.patron@hunar.in",
-    sellerId: "user-rohit-seller",
+    sellerId: "demo-seller-rohit",
     sellerName: "Rohit Sharma",
     sellerAvatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80",
     productId: "prod-101",
@@ -270,11 +270,42 @@ class DatabaseSingleton {
     return this.db.accounts;
   }
 
-  authenticate(email: string): UserAccount | undefined {
-    return this.db.accounts.find(
+  authenticate(email: string, pass?: string): UserAccount | null {
+    const account = this.db.accounts.find(
       (a) => a.email.toLowerCase() === email.toLowerCase()
     );
+    if (!account) return null;
+    if (pass && account.password && account.password !== pass) return null;
+    return account;
+  }
+
+  registerAccount(data: {
+    name: string;
+    email: string;
+    password?: string;
+    role: "SELLER" | "CUSTOMER";
+    city?: string;
+    avatarUrl?: string;
+  }): UserAccount {
+    const newUser: UserAccount = {
+      id: `user-${Date.now()}`,
+      name: data.name,
+      email: data.email.toLowerCase(),
+      password: data.password,
+      role: data.role,
+      city: data.city || "Delhi NCR",
+      avatarUrl:
+        data.avatarUrl ||
+        (data.role === "SELLER"
+          ? "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80"
+          : "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80"),
+      isVerified: true,
+      tagline: data.role === "SELLER" ? "Studio Artisan" : "Art Patron"
+    };
+    this.db.accounts.push(newUser);
+    return newUser;
   }
 }
 
 export const db = new DatabaseSingleton();
+

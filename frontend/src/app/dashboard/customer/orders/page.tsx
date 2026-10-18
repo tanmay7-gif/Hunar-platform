@@ -24,12 +24,13 @@ export default function CustomerOrdersPage() {
 
   const [statusFilter, setStatusFilter] = useState<"ALL" | "ACTIVE" | "COMPLETED">("ALL");
 
-  // Get customer inquiries
+  // Strict user isolation: Inquiries placed strictly by this authenticated patron
   const customerOrders = inquiries.filter(
     (inq) =>
       inq.customerId === currentUser.id ||
-      inq.customerEmail === currentUser.email ||
-      inq.customerId === "user-priya-customer"
+      (currentUser.email &&
+        inq.customerEmail &&
+        inq.customerEmail.toLowerCase() === currentUser.email.toLowerCase())
   );
 
   const filteredOrders = customerOrders.filter((order) => {

@@ -129,6 +129,7 @@ export interface UserAccount {
   rating?: number;
   reviewsCount?: number;
   isVerified?: boolean;
+  onboardingCompleted?: boolean;
 }
 
 export interface Product {
@@ -995,7 +996,7 @@ export const MOCK_PERSONAS: Persona[] = [
 // ==========================================
 export const DEMO_ACCOUNTS: UserAccount[] = [
   {
-    id: "user-rohit-seller",
+    id: "demo-seller-rohit",
     name: "Rohit Sharma",
     email: "rohit.potter@hunar.in",
     password: "demo_artisan_2026",
@@ -1010,10 +1011,11 @@ export const DEMO_ACCOUNTS: UserAccount[] = [
     username: "rohit-pottery",
     rating: 4.96,
     reviewsCount: 38,
-    isVerified: true
+    isVerified: true,
+    onboardingCompleted: true
   },
   {
-    id: "user-priya-customer",
+    id: "demo-customer-priya",
     name: "Priya Nair",
     email: "priya.patron@hunar.in",
     password: "demo_buyer_2026",
@@ -1023,7 +1025,8 @@ export const DEMO_ACCOUNTS: UserAccount[] = [
     bio: "Independent curator and design consultant sourcing authentic Indian folk arts, muralists, and ceramic tableware for boutique luxury hospitality and private estates. Dedicated to direct artisan equity.",
     avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80",
     phone: "+91 98711 44220",
-    whatsapp: "919871144220"
+    whatsapp: "919871144220",
+    onboardingCompleted: true
   }
 ];
 
@@ -1048,7 +1051,7 @@ export const SEED_PRODUCTS: Product[] = [
     status: "Live",
     dimensions: "Kettle: 750ml, Cups: 180ml each",
     material: "Khurja Red Clay, Non-toxic Wood Ash Glaze",
-    sellerId: "user-rohit-seller",
+    sellerId: "demo-seller-rohit",
     sellerName: "Rohit Sharma",
     sellerCity: "Khurja / Delhi NCR",
     sellerAvatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=600&q=80",
@@ -1074,7 +1077,7 @@ export const SEED_PRODUCTS: Product[] = [
     status: "Live",
     dimensions: "22 inches height x 14 inches diameter",
     material: "High-fired Porous Terracotta",
-    sellerId: "user-rohit-seller",
+    sellerId: "demo-seller-rohit",
     sellerName: "Rohit Sharma",
     sellerCity: "Khurja / Delhi NCR",
     sellerAvatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=600&q=80",
@@ -1099,7 +1102,7 @@ export const SEED_PRODUCTS: Product[] = [
     status: "Live",
     dimensions: "8.5 inches diameter, 2 inches depth",
     material: "Stoneware, Food-safe Satin Glaze",
-    sellerId: "user-rohit-seller",
+    sellerId: "demo-seller-rohit",
     sellerName: "Rohit Sharma",
     sellerCity: "Khurja / Delhi NCR",
     sellerAvatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=600&q=80",
@@ -1227,7 +1230,7 @@ export const SEED_PRODUCTS: Product[] = [
     status: "Live",
     dimensions: "26 inches height x 18 inches width",
     material: "Seasoned Teakwood, Beveled Glass Mirror",
-    sellerId: "user-rohit-seller",
+    sellerId: "demo-seller-rohit",
     sellerName: "Rohit Sharma",
     sellerCity: "Khurja / Delhi NCR",
     sellerAvatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=600&q=80",
@@ -1244,11 +1247,11 @@ export const SEED_PRODUCTS: Product[] = [
 export const SEED_INQUIRIES: CustomerInquiry[] = [
   {
     id: "inq-101",
-    customerId: "user-priya-customer",
+    customerId: "demo-customer-priya",
     customerName: "Priya Nair",
     customerPhone: "+91 98711 44220",
     customerEmail: "priya.patron@hunar.in",
-    sellerId: "user-rohit-seller",
+    sellerId: "demo-seller-rohit",
     sellerName: "Rohit Sharma",
     sellerAvatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=600&q=80",
     productId: "prod-khurja-tea-set",
@@ -1267,11 +1270,11 @@ export const SEED_INQUIRIES: CustomerInquiry[] = [
   },
   {
     id: "inq-102",
-    customerId: "user-priya-customer",
+    customerId: "demo-customer-priya",
     customerName: "Priya Nair",
     customerPhone: "+91 98711 44220",
     customerEmail: "priya.patron@hunar.in",
-    sellerId: "user-rohit-seller",
+    sellerId: "demo-seller-rohit",
     sellerName: "Rohit Sharma",
     sellerAvatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=600&q=80",
     type: "custom_commission",
@@ -1286,7 +1289,7 @@ export const SEED_INQUIRIES: CustomerInquiry[] = [
   },
   {
     id: "inq-103",
-    customerId: "user-priya-customer",
+    customerId: "demo-customer-priya",
     customerName: "Priya Nair",
     customerPhone: "+91 98711 44220",
     customerEmail: "priya.patron@hunar.in",

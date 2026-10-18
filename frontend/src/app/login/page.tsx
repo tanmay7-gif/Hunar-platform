@@ -16,18 +16,20 @@ import {
   Palette,
   ShoppingBag,
   HelpCircle,
-  Zap
+  Zap,
+  AlertCircle
 } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { language, login, currentUser, showToast } = useHunar();
+  const { language, login, loginAsDemo, currentUser, showToast } = useHunar();
   const isHindi = language === "hi";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [selectedRole, setSelectedRole] = useState<"SELLER" | "CUSTOMER">("SELLER");
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   // 1-Click Demo Profiles
   const demoSeller = {
@@ -56,36 +58,50 @@ export default function LoginPage() {
 
   const handleStandardSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    setErrorMessage("");
+
+    if (!email.trim()) {
+      setErrorMessage(isHindi ? "कृपया अपना ईमेल पता दर्ज करें।" : "Please enter your email address.");
+      return;
+    }
+
+    if (!password) {
+      setErrorMessage(isHindi ? "कृपया अपना पासवर्ड दर्ज करें।" : "Please enter your password.");
+      return;
+    }
 
     setLoading(true);
-    const user = await login(email, password);
+    const result = await login(email, password);
     setLoading(false);
 
-    if (user) {
-      if (user.role === "SELLER") {
+    if (result.success && result.user) {
+      if (result.user.role === "SELLER" && !result.user.onboardingCompleted) {
+        router.push("/onboarding");
+      } else if (result.user.role === "SELLER") {
         router.push("/dashboard/seller");
       } else {
         router.push("/dashboard/customer");
       }
+    } else {
+      setErrorMessage(
+        result.error ||
+          (isHindi
+            ? "अमान्य ईमेल या पासवर्ड। कृपया अपनी साख जांचें या नया खाता बनाएं।"
+            : "Invalid email or password. Please check your credentials or register.")
+      );
     }
   };
 
-  const handle1ClickLogin = async (preset: typeof demoSeller | typeof demoCustomer) => {
-    setEmail(preset.email);
-    setPassword(preset.password);
-    setSelectedRole(preset.role);
-
+  const handle1ClickLogin = async (presetRole: "SELLER" | "CUSTOMER") => {
+    setErrorMessage("");
     setLoading(true);
-    const user = await login(preset.email, preset.password);
+    const user = loginAsDemo(presetRole);
     setLoading(false);
 
-    if (user) {
-      if (preset.role === "SELLER") {
-        router.push("/dashboard/seller");
-      } else {
-        router.push("/dashboard/customer");
-      }
+    if (user.role === "SELLER") {
+      router.push("/dashboard/seller");
+    } else {
+      router.push("/dashboard/customer");
     }
   };
 
@@ -116,7 +132,7 @@ export default function LoginPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* SELLER / ARTISAN DEMO CARD */}
             <div
-              onClick={() => handle1ClickLogin(demoSeller)}
+              onClick={() => handle1ClickLogin("SELLER")}
               className="p-6 sm:p-7 rounded-sm bg-[#FFFFFF] border border-[#E8E2D7] hover:border-[#B4461F] cursor-pointer transition-colors duration-150 shadow-[0_2px_8px_rgba(0,0,0,0.04)] group relative overflow-hidden"
             >
               <div className="relative z-10 space-y-4">
@@ -167,7 +183,7 @@ export default function LoginPage() {
 
             {/* CUSTOMER / PATRON DEMO CARD */}
             <div
-              onClick={() => handle1ClickLogin(demoCustomer)}
+              onClick={() => handle1ClickLogin("CUSTOMER")}
               className="p-6 sm:p-7 rounded-sm bg-[#FFFFFF] border border-[#E8E2D7] hover:border-[#2D583B] cursor-pointer transition-colors duration-150 shadow-[0_2px_8px_rgba(0,0,0,0.04)] group relative overflow-hidden"
             >
               <div className="relative z-10 space-y-4">
@@ -226,7 +242,7 @@ export default function LoginPage() {
                 {isHindi ? "कस्टम ईमेल से प्रवेश करें" : "Or Sign In with Custom Credentials"}
               </h2>
               <p className="text-xs text-gray-500">
-                {isHindi ? "आप किसी भी ईमेल पते से परीक्षण सत्र शुरू कर सकते हैं।" : "Enter your email or toggle your intended role."}
+                {isHindi ? "अपने पंजीकृत खाते की साख दर्ज करें।" : "Authenticate with your registered email and password."}
               </p>
             </div>
 
@@ -261,6 +277,22 @@ export default function LoginPage() {
           </div>
 
           <form onSubmit={handleStandardSubmit} className="space-y-4">
+            {/* Inline Error Message */}
+            {errorMessage && (
+              <div className="p-3.5 rounded-sm bg-[#FFF5F5] border border-[#FCA5A5] text-[#991B1B] text-xs flex items-start gap-2.5 shadow-xs">
+                <AlertCircle className="w-4 h-4 shrink-0 text-[#DC2626] mt-0.5" />
+                <div className="space-y-1">
+                  <p className="font-semibold text-xs">{errorMessage}</p>
+                  <p className="text-[11px] text-[#7F1D1D]">
+                    {isHindi ? "खाता नहीं है? " : "Don't have an account yet? "}
+                    <Link href="/signup" className="underline font-bold hover:text-[#991B1B]">
+                      {isHindi ? "नया कारीगर या संरक्षक खाता बनाएं" : "Create a new Artisan or Patron account"}
+                    </Link>
+                  </p>
+                </div>
+              </div>
+            )}
+
             <div>
               <label className="block text-xs font-medium text-[#1A1816] mb-1 flex items-center gap-1.5">
                 <Mail className="w-3.5 h-3.5 text-[#8A7561]" />
@@ -269,9 +301,12 @@ export default function LoginPage() {
               <input
                 type="email"
                 required
-                placeholder={selectedRole === "SELLER" ? "rohit.potter@hunar.in" : "priya.patron@hunar.in"}
+                placeholder={selectedRole === "SELLER" ? "artist@studio.in" : "patron@crafts.in"}
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (errorMessage) setErrorMessage("");
+                }}
                 className="w-full px-4 py-2.5 rounded-sm bg-[#FDFCF9] border border-[#D3CBBE] text-sm text-[#1A1816] focus:outline-none focus:border-[#1E2229]"
               />
             </div>
@@ -283,30 +318,31 @@ export default function LoginPage() {
               </label>
               <input
                 type="password"
+                required
                 placeholder="••••••••••••"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (errorMessage) setErrorMessage("");
+                }}
                 className="w-full px-4 py-2.5 rounded-sm bg-[#FDFCF9] border border-[#D3CBBE] text-sm text-[#1A1816] focus:outline-none focus:border-[#1E2229]"
               />
-              <p className="text-[11px] text-gray-500 mt-1">
-                {isHindi ? "डेमो पासवर्ड: 'demo_artisan_2026' या 'demo_buyer_2026'" : "Hint: Use demo password or any credentials for simulation."}
-              </p>
             </div>
 
             <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
-              <p className="text-xs text-gray-500">
-                {isHindi ? "नया खाता बनाना है? " : "New to Hunar? "}
-                <Link href="/onboarding" className="font-semibold text-[#B4461F] hover:underline">
-                  {isHindi ? "2 मिनट में हुनर कार्ड बनाएं" : "Create Artisan Hunar Card"}
+              <p className="text-xs text-[#635C53]">
+                {isHindi ? "नए रचनाकार या संरक्षक हैं? " : "New creator or patron? "}
+                <Link href="/signup" className="font-semibold text-[#B4461F] hover:underline">
+                  {isHindi ? "खाता बनाएं (Create Account)" : "Create an account"}
                 </Link>
               </p>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full sm:w-auto px-6 py-2.5 rounded-sm bg-[#1E2229] text-white font-medium text-xs hover:bg-[#111418] transition-colors duration-150 flex items-center justify-center gap-2 shadow-xs disabled:opacity-50"
+                className="w-full sm:w-auto px-6 py-2.5 rounded-sm bg-[#1E2229] text-white font-medium text-xs hover:bg-[#111418] transition-colors duration-150 flex items-center justify-center gap-2 shadow-xs disabled:opacity-50 cursor-pointer"
               >
-                <span>{loading ? (isHindi ? "प्रवेश हो रहा है..." : "Authenticating...") : (isHindi ? "डैशबोर्ड में प्रवेश करें" : "Proceed to Dashboard")}</span>
+                <span>{loading ? (isHindi ? "प्रवेश हो रहा है..." : "Authenticating...") : (isHindi ? "डैशबोर्ड में प्रवेश करें" : "Sign In to Dashboard")}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>

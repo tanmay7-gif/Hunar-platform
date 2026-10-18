@@ -7,36 +7,47 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { email, password } = body;
 
-    if (!email) {
+    if (!email || !password) {
       return NextResponse.json(
-        { success: false, error: "Email is required" },
+        { success: false, error: "Both email and password are required" },
         { status: 400 }
       );
     }
 
-    const user = AuthService.login(email, password || "demo_pass");
+    const result = AuthService.login(email, password);
 
-    if (!user) {
+    if (!result.success || !result.user) {
       return NextResponse.json(
-        { success: false, error: "Invalid credentials" },
+        { success: false, error: result.error || "Invalid email or password" },
         { status: 401 }
       );
     }
 
+    const user = result.user;
     const response = NextResponse.json({
       success: true,
       message: `Logged in as ${user.name} (${user.role})`,
       data: user,
-      redirectTo: user.role === "SELLER" ? "/dashboard/seller" : "/dashboard/customer"
+      redirectTo:
+        user.role === "SELLER" && !user.onboardingCompleted
+          ? "/onboarding"
+          : user.role === "SELLER"
+          ? "/dashboard/seller"
+          : "/dashboard/customer"
     });
 
-    // Set cookie for session persistence
+    // Set cookies for session persistence
     response.cookies.set("hunar_user_role", user.role, {
       path: "/",
       maxAge: 60 * 60 * 24 * 7,
       sameSite: "lax"
     });
     response.cookies.set("hunar_user_id", user.id, {
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7,
+      sameSite: "lax"
+    });
+    response.cookies.set("hunar_user_name", encodeURIComponent(user.name), {
       path: "/",
       maxAge: 60 * 60 * 24 * 7,
       sameSite: "lax"

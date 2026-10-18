@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useHunar } from "@/context/HunarContext";
 import { Opportunity } from "@/lib/data";
+import { useTinyFishOpportunityRadar } from "@tinyfish/core";
 import {
   Target,
   Briefcase,
@@ -17,7 +18,9 @@ import {
   Send,
   Building2,
   ShieldCheck,
-  ArrowRight
+  ArrowRight,
+  TrendingUp,
+  Check
 } from "lucide-react";
 
 export default function SellerOpportunitiesPage() {
@@ -36,6 +39,7 @@ export default function SellerOpportunitiesPage() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedType, setSelectedType] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [onlyTopMatches, setOnlyTopMatches] = useState(false);
 
   // Apply Modal
   const [selectedOpportunity, setSelectedOpportunity] = useState<Opportunity | null>(null);
@@ -45,16 +49,22 @@ export default function SellerOpportunitiesPage() {
   const categories = ["All", "Mural Design", "Folk & Studio Commission", "Wedding & Henna", "Corporate Bulk"];
   const types = ["All", "Murals", "Commission", "Event Booking", "Exhibition", "Grant"];
 
-  const filteredOpportunities = opportunities.filter((opp) => {
-    const matchCat = selectedCategory === "All" || opp.category.toLowerCase().includes(selectedCategory.toLowerCase());
-    const matchType = selectedType === "All" || opp.type === selectedType;
-    const matchSearch =
-      searchQuery.trim() === "" ||
-      opp.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      opp.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      opp.location.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchCat && matchType && matchSearch;
-  });
+  // TinyFish Local Opportunity Radar Match Engine - instant, client-side scoring
+  const {
+    opportunities: filteredOpportunities,
+    stats: radarStats,
+    executionTimeMs
+  } = useTinyFishOpportunityRadar(
+    currentUser,
+    opportunities,
+    {
+      category: selectedCategory,
+      type: selectedType,
+      searchQuery,
+      minScore: onlyTopMatches ? 75 : 0,
+      sortByScore: true
+    }
+  );
 
   const handleOpenApply = (opp: Opportunity) => {
     setSelectedOpportunity(opp);
@@ -93,16 +103,20 @@ export default function SellerOpportunitiesPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
             <div className="px-3.5 py-2 rounded-sm bg-[#2A313D] border border-[#3E4756] text-xs">
               <span className="text-[#8A7561] block text-[10px] uppercase font-semibold">Matched Radar Gigs:</span>
               <span className="text-base font-bold text-[#E5A93B]">{opportunities.length} Live Openings</span>
+            </div>
+            <div className="px-3.5 py-2 rounded-sm bg-[#223528] border border-[#2D583B] text-xs">
+              <span className="text-[#86A890] block text-[10px] uppercase font-semibold">Top Studio Fits:</span>
+              <span className="text-base font-bold text-[#81C784]">{radarStats.topPicks} Priority Matches</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Filter and Search Bar */}
+      {/* Filter and Search Bar with TinyFish Telemetry */}
       <div className="bg-white rounded-sm p-4 border border-[#E8E2D7] shadow-[0_2px_8px_rgba(0,0,0,0.04)] space-y-4">
         <div className="flex flex-col md:flex-row items-center gap-3">
           <div className="relative flex-1 w-full">
@@ -116,11 +130,27 @@ export default function SellerOpportunitiesPage() {
             />
           </div>
 
-          <div className="flex items-center gap-2 w-full md:w-auto">
+          <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+            {/* Top Matches Filter Toggle */}
+            <button
+              onClick={() => setOnlyTopMatches(!onlyTopMatches)}
+              className={`px-3 py-2 rounded-sm text-xs font-semibold transition-colors duration-150 flex items-center gap-1.5 border ${
+                onlyTopMatches
+                  ? "bg-[#2D583B] text-white border-[#23452E]"
+                  : "bg-[#FAF7F2] text-[#635C53] border-[#E8DEC8] hover:border-[#B4461F]"
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5 text-[#E5A93B]" />
+              <span>{isHindi ? "केवल 75%+ उपयुक्त मैच" : "Top Studio Fits (75%+)"}</span>
+              <span className="text-[10px] px-1 py-0.2 rounded-xs bg-black/10">
+                {radarStats.topPicks + radarStats.recommended}
+              </span>
+            </button>
+
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
-              className="w-full md:w-44 px-3 py-2 rounded-sm border border-[#D3CBBE] text-xs bg-[#FDFCF9] text-[#1A1816] focus:outline-none focus:border-[#B4461F]"
+              className="px-3 py-2 rounded-sm border border-[#D3CBBE] text-xs bg-[#FDFCF9] text-[#1A1816] focus:outline-none focus:border-[#B4461F]"
             >
               {types.map((type) => (
                 <option key={type} value={type}>
@@ -130,98 +160,177 @@ export default function SellerOpportunitiesPage() {
             </select>
           </div>
         </div>
+
+        {/* TinyFish Radar Benchmark Strip */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#E8E2D7]/60 text-xs text-[#635C53]">
+          <div className="flex items-center gap-2">
+            <span className="font-medium text-[#1E2229]">
+              {filteredOpportunities.length} {isHindi ? "अवसर रडार पर सक्रिय" : "opportunities indexed on radar"}
+            </span>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-xs bg-[#FAF7F2] border border-[#E8DEC8] text-[10px] text-[#8A7561]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#2D583B]"></span>
+              <span className="font-mono text-[#B4461F] font-semibold">{executionTimeMs}ms</span>
+              <span>{isHindi ? "• टाइनीफिश एज रडार स्कोरिंग" : "• TinyFish zero-latency match scored"}</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 text-[11px] text-[#2D583B] font-medium">
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            <span>{isHindi ? "शून्य बिचौलिया शुल्क • सीधी क्लाइंट बोली" : "0% platform commission on direct bids"}</span>
+          </div>
+        </div>
       </div>
 
-      {/* Opportunity Cards Grid */}
+      {/* Opportunity Cards Grid with TinyFish Match Details */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {filteredOpportunities.map((opp) => {
           const hasApplied = applications.some((app) => app.opportunityId === opp.id);
+          const isTop = opp.match.isTopPick;
+          const isRec = opp.match.isRecommended;
 
           return (
             <div
               key={opp.id}
-              className="bg-white rounded-sm border border-[#E8E2D7] p-6 sm:p-7 shadow-[0_2px_8px_rgba(0,0,0,0.04)] flex flex-col justify-between space-y-6"
+              className={`bg-white rounded-sm border p-6 sm:p-7 shadow-[0_2px_8px_rgba(0,0,0,0.04)] flex flex-col justify-between space-y-5 transition-all duration-150 ${
+                isTop
+                  ? "border-[#2D583B]/60 ring-1 ring-[#2D583B]/20 bg-[#FDFAF5]"
+                  : isRec
+                  ? "border-[#B4461F]/50 ring-1 ring-[#B4461F]/10"
+                  : "border-[#E8E2D7]"
+              }`}
             >
-              <div>
-                <div className="flex items-start justify-between gap-3 mb-3">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-0.5 rounded-xs text-[10px] font-semibold uppercase tracking-wider bg-[#FAF0E6] text-[#B4461F] border border-[#F3CFBF]">
+              <div className="space-y-4">
+                {/* Header: Type, Match Badge & Proximity */}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {/* Match Score Badge */}
+                    <div
+                      className={`px-2.5 py-1 rounded-xs text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-2xs ${
+                        isTop
+                          ? "bg-[#2D583B] text-white"
+                          : isRec
+                          ? "bg-[#B4461F] text-white"
+                          : "bg-[#FAF7F2] text-[#8A7561] border border-[#E8DEC8]"
+                      }`}
+                      title="TinyFish Deterministic Craft Alignment Score"
+                    >
+                      <Sparkles className="w-3 h-3 text-[#E5A93B]" />
+                      <span>{opp.match.overallScore}% {isHindi ? "स्टूडियो मिलान" : "Studio Match"}</span>
+                    </div>
+
+                    <span className="px-2 py-0.5 rounded-xs text-[10px] font-semibold uppercase tracking-wider bg-[#FAF0E6] text-[#B4461F] border border-[#F3CFBF]">
                       {opp.type}
                     </span>
-                    <span className="text-xs text-[#D3CBBE]">•</span>
+
                     <span className="text-xs text-[#635C53] font-medium flex items-center gap-1">
                       <MapPin className="w-3.5 h-3.5 text-[#8A7561]" />
                       {opp.location}
                     </span>
                   </div>
 
-                  <span className="text-xs text-[#635C53] flex items-center gap-1">
+                  <span className="text-xs text-[#635C53] shrink-0 flex items-center gap-1">
                     <Calendar className="w-3.5 h-3.5" />
                     {opp.deadline}
                   </span>
                 </div>
 
-                <h3 className="font-serif font-bold text-lg text-[#1E2229] mb-2">
-                  {opp.title}
-                </h3>
-                <p className="text-xs text-[#635C53] line-clamp-3 leading-relaxed mb-4">
-                  {opp.description}
-                </p>
+                {/* Title & Description */}
+                <div>
+                  <h3 className="font-serif font-bold text-lg text-[#1E2229] mb-1.5 hover:text-[#B4461F] transition-colors">
+                    {opp.title}
+                  </h3>
+                  <p className="text-xs text-[#635C53] line-clamp-2 leading-relaxed">
+                    {opp.description}
+                  </p>
+                </div>
+
+                {/* TinyFish Deterministic Match Criteria Breakdown (Craft-Rooted, Non-AI) */}
+                <div className="p-3 rounded-xs bg-[#FAF7F2] border border-[#E8DEC8] space-y-2 text-[11px]">
+                  <div className="flex items-center justify-between text-[#8A7561]">
+                    <span className="font-semibold text-[#1E2229] flex items-center gap-1">
+                      <Target className="w-3 h-3 text-[#B4461F]" />
+                      <span>{isHindi ? "शिल्प विधा अनुकूलता:" : "Craft Medium Fit:"}</span>
+                    </span>
+                    <span className="text-[#B4461F] font-bold font-mono">{opp.match.factors.craftScore}%</span>
+                  </div>
+                  <p className="text-[#635C53] text-[10.5px] leading-tight">
+                    {isHindi ? opp.match.craftRationaleHindi : opp.match.craftRationale}
+                  </p>
+
+                  <div className="flex items-center justify-between text-[#8A7561] pt-1.5 border-t border-[#E8DEC8]/50">
+                    <span className="font-semibold text-[#1E2229] flex items-center gap-1">
+                      <MapPin className="w-3 h-3 text-[#2D583B]" />
+                      <span>{isHindi ? "क्षेत्रीय निकटता:" : "Regional Proximity:"}</span>
+                    </span>
+                    <span className="text-[#2D583B] font-bold font-mono">{opp.match.factors.proximityScore}%</span>
+                  </div>
+                  <p className="text-[#635C53] text-[10.5px] leading-tight">
+                    {isHindi ? opp.match.proximityRationaleHindi : opp.match.proximityRationale}
+                  </p>
+                </div>
 
                 {/* Client Box */}
-                <div className="flex items-center gap-3.5 p-3.5 rounded-sm bg-[#FAF7F2] border border-[#E8E2D7] text-xs">
+                <div className="flex items-center gap-3 p-2.5 rounded-sm bg-[#FAF7F2] border border-[#E8DEC8] text-xs">
                   <img
                     src={opp.postedByAvatar}
                     alt={opp.postedBy}
-                    className="w-9 h-9 rounded-sm object-cover aspect-square border border-[#E8E2D7] shrink-0"
+                    className="w-8 h-8 rounded-sm object-cover aspect-square border border-[#E8DEC8] shrink-0"
                   />
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-[#1A1816] truncate">{opp.postedBy}</p>
+                    <p className="font-semibold text-[#1A1816] truncate text-[11px]">{opp.postedBy}</p>
                     <p className="text-[10px] text-[#635C53] truncate">{opp.postedByOrg}</p>
                   </div>
                   {opp.postedByVerified && (
                     <span className="flex items-center gap-1 text-[10px] font-semibold text-[#2D583B] shrink-0">
                       <ShieldCheck className="w-3.5 h-3.5" />
-                      Verified
+                      Verified Patron
                     </span>
                   )}
                 </div>
 
-                {/* Requirements tags */}
-                {opp.requirements && opp.requirements.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-1.5">
-                    {opp.requirements.map((req, idx) => (
-                      <span
-                        key={idx}
-                        className="text-[10px] px-2 py-0.5 rounded-xs bg-[#FAF7F2] border border-[#E8E2D7] text-[#1A1816]"
-                      >
-                        {req}
-                      </span>
-                    ))}
-                  </div>
-                )}
+                {/* Match Tags Strip */}
+                <div className="flex flex-wrap gap-1.5">
+                  {opp.match.matchedTags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="text-[10px] font-semibold px-2 py-0.5 rounded-xs bg-[#FAF0E6] text-[#B4461F] border border-[#F3CFBF]"
+                    >
+                      ✓ {tag}
+                    </span>
+                  ))}
+                  {opp.requirements.slice(0, 1).map((req, idx) => (
+                    <span
+                      key={idx}
+                      className="text-[10px] px-2 py-0.5 rounded-xs bg-[#FAF7F2] border border-[#E8DEC8] text-[#1A1816] truncate max-w-[200px]"
+                    >
+                      {req}
+                    </span>
+                  ))}
+                </div>
               </div>
 
               {/* Payout & Action */}
-              <div className="pt-4 border-t border-[#E8E2D7] flex items-center justify-between">
+              <div className="pt-4 border-t border-[#E8DEC8] flex items-center justify-between gap-3">
                 <div>
-                  <span className="text-[10px] text-[#8A7561] uppercase font-semibold">Estimated Payout / Budget:</span>
+                  <span className="text-[10px] text-[#8A7561] uppercase font-semibold block">
+                    {isHindi ? "अनुमानित बजट / दर:" : "Estimated Payout:"}
+                  </span>
                   <p className="font-serif font-bold text-base text-[#B4461F]">
                     ₹{opp.budgetMin.toLocaleString("en-IN")} - ₹{opp.budgetMax.toLocaleString("en-IN")}
                   </p>
                 </div>
 
                 {hasApplied ? (
-                  <span className="px-3.5 py-1.5 rounded-sm bg-[#EEF4F0] text-[#2D583B] border border-[#C5DCCB] text-xs font-semibold flex items-center gap-1.5">
+                  <span className="px-3 py-1.5 rounded-sm bg-[#EEF4F0] text-[#2D583B] border border-[#C5DCCB] text-xs font-semibold flex items-center gap-1.5 shrink-0">
                     <CheckCircle2 className="w-4 h-4" />
                     <span>Quote Submitted</span>
                   </span>
                 ) : (
                   <button
                     onClick={() => handleOpenApply(opp)}
-                    className="btn-terracotta px-4 py-2 rounded-sm text-xs font-medium flex items-center gap-1.5 transition-colors duration-150"
+                    className="btn-terracotta px-4 py-2 rounded-sm text-xs font-medium flex items-center gap-1.5 transition-colors duration-150 shrink-0"
                   >
-                    <span>Express Interest / Send Quote</span>
+                    <span>Express Interest</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 )}

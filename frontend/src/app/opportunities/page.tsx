@@ -21,6 +21,7 @@ import {
   DollarSign
 } from "lucide-react";
 import { Opportunity } from "@/lib/data";
+import { useTinyFishOpportunityRadar } from "@tinyfish/core";
 
 export default function OpportunitiesPage() {
   const { language, opportunities, currentPersona, applyToOpportunity, postOpportunity } = useHunar();
@@ -57,23 +58,22 @@ export default function OpportunitiesPage() {
   const types = ["All", "Murals", "Commission", "Event Booking", "Grant", "Exhibition"];
   const locations = ["All", "Delhi NCR", "Jaipur", "Lucknow", "Remote / Pan-India"];
 
-  const filteredOpportunities = opportunities.filter((opp) => {
-    const matchCategory =
-      categoryFilter === "All" ||
-      opp.category === categoryFilter ||
-      opp.matchedCategories.includes(categoryFilter);
-    const matchType = typeFilter === "All" || opp.type === typeFilter;
-    const matchLoc =
-      locationFilter === "All" ||
-      opp.location.toLowerCase().includes(locationFilter.toLowerCase());
-    const matchSearch =
-      searchQuery.trim() === "" ||
-      opp.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      opp.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      opp.postedByOrg.toLowerCase().includes(searchQuery.toLowerCase());
-
-    return matchCategory && matchType && matchLoc && matchSearch;
-  });
+  // TinyFish Opportunity Radar Match Engine
+  const {
+    opportunities: filteredOpportunities,
+    stats: radarStats,
+    executionTimeMs
+  } = useTinyFishOpportunityRadar(
+    currentPersona,
+    opportunities,
+    {
+      category: categoryFilter,
+      type: typeFilter,
+      location: locationFilter,
+      searchQuery,
+      sortByScore: true
+    }
+  );
 
   const handleApplySubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -193,13 +193,24 @@ export default function OpportunitiesPage() {
           </div>
         </div>
 
+        {/* TinyFish Edge Radar Telemetry Strip */}
+        <div className="flex flex-wrap items-center justify-between gap-3 -mt-3 mb-6 px-1 text-xs text-[#635C53]">
+          <div className="flex items-center gap-2">
+            <span className="font-medium text-[#1E2229]">
+              {filteredOpportunities.length} {isHindi ? "अवसर रडार पर उपलब्ध" : "opportunities live on matching board"}
+            </span>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-xs bg-[#FAF7F2] border border-[#E8DEC8] text-[10px] text-[#8A7561]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#2D583B]"></span>
+              <span className="font-mono text-[#B4461F] font-semibold">{executionTimeMs}ms</span>
+              <span>{isHindi ? "• टाइनीफिश एज मैचिंग" : "• TinyFish zero-latency match scored"}</span>
+            </div>
+          </div>
+        </div>
+
         {/* Opportunities List */}
         <div className="space-y-4">
           {filteredOpportunities.map((opp) => {
-            // Check if this opportunity matches the active creator's tags
-            const isMatchedForUser =
-              currentPersona.role === "creator" &&
-              opp.matchedCategories.includes(currentPersona.artCategory || "");
+            const isMatchedForUser = opp.match.overallScore >= 70;
 
             return (
               <div
@@ -212,16 +223,18 @@ export default function OpportunitiesPage() {
               >
                 <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-5">
                   <div className="flex-1 space-y-3">
-                    {/* Header Badges */}
+                    {/* Header Badges with TinyFish Match */}
                     <div className="flex flex-wrap items-center gap-2">
-                      {isMatchedForUser && (
-                        <span className="px-2.5 py-0.5 rounded-full bg-[#C85A32] text-white text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 shadow-xs">
-                          <Sparkles className="w-3 h-3 text-[#E5A93B]" />
-                          <span>
-                            {isHindi ? "आपके लिए उपयुक्त मैच" : "Matched For Your Profile"}
-                          </span>
-                        </span>
-                      )}
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 shadow-xs ${
+                        opp.match.isTopPick 
+                          ? "bg-[#2D583B] text-white" 
+                          : opp.match.isRecommended 
+                          ? "bg-[#C85A32] text-white" 
+                          : "bg-[#FAF7F2] text-[#8A7561] border border-[#E8DEC8]"
+                      }`}>
+                        <Sparkles className="w-3 h-3 text-[#E5A93B]" />
+                        <span>{opp.match.overallScore}% {isHindi ? "शिल्प मिलान" : "Craft Match"}</span>
+                      </span>
 
                       <span className="px-2.5 py-0.5 rounded-full bg-[#FAF0E6] text-[#A33F1C] border border-[#F3CFBF] text-[11px] font-bold">
                         {isHindi ? opp.typeHindi : opp.type}

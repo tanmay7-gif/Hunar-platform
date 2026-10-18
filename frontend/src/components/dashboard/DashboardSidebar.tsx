@@ -49,38 +49,29 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
   const isSellerPath = pathname.startsWith("/dashboard/seller");
   const isSeller = isSellerPath ? true : isCustomerPath ? false : currentUser.role === "SELLER";
 
-  // Active persona display info
-  const activeProfile = isSeller
-    ? {
-        name: "Rohit Sharma",
-        city: "Khurja / Delhi NCR",
-        tagline: "Master Ceramicist & Terracotta Sculptor",
-        avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=600&q=80"
-      }
-    : {
-        name: "Priya Nair",
-        city: "South Delhi / PAN-India",
-        tagline: "Art Collector & Interior Curator",
-        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80"
-      };
+  // Active user profile display info (dynamic for authenticated accounts)
+  const activeProfile = {
+    name: currentUser.name,
+    city: currentUser.city || (isSeller ? "Craft Studio" : "PAN-India Patron"),
+    tagline:
+      currentUser.tagline ||
+      (isSeller ? "Artisan Creator & Studio Master" : "Art Patron & Collector"),
+    avatar:
+      currentUser.avatarUrl ||
+      `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(
+        currentUser.name || "User"
+      )}&backgroundColor=b4461f,2d583b`
+  };
 
   // Counts for live badges
-  const sellerProductsCount = products.filter(
-    (p) => p.sellerId === currentUser.id || currentUser.id === "user-rohit-seller"
-  ).length;
-  const sellerInquiriesCount = inquiries.filter(
-    (i) => i.sellerId === currentUser.id || i.sellerId === "user-rohit-seller"
-  ).length;
+  const sellerProductsCount = products.filter((p) => p.sellerId === currentUser.id).length;
+  const sellerInquiriesCount = inquiries.filter((i) => i.sellerId === currentUser.id).length;
   const pendingInquiriesCount = inquiries.filter(
-    (i) =>
-      (i.sellerId === currentUser.id || i.sellerId === "user-rohit-seller") &&
-      i.status === "Under Review"
+    (i) => i.sellerId === currentUser.id && i.status === "Under Review"
   ).length;
   const openGigsCount = opportunities.length;
 
-  const customerOrdersCount = inquiries.filter(
-    (i) => i.customerId === currentUser.id || i.customerId === "user-priya-customer"
-  ).length;
+  const customerOrdersCount = inquiries.filter((i) => i.customerId === currentUser.id).length;
   const customerSavedCount = savedProductIds.length + savedCreatorIds.length;
 
   // Cleaned Seller Navigation Items

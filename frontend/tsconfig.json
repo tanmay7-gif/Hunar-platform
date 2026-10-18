@@ -19,7 +19,9 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@tinyfish/core": ["./src/lib/tinyfish"],
+      "@tinyfish/core/*": ["./src/lib/tinyfish/*"]
     }
   },
   "include": [

@@ -70,6 +70,20 @@ function getDatabase() {
   if (!global.__HUNAR_DB__.accounts) global.__HUNAR_DB__.accounts = [...DEMO_ACCOUNTS];
   if (!global.__HUNAR_DB__.products) global.__HUNAR_DB__.products = [...SEED_PRODUCTS];
   if (!global.__HUNAR_DB__.inquiries) global.__HUNAR_DB__.inquiries = [...SEED_INQUIRIES];
+
+  // Migrate any legacy demo IDs from earlier hot reloads
+  global.__HUNAR_DB__.products.forEach((p) => {
+    if (p.sellerId === "user-rohit-seller") p.sellerId = "demo-seller-rohit";
+  });
+  global.__HUNAR_DB__.inquiries.forEach((inq) => {
+    if (inq.sellerId === "user-rohit-seller") inq.sellerId = "demo-seller-rohit";
+    if (inq.customerId === "user-priya-customer") inq.customerId = "demo-customer-priya";
+  });
+  global.__HUNAR_DB__.accounts.forEach((acc) => {
+    if (acc.id === "user-rohit-seller") acc.id = "demo-seller-rohit";
+    if (acc.id === "user-priya-customer") acc.id = "demo-customer-priya";
+  });
+
   return global.__HUNAR_DB__;
 }
 
@@ -519,7 +533,7 @@ export const ProductService = {
       status: (data.status as Product["status"]) || "Live",
       dimensions: data.dimensions || "Custom handcrafted dimensions",
       material: data.material || "Natural raw materials",
-      sellerId: data.sellerId || "user-rohit-seller",
+      sellerId: data.sellerId || "demo-seller-rohit",
       sellerName: data.sellerName || "Rohit Sharma",
       sellerCity: data.sellerCity || "Khurja / Delhi NCR",
       sellerAvatar:
@@ -584,11 +598,11 @@ export const InquiryService = {
     const db = getDatabase();
     const newInquiry: CustomerInquiry = {
       id: `inq-${Date.now()}`,
-      customerId: data.customerId || "user-priya-customer",
+      customerId: data.customerId || "demo-customer-priya",
       customerName: data.customerName || "Priya Nair",
       customerPhone: data.customerPhone || "+91 98711 44220",
       customerEmail: data.customerEmail || "priya.patron@hunar.in",
-      sellerId: data.sellerId || "user-rohit-seller",
+      sellerId: data.sellerId || "demo-seller-rohit",
       sellerName: data.sellerName || "Rohit Sharma",
       sellerAvatar:
         data.sellerAvatar ||
@@ -633,43 +647,141 @@ export const InquiryService = {
 // ====================================================
 // 8. AUTHENTICATION & DEMO ACCOUNTS
 // ====================================================
+// 8. AUTHENTICATION & USER MANAGEMENT
+// ====================================================
+export interface AuthResult {
+  success: boolean;
+  user?: UserAccount;
+  error?: string;
+}
+
 export const AuthService = {
-  getDemoAccounts: () => {
+  getDemoAccounts: (): UserAccount[] => {
     const db = getDatabase();
     return db.accounts;
   },
 
-  login: (email: string, pass: string) => {
+  getUserById: (id: string): UserAccount | undefined => {
+    const db = getDatabase();
+    return db.accounts.find((a) => a.id === id);
+  },
+
+  getUserByEmail: (email: string): UserAccount | undefined => {
+    const db = getDatabase();
+    const normalizedEmail = email.trim().toLowerCase();
+    return db.accounts.find((a) => a.email.toLowerCase() === normalizedEmail);
+  },
+
+  login: (email: string, pass: string): AuthResult => {
     const db = getDatabase();
     const normalizedEmail = email.trim().toLowerCase();
     const user = db.accounts.find((a) => a.email.toLowerCase() === normalizedEmail);
 
     if (!user) {
-      // If not in demo accounts, create a flexible session for any testing email
-      const isSeller = normalizedEmail.includes("artisan") || normalizedEmail.includes("seller") || normalizedEmail.includes("potter");
-      const fallbackUser: UserAccount = {
-        id: `user-${Date.now()}`,
-        name: isSeller ? "Studio Artisan" : "Patron Member",
-        email: normalizedEmail,
-        role: isSeller ? "SELLER" : "CUSTOMER",
-        city: "Delhi NCR",
-        avatarUrl: isSeller
-          ? "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&auto=format&fit=crop&q=80"
-          : "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80"
+      return {
+        success: false,
+        error: "No account found with this email. Please check your credentials or register."
       };
-      db.accounts.push(fallbackUser);
-      return fallbackUser;
     }
 
     if (user.password && user.password !== pass) {
-      return null;
+      return {
+        success: false,
+        error: "Invalid email or password."
+      };
     }
 
-    return user;
+    return {
+      success: true,
+      user
+    };
   },
 
-  getUserById: (id: string) => {
+  register: (userData: {
+    name: string;
+    email: string;
+    password: string;
+    role: "SELLER" | "CUSTOMER";
+    city?: string;
+    avatarUrl?: string;
+  }): AuthResult => {
     const db = getDatabase();
-    return db.accounts.find((a) => a.id === id);
+    const normalizedEmail = userData.email.trim().toLowerCase();
+
+    // Check if user already exists
+    const existing = db.accounts.find((a) => a.email.toLowerCase() === normalizedEmail);
+    if (existing) {
+      return {
+        success: false,
+        error: "An account with this email already exists. Please sign in instead."
+      };
+    }
+
+    const generatedUuid =
+      typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : `user-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+
+    const initialsFallback = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(
+      userData.name.trim()
+    )}&backgroundColor=b4461f,2d583b`;
+
+    const newUser: UserAccount = {
+      id: generatedUuid,
+      name: userData.name.trim(),
+      email: normalizedEmail,
+      password: userData.password,
+      role: userData.role,
+      city: userData.city?.trim() || "Delhi NCR",
+      avatarUrl: userData.avatarUrl || initialsFallback,
+      isVerified: true,
+      tagline: userData.role === "SELLER" ? "Studio Artisan & Craftsman" : "Art Patron & Collector",
+      onboardingCompleted: userData.role === "SELLER" ? false : true
+    };
+
+    db.accounts.push(newUser);
+
+    // If new user is a seller, also ensure they have a creator profile registered
+    if (newUser.role === "SELLER") {
+      const username = newUser.email.split("@")[0].replace(/[^a-zA-Z0-9_-]/g, "");
+      const newCreator: Creator = {
+        id: `creator-${newUser.id}`,
+        name: newUser.name,
+        nameHindi: newUser.name,
+        username,
+        phone: "+91 98765 43210",
+        whatsapp: "919876543210",
+        city: newUser.city,
+        state: "India",
+        primaryArtForm: "Crafts & Studio Art",
+        artFormHindi: "शिल्प एवं स्टूडियो कला",
+        languages: ["Hindi", "English"],
+        experienceLevel: "Artisan Studio",
+        bio: `Verified creator studio on Hunar. Based in ${newUser.city}.`,
+        bioHindi: `हुनर पर सत्यापित शिल्प स्टूडियो। ${newUser.city} में स्थित।`,
+        avatarUrl: newUser.avatarUrl,
+        coverImage: "https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=1200&auto=format&fit=crop&q=80",
+        isVerified: true,
+        minPricing: 1500,
+        hourlyRate: 500,
+        unitPricingLabel: "Commissions from ₹1,500",
+        sixMonthIncomeGoal: 35000,
+        currentMonthlyIncome: 15000,
+        rating: 5.0,
+        reviewsCount: 1,
+        completedGigsCount: 1,
+        skills: ["Handcrafted", "Studio Commission"],
+        badges: ["New Creator", "Direct Artisan"],
+        whatsappInquiryText: "Namaste! I saw your Hunar Card. I would like to inquire about your craft.",
+        portfolioImages: []
+      };
+      db.creators.push(newCreator);
+    }
+
+    return {
+      success: true,
+      user: newUser
+    };
   }
 };
+

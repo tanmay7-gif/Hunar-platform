@@ -53,7 +53,7 @@ export function ApiExplorerModal() {
     },
     {
       method: "GET",
-      path: "/api/inquiries?customerId=user-priya-customer",
+      path: "/api/inquiries?customerId=demo-customer-priya",
       description: "Fetch customer commission tracker orders and status updates"
     },
     {
@@ -61,8 +61,8 @@ export function ApiExplorerModal() {
       path: "/api/inquiries",
       description: "Submit custom commission brief to artisan studio",
       payload: {
-        customerId: "user-priya-customer",
-        sellerId: "user-rohit-seller",
+        customerId: "demo-customer-priya",
+        sellerId: "demo-seller-rohit",
         requirements: "2 oversized unglazed terracotta floor urns for dining terrace.",
         proposedBudget: 9500,
         timeline: "Within 10 days"

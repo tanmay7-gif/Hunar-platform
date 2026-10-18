@@ -601,27 +601,27 @@ export default function OnboardingPage() {
 
                   <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
                     <Link
+                      href="/dashboard/seller"
+                      className="px-6 py-3 rounded-sm bg-[#1E2229] hover:bg-[#111418] text-white font-medium text-xs shadow-sm transition-colors duration-150 flex items-center gap-2"
+                    >
+                      <span>{isHindi ? "स्टूडियो डैशबोर्ड पर जाएं" : "Go to Studio Dashboard"}</span>
+                      <ArrowRight className="w-4 h-4 text-[#E5A93B]" />
+                    </Link>
+
+                    <Link
                       href={`/u/${createdUsername}`}
-                      className="px-6 py-3 rounded-xl bg-[#C85A32] text-white font-bold text-xs shadow-md hover:bg-[#B94F28] transition-all flex items-center gap-2"
+                      className="px-6 py-3 rounded-sm bg-[#B4461F] text-white font-medium text-xs shadow-sm hover:bg-[#963715] transition-colors duration-150 flex items-center gap-2"
                     >
                       <CreditCard className="w-4 h-4" />
                       <span>{isHindi ? "अपना हुनर कार्ड खोलें" : "Open My Hunar Card"}</span>
                     </Link>
 
                     <Link
-                      href="/opportunities"
-                      className="px-6 py-3 rounded-xl bg-[#FAF5EC] border border-[#DACABA] text-[#1E2229] font-bold text-xs hover:bg-[#F4ECE0] transition-all flex items-center gap-2"
+                      href="/dashboard/seller/opportunities"
+                      className="px-6 py-3 rounded-sm bg-[#FAF5EC] border border-[#DACABA] text-[#1E2229] font-medium text-xs hover:bg-[#F4ECE0] transition-colors duration-150 flex items-center gap-2"
                     >
-                      <Briefcase className="w-4 h-4 text-[#C85A32]" />
-                      <span>{isHindi ? "मैच किए गए अवसर देखें" : "View Matched Opportunities"}</span>
-                    </Link>
-
-                    <Link
-                      href="/roadmap"
-                      className="px-6 py-3 rounded-xl bg-[#FFFDF9] border border-[#DACABA] text-[#1E2229] font-bold text-xs hover:bg-[#F4ECE0] transition-all flex items-center gap-2"
-                    >
-                      <Sparkles className="w-4 h-4 text-[#E5A93B]" />
-                      <span>{isHindi ? "महीना 1 रोडमैप टास्क" : "See Month 1 Roadmap"}</span>
+                      <Briefcase className="w-4 h-4 text-[#B4461F]" />
+                      <span>{isHindi ? "मैच किए गए अवसर देखें" : "View Matched Gigs"}</span>
                     </Link>
                   </div>
                 </div>

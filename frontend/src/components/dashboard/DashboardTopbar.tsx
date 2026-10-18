@@ -51,7 +51,7 @@ export function DashboardTopbar({
 
   const totalSavedCount = savedProductIds.length + savedCreatorIds.length;
   const activeOrdersCount = inquiries.filter(
-    (i) => i.customerId === currentUser.id || i.customerId === "user-priya-customer"
+    (i) => i.customerId === currentUser.id
   ).length;
 
   const handleRoleToggle = (newRole: "SELLER" | "CUSTOMER") => {
@@ -70,7 +70,7 @@ export function DashboardTopbar({
         return {
           badge: "Artisan Studio Hub",
           title: "Studio Overview & Pipeline",
-          subtitle: "Rohit Sharma • Khurja Ceramic Heritage Cluster"
+          subtitle: `${currentUser.name} • ${currentUser.city || "Craft Studio"}`
         };
       }
       if (pathname.startsWith("/dashboard/seller/products/new")) {

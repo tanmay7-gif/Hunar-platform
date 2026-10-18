@@ -51,21 +51,17 @@ export default function SellerStudioDashboard() {
   const [newStatus, setNewStatus] = useState<CustomerInquiry["status"]>("Crafting in Progress");
   const [statusNote, setStatusNote] = useState("");
 
-  // Filter products belonging to this seller (or all for demo artisan Rohit)
-  const sellerProducts = products.filter(
-    (p) => p.sellerId === currentUser.id || p.sellerName === currentUser.name || currentUser.role === "SELLER"
-  );
+  // Strict user isolation: Filter products strictly belonging to this authenticated artisan
+  const sellerProducts = products.filter((p) => p.sellerId === currentUser.id);
 
-  // Inquiries for this artisan
-  const sellerInquiries = inquiries.filter(
-    (inq) => inq.sellerId === currentUser.id || inq.sellerName === currentUser.name || currentUser.role === "SELLER"
-  );
+  // Inquiries strictly addressed to this authenticated artisan
+  const sellerInquiries = inquiries.filter((inq) => inq.sellerId === currentUser.id);
 
   // Studio Metrics Overview Calculation
   const totalCatalogValue = sellerProducts.reduce((acc, p) => acc + p.price * p.stock, 0);
   const activeListingsCount = sellerProducts.filter((p) => p.status === "Live").length;
   const totalInquiriesCount = sellerInquiries.length;
-  const simulatedViewsCount = 1420;
+  const simulatedViewsCount = currentUser.id === "demo-seller-rohit" ? 1420 : 0;
 
   const handleStatusUpdate = (inquiryId: string) => {
     updateInquiryStatus(inquiryId, newStatus, statusNote || `Status updated to ${newStatus}`);
