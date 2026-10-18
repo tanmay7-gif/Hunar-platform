@@ -1,0 +1,193 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --terracotta: #C85A32;
+    --terracotta-dark: #A33F1C;
+    --terracotta-light: #FBF0EB;
+    --terracotta-glow: rgba(200, 90, 50, 0.12);
+    
+    --indigo-kohl: #1E2229;
+    --kohl-deep: #14171C;
+    --kohl-muted: #535A66;
+    --kohl-light: #8E96A4;
+
+    --parchment: #FDFBF7;
+    --parchment-deep: #F5EFE6;
+    --parchment-border: #E8DEC8;
+    --parchment-subtle: #FAF6ED;
+
+    --turmeric: #E5A93B;
+    --turmeric-dark: #C68A20;
+    --turmeric-light: #FDF6E2;
+
+    --sage: #4E6E58;
+    --sage-light: #EBF2ED;
+
+    --font-serif: "Cinzel", Georgia, Cambria, serif;
+    --font-sans: "DM Sans", "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  body {
+    background-color: #F9F6F0;
+    color: #1A1816;
+    font-family: var(--font-sans);
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, .font-serif-craft {
+    font-family: var(--font-serif);
+    letter-spacing: -0.015em;
+  }
+}
+
+/* Artisanal tactile accents */
+.bg-parchment {
+  background-color: #FAF7F2;
+}
+
+.bg-parchment-card {
+  background-color: #FFFFFF;
+  border: 1px solid #E8E2D7;
+}
+
+.border-artisan {
+  border-color: #E8DFD0;
+}
+
+.text-terracotta {
+  color: #C85A32;
+}
+
+.bg-terracotta {
+  background-color: #C85A32;
+}
+
+.bg-terracotta-dark {
+  background-color: #A33F1C;
+}
+
+.text-kohl {
+  color: #1E2229;
+}
+
+.text-turmeric {
+  color: #E5A93B;
+}
+
+.badge-craft {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid #E8DFD0;
+  background-color: #FAF6ED;
+  color: #1E2229;
+}
+
+.badge-terracotta {
+  background-color: #FBF0EB;
+  color: #A33F1C;
+  border: 1px solid #F3CFBF;
+}
+
+.badge-turmeric {
+  background-color: #FEF7E6;
+  color: #9E6B0E;
+  border: 1px solid #F6DFA3;
+}
+
+.badge-sage {
+  background-color: #EEF4F0;
+  color: #2D583B;
+  border: 1px solid #C5DCCB;
+}
+
+/* Artisanal paper card styling */
+.craft-card {
+  background-color: #FFFFFF;
+  border: 1px solid #E8E2D7;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border-radius: 2px;
+  transition: border-color 0.15s ease-out, box-shadow 0.15s ease-out;
+}
+
+.craft-card:hover {
+  border-color: #D3CBBE;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* Tactile button */
+.btn-terracotta {
+  background-color: #1E2229;
+  color: #FAF7F2;
+  font-weight: 500;
+  border-radius: 2px;
+  padding: 0.625rem 1.25rem;
+  transition: background-color 0.15s ease-out;
+}
+
+.btn-terracotta:hover {
+  background-color: #111418;
+}
+
+.btn-terracotta:active {
+  background-color: #000000;
+}
+
+/* Secondary craft button */
+.btn-craft-secondary {
+  background-color: transparent;
+  border: 1px solid #D9D0C3;
+  color: #2D2A26;
+  font-weight: 500;
+  border-radius: 2px;
+  padding: 0.625rem 1.25rem;
+  transition: background-color 0.15s ease-out, border-color 0.15s ease-out;
+}
+
+.btn-craft-secondary:hover {
+  background-color: #EFEAE1;
+  border-color: #C8B8A6;
+}
+
+.btn-craft-secondary:active {
+  background-color: #E5DFD4;
+}
+
+/* Hunar Stamp / Wax Seal look */
+.hunar-seal {
+  position: relative;
+  border: 2px dashed #C85A32;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+/* Dual language small tag */
+.lang-badge {
+  font-family: var(--font-sans);
+  letter-spacing: 0.05em;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  color: #C85A32;
+  font-weight: 700;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #F4EFE6;
+}
+::-webkit-scrollbar-thumb {
+  background: #D7CABB;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #C85A32;
+}

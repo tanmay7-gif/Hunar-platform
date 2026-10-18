@@ -1,0 +1,140 @@
+// Prisma schema for Hunar - Grassroots Artist Monetization Platform
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id             String        @id @default(uuid())
+  name           String
+  email          String?       @unique
+  passwordHash   String?
+  username       String        @unique
+  phone          String?
+  whatsapp       String?
+  city           String
+  primaryArtForm String?       // Visual Arts, Madhubani/Folk Craft, Bridal Mehndi, Murals, Pottery, Performing Arts
+  languages      String?       // "Hindi, English, Maithili"
+  experienceLevel String?      // Beginner, Emerging (1-3 yrs), Established (3-7 yrs), Master Artisan
+  bio            String?
+  avatarUrl      String?
+  portfolioImages String?      // JSON array string with title, image url, medium, price
+  isVerified     Boolean       @default(false)
+  minPricing     Int           @default(1500)
+  hourlyRate     Int?          @default(500)
+  role           String        @default("SELLER") // "SELLER" | "CUSTOMER"
+  sixMonthIncomeGoal Int?      @default(35000)
+  rating         Float         @default(4.9)
+  reviewsCount   Int           @default(18)
+  createdAt      DateTime      @default(now())
+
+  products       Product[]     // Defined for SELLER
+  inquiriesSent  Inquiry[]     @relation("CustomerInquiries")
+  inquiriesRecv  Inquiry[]     @relation("SellerInquiries")
+  applications   Application[]
+  mentorships    MentorshipSession[] @relation("MentorSessions")
+}
+
+model Product {
+  id             String        @id @default(uuid())
+  title          String
+  titleHindi     String?
+  description    String
+  price          Float
+  category       String        // "Terracotta & Pottery", "Madhubani Folk Art", "Handloom & Textiles", "Mural Design", "Bridal Mehndi"
+  images         String        // JSON array of image URLs
+  leadTime       String        // e.g. "Ready to ship", "Made to order: 5 days"
+  stock          Int           @default(1)
+  deliveryFormat String        @default("Physical Artwork") // "Physical Artwork" | "On-site Commission"
+  status         String        @default("Live") // "Live" | "Draft" | "Sold Out"
+  dimensions     String?
+  material       String?
+  sellerId       String
+  seller         User          @relation(fields: [sellerId], references: [id])
+  inquiries      Inquiry[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+model Inquiry {
+  id             String        @id @default(uuid())
+  customerId     String
+  customer       User          @relation("CustomerInquiries", fields: [customerId], references: [id])
+  sellerId       String
+  seller         User          @relation("SellerInquiries", fields: [sellerId], references: [id])
+  productId      String?
+  product        Product?      @relation(fields: [productId], references: [id])
+  type           String        @default("custom_commission") // "product_order" | "custom_commission"
+  requirements   String
+  proposedBudget Float
+  timeline       String
+  status         String        @default("Under Review") // "Under Review" | "Crafting in Progress" | "Dispatched" | "Completed"
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+model Opportunity {
+  id           String          @id @default(cuid())
+  title        String
+  description  String
+  category     String          // Visual Arts, Folk Craft, Mehndi, Murals, Pottery, Performing
+  type         String          // Commission, Murals, Event Booking, Exhibition, Grant
+  location     String          // e.g. "Delhi NCR", "Jaipur", "Lucknow", "Remote"
+  budgetMin    Int
+  budgetMax    Int
+  deadline     String
+  postedBy     String
+  postedByOrg  String?
+  postedByAvatar String?
+  requirements String          // bullet points or description
+  tags         String          // comma-separated tags: "Wall Art, Cafe, Acrylic"
+  featured     Boolean         @default(false)
+  createdAt    DateTime        @default(now())
+
+  applications Application[]
+}
+
+model Application {
+  id                 String      @id @default(cuid())
+  opportunityId      String
+  creatorId          String
+  proposedRate       Int
+  pitch              String
+  portfolioAttachment String?
+  status             String      @default("pending") // pending, shortlisted, accepted
+  createdAt          DateTime    @default(now())
+
+  opportunity        Opportunity @relation(fields: [opportunityId], references: [id])
+  creator            User        @relation(fields: [creatorId], references: [id])
+}
+
+model RoadmapStep {
+  id              String   @id @default(cuid())
+  artForm         String   // Murals, Pottery, Madhubani Folk Craft, Bridal Mehndi, Performing Arts
+  timeframe       String   // "Month 1: Groundwork & Pricing", "Month 3: First 5 Clients", "Month 6: Scaled Income"
+  milestones      String   // JSON array of milestone tasks with descriptions
+  toolsToLearn    String   // comma-separated or JSON
+  incomeBenchmark String   // e.g. "₹12,000 - ₹18,000 / mo"
+  stageNumber     Int      // 1, 2, or 3
+}
+
+model MentorshipSession {
+  id               String   @id @default(cuid())
+  mentorId         String
+  title            String
+  format           String   // 1-on-1 Portfolio Review, Pricing Strategy, Technique Workshop, Bulk Export Strategy
+  price            Int
+  durationMinutes  Int      @default(30)
+  nextAvailableSlot String  // e.g. "Tomorrow at 4:30 PM", "Thursday 11:00 AM"
+  mentorName       String
+  mentorRole       String
+  mentorAvatar     String
+  mentorRating     Float    @default(5.0)
+  topics           String   // JSON string of focus bullets
+
+  mentor           User?    @relation("MentorSessions", fields: [mentorId], references: [id])
+}
