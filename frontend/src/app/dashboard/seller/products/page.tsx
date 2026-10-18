@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useHunar } from "@/context/HunarContext";
+import { useLanguage } from "@/context/LanguageContext";
 import { Product } from "@/lib/data";
 import {
   Package,
@@ -30,18 +31,15 @@ export default function SellerProductsPage() {
   const {
     products,
     currentUser,
-    language,
     toggleProductStatus,
     deleteProduct,
     updateProduct,
     addProduct,
     showToast
   } = useHunar();
-
-  // TinyFish offline-ready sync queue for craft inventory drafts and status changes
+  const { t, currentLanguage } = useLanguage();
+  const isHindi = currentLanguage === "hi";
   const { queue, pendingCount, isOnline, isSyncing, flushQueue } = useTinyFishSyncQueue();
-
-  const isHindi = language === "hi";
 
   // Filter & Search
   const [searchQuery, setSearchQuery] = useState("");
@@ -273,12 +271,10 @@ export default function SellerProductsPage() {
           <Package className="w-12 h-12 text-[#D3CBBE] mx-auto stroke-1" />
           <div className="space-y-1.5 max-w-md mx-auto">
             <h3 className="font-serif font-bold text-lg text-[#1E2229]">
-              {isHindi ? "अभी तक कोई कलाकृति सूचीबद्ध नहीं है" : "You haven't listed any artworks yet."}
+              {t("nav.inventory")}
             </h3>
             <p className="text-xs text-[#635C53] leading-relaxed">
-              {isHindi
-                ? "अपनी पहली रचना जोड़ने के लिए '+ New Artwork' पर टैप करें।"
-                : "You haven't listed any artworks yet. Tap '+ New Artwork' to add your first creation."}
+              {t("dashboard.emptyInventory")}
             </p>
           </div>
           <div className="pt-2 flex items-center justify-center gap-3">
@@ -287,7 +283,7 @@ export default function SellerProductsPage() {
               className="btn-terracotta px-5 py-2.5 rounded-sm text-xs font-medium inline-flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
-              <span>+ New Artwork</span>
+              <span>{t("cta.addNewProduct")}</span>
             </button>
           </div>
         </div>

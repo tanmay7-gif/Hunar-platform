@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useHunar } from "@/context/HunarContext";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   Bookmark,
   Heart,
@@ -23,11 +24,10 @@ export default function SavedCollectionsPage() {
     savedProductIds,
     toggleSaveProduct,
     savedCreatorIds,
-    toggleSaveCreator,
-    language
+    toggleSaveCreator
   } = useHunar();
-
-  const isHindi = language === "hi";
+  const { t, currentLanguage } = useLanguage();
+  const isHindi = currentLanguage === "hi";
   const [activeTab, setActiveTab] = useState<"artworks" | "artisans">("artworks");
 
   const savedProducts = products.filter((p) => savedProductIds.includes(p.id));
@@ -160,15 +160,15 @@ export default function SavedCollectionsPage() {
           ) : (
             <div className="text-center py-16 bg-white rounded-sm border border-[#E8DEC8] p-8 space-y-3 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
               <Bookmark className="w-10 h-10 text-gray-400 mx-auto" />
-              <h3 className="font-serif font-bold text-lg text-[#1E2229]">No Saved Artworks Yet</h3>
+              <h3 className="font-serif font-bold text-lg text-[#1E2229]">{t("nav.wishlist")}</h3>
               <p className="text-xs text-[#635C53] max-w-md mx-auto">
-                Explore the craft bazaar and bookmark authentic pieces you love for your collection moodboard.
+                {t("dashboard.emptyWishlist")}
               </p>
               <Link
                 href="/dashboard/customer"
                 className="inline-block mt-2 px-4 py-2 rounded-sm bg-[#2D583B] text-white text-xs font-medium hover:bg-[#23452E] transition-colors duration-150"
               >
-                Go to Craft Bazaar
+                {t("cta.browseArt")}
               </Link>
             </div>
           )}

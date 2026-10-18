@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useHunar } from "@/context/HunarContext";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   Sparkles,
   ArrowRight,
@@ -22,8 +23,9 @@ import {
 
 export default function LoginPage() {
   const router = useRouter();
-  const { language, login, loginAsDemo, currentUser, showToast } = useHunar();
-  const isHindi = language === "hi";
+  const { login, loginAsDemo, currentUser, showToast } = useHunar();
+  const { t, currentLanguage } = useLanguage();
+  const isHindi = currentLanguage === "hi";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -114,12 +116,10 @@ export default function LoginPage() {
             {isHindi ? "भूमिका आधारित प्रवेश" : "Role-Based Studio & Patron Access"}
           </p>
           <h1 className="text-3xl sm:text-4xl font-serif font-bold text-[#1E2229]">
-            {isHindi ? "हुनर मंच में प्रवेश करें" : "Welcome Back to Hunar"}
+            {t("auth.loginTitle")}
           </h1>
           <p className="text-xs sm:text-sm text-[#635C53] mt-2">
-            {isHindi
-              ? "कारीगर स्टूडियो डैशबोर्ड या कला संरक्षक डिस्कवरी फीड में 1-क्लिक से प्रवेश करें।"
-              : "Access the Seller Studio Workspace or Customer Discovery Feed with instant 1-click demo presets."}
+            Access the Seller Studio Workspace or Customer Discovery Feed with instant vernacular localization.
           </p>
         </div>
 
@@ -258,7 +258,7 @@ export default function LoginPage() {
                 }`}
               >
                 <Store className="w-3.5 h-3.5" />
-                <span>{isHindi ? "कारीगर (Seller)" : "Artisan (Seller)"}</span>
+                <span>{t("auth.seller")}</span>
               </button>
 
               <button
@@ -271,7 +271,7 @@ export default function LoginPage() {
                 }`}
               >
                 <Heart className="w-3.5 h-3.5" />
-                <span>{isHindi ? "संरक्षक (Customer)" : "Patron (Customer)"}</span>
+                <span>{t("auth.customer")}</span>
               </button>
             </div>
           </div>
@@ -296,7 +296,7 @@ export default function LoginPage() {
             <div>
               <label className="block text-xs font-medium text-[#1A1816] mb-1 flex items-center gap-1.5">
                 <Mail className="w-3.5 h-3.5 text-[#8A7561]" />
-                <span>{isHindi ? "ईमेल पता:" : "Email Address:"}</span>
+                <span>{t("auth.email")}</span>
               </label>
               <input
                 type="email"
@@ -314,7 +314,7 @@ export default function LoginPage() {
             <div>
               <label className="block text-xs font-medium text-[#1A1816] mb-1 flex items-center gap-1.5">
                 <Lock className="w-3.5 h-3.5 text-[#8A7561]" />
-                <span>{isHindi ? "पासवर्ड:" : "Password:"}</span>
+                <span>{t("auth.password")}</span>
               </label>
               <input
                 type="password"
@@ -331,9 +331,9 @@ export default function LoginPage() {
 
             <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
               <p className="text-xs text-[#635C53]">
-                {isHindi ? "नए रचनाकार या संरक्षक हैं? " : "New creator or patron? "}
+                {"New creator or patron? "}
                 <Link href="/signup" className="font-semibold text-[#B4461F] hover:underline">
-                  {isHindi ? "खाता बनाएं (Create Account)" : "Create an account"}
+                  {t("cta.signUp")}
                 </Link>
               </p>
 
@@ -342,7 +342,7 @@ export default function LoginPage() {
                 disabled={loading}
                 className="w-full sm:w-auto px-6 py-2.5 rounded-sm bg-[#1E2229] text-white font-medium text-xs hover:bg-[#111418] transition-colors duration-150 flex items-center justify-center gap-2 shadow-xs disabled:opacity-50 cursor-pointer"
               >
-                <span>{loading ? (isHindi ? "प्रवेश हो रहा है..." : "Authenticating...") : (isHindi ? "डैशबोर्ड में प्रवेश करें" : "Sign In to Dashboard")}</span>
+                <span>{loading ? "Authenticating..." : t("cta.signIn")}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>

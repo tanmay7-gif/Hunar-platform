@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useHunar } from "@/context/HunarContext";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   Compass,
   Users,
@@ -36,15 +37,14 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
   const {
     currentUser,
     switchDemoRole,
-    language,
     products,
     inquiries,
     opportunities,
     savedProductIds,
     savedCreatorIds
   } = useHunar();
+  const { t, currentLanguage, isRTL } = useLanguage();
 
-  const isHindi = language === "hi";
   const isCustomerPath = pathname.startsWith("/dashboard/customer");
   const isSellerPath = pathname.startsWith("/dashboard/seller");
   const isSeller = isSellerPath ? true : isCustomerPath ? false : currentUser.role === "SELLER";
@@ -77,44 +77,44 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
   // Cleaned Seller Navigation Items
   const sellerNav = [
     {
-      title: isHindi ? "स्टूडियो हब" : "Studio Hub",
+      title: t("nav.studioHub"),
       href: "/dashboard/seller",
       icon: LayoutDashboard,
       badge: null,
-      sublabel: isHindi ? "समीक्षा एवं आय" : "Metrics & Pipeline",
+      sublabel: t("nav.studioHubSub"),
       exact: true
     },
     {
-      title: isHindi ? "शिल्प इन्वेंटरी" : "My Craft Inventory",
+      title: t("nav.inventory"),
       href: "/dashboard/seller/products",
       icon: Package,
-      badge: `${sellerProductsCount} items`,
-      sublabel: isHindi ? "उत्पाद सूची व स्टॉक" : "Stock, Prices & Catalog",
+      badge: `${sellerProductsCount} ${t("dashboard.items")}`,
+      sublabel: t("nav.inventorySub"),
       exact: false
     },
     {
-      title: isHindi ? "ग्राहक लीड्स एवं बोली" : "Client Leads & Boli",
+      title: t("nav.leads"),
       href: "/dashboard/seller/inquiries",
       icon: Inbox,
-      badge: pendingInquiriesCount > 0 ? `${pendingInquiriesCount} new` : `${sellerInquiriesCount}`,
+      badge: pendingInquiriesCount > 0 ? `${pendingInquiriesCount} ${t("dashboard.new")}` : `${sellerInquiriesCount}`,
       badgeColor: pendingInquiriesCount > 0 ? "bg-[#C85A32] text-white" : "bg-[#FAF5EC] text-[#8B3B18]",
-      sublabel: isHindi ? "कमीशन पूछताछ" : "Commission Briefs & Chats",
+      sublabel: t("nav.leadsSub"),
       exact: false
     },
     {
-      title: isHindi ? "खुले अवसर रडार" : "Open Gigs Radar",
+      title: t("nav.gigsRadar"),
       href: "/dashboard/seller/opportunities",
       icon: Briefcase,
-      badge: `${openGigsCount} live`,
-      sublabel: isHindi ? "स्थानीय बोलियां व दीवारें" : "Cafe Walls, Weddings & Grants",
+      badge: `${openGigsCount} ${t("dashboard.live")}`,
+      sublabel: t("nav.gigsRadarSub"),
       exact: false
     },
     {
-      title: isHindi ? "कला रोडमैप" : "Kala Roadmap",
+      title: t("nav.roadmap"),
       href: "/dashboard/seller/roadmap",
       icon: Milestone,
       badge: null,
-      sublabel: isHindi ? "मासिक लक्ष्य व मील के पत्थर" : "Income Goals & Studio Milestones",
+      sublabel: t("nav.roadmapSub"),
       exact: false
     }
   ];
@@ -122,44 +122,44 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
   // Customer Navigation Items
   const customerNav = [
     {
-      title: isHindi ? "शिल्प बाज़ार (कला खोजें)" : "Bazaar (Explore Art)",
+      title: t("nav.bazaar"),
       href: "/dashboard/customer",
       icon: Compass,
-      badge: `${products.length} pieces`,
-      sublabel: isHindi ? "तैयार हस्तशिल्प कलाकृतियां" : "Ready-to-Ship Crafts",
+      badge: `${products.length} ${t("dashboard.pieces")}`,
+      sublabel: t("nav.bazaarSub"),
       exact: true
     },
     {
-      title: isHindi ? "कारीगर खोजें" : "Discover Artisans",
+      title: t("nav.artisans"),
       href: "/dashboard/customer/artisans",
       icon: Users,
       badge: null,
-      sublabel: isHindi ? "क्षेत्रीय मास्टर स्टूडियो" : "Directory by City & Medium",
+      sublabel: t("nav.artisansSub"),
       exact: false
     },
     {
-      title: isHindi ? "ज़रूरत पोस्ट करें" : "Post a Requirement",
+      title: t("nav.postGig"),
       href: "/dashboard/customer/post-gig",
       icon: Sparkles,
       badge: "Custom",
       badgeColor: "bg-[#2D583B] text-white",
-      sublabel: isHindi ? "म्यूरल, विवाह व उपहार" : "Commission Custom Work",
+      sublabel: t("nav.postGigSub"),
       exact: false
     },
     {
-      title: isHindi ? "मेरे ऑर्डर व बोलियां" : "My Orders & Custom Bids",
+      title: t("nav.orders"),
       href: "/dashboard/customer/orders",
       icon: ShoppingBag,
       badge: customerOrdersCount > 0 ? `${customerOrdersCount}` : null,
-      sublabel: isHindi ? "ऑर्डर ट्रैकर एवं स्थिति" : "Active Inquiries & Tracking",
+      sublabel: t("nav.ordersSub"),
       exact: false
     },
     {
-      title: isHindi ? "सहेजे गए संग्रह" : "Saved Collections",
+      title: t("nav.wishlist"),
       href: "/dashboard/customer/wishlist",
       icon: Bookmark,
       badge: customerSavedCount > 0 ? `${customerSavedCount}` : null,
-      sublabel: isHindi ? "पसंदीदा कारीगर व कला" : "Wishlist & Moodboards",
+      sublabel: t("nav.wishlistSub"),
       exact: false
     }
   ];
@@ -178,12 +178,18 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
 
   return (
     <aside
-      className={`fixed lg:sticky top-0 lg:top-[57px] left-0 z-40 h-full lg:h-[calc(100vh-57px)] w-72 shrink-0 flex flex-col border-r transition-transform duration-150 ease-in-out ${
+      className={`fixed lg:sticky top-0 lg:top-[57px] ${
+        isRTL ? "right-0 border-l" : "left-0 border-r"
+      } z-40 h-full lg:h-[calc(100vh-57px)] w-72 shrink-0 flex flex-col transition-transform duration-150 ease-in-out ${
         isSeller
           ? "bg-[#FAF7F2] border-[#E8E2D7] text-[#1A1816]"
           : "bg-[#F5F8F6] border-[#D5E2D9] text-[#1A1816]"
       } ${
-        mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        mobileOpen
+          ? "translate-x-0"
+          : isRTL
+          ? "translate-x-full lg:translate-x-0"
+          : "-translate-x-full lg:translate-x-0"
       }`}
     >
       {/* Sidebar Header: Role Identity & Workshop Profile */}
@@ -215,10 +221,10 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
                     : "bg-[#2D583B]/10 text-[#1D3E29]"
                 }`}
               >
-                {isSeller ? "Artisan Studio" : "Patron Guild"}
+                {isSeller ? t("auth.artisanStudio") : t("auth.patronGuild")}
               </span>
               <h2 className="font-serif font-bold text-sm tracking-tight text-[#1A1816] leading-tight">
-                {isSeller ? "Studio Workshop Hub" : "Patron Discovery Hub"}
+                {isSeller ? t("dashboard.sellerOverview") : t("dashboard.customerOverview")}
               </h2>
             </div>
           </div>
@@ -361,7 +367,7 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
                 className="px-2.5 py-1.5 rounded-sm border border-[#D9D0C3] bg-white text-[#1A1816] text-[11px] font-medium hover:bg-[#FAF7F2] transition-colors duration-150"
                 title="Add artwork to catalog"
               >
-                + New
+                {t("cta.addNewProduct")}
               </Link>
             </div>
           </div>
@@ -370,7 +376,7 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
             <div className="flex items-center justify-between text-[11px] font-bold text-[#23452E] mb-1">
               <span className="flex items-center gap-1.5">
                 <ShieldCheck className="w-3.5 h-3.5 text-[#2D583B]" />
-                Direct Artisan Equity
+                {t("dashboard.directArtisanEquity")}
               </span>
               <span className="text-[10px] text-gray-500 font-mono">0% Cut</span>
             </div>
@@ -381,7 +387,7 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
               href="/dashboard/customer/post-gig"
               className="w-full text-center px-2 py-1.5 rounded-sm bg-[#2D583B] text-white text-[11px] font-medium hover:bg-[#23452E] transition-colors duration-150 flex items-center justify-center gap-1 shadow-xs"
             >
-              <span>Commission Custom Piece</span>
+              <span>{t("cta.commissionWork")}</span>
             </Link>
           </div>
         )}

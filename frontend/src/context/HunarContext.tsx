@@ -20,6 +20,7 @@ import {
   SEED_INQUIRIES
 } from "@/lib/data";
 import { tinyFish } from "@tinyfish/core";
+import { SupportedLanguage, useLanguage } from "@/context/LanguageContext";
 
 interface ToastState {
   id: string;
@@ -36,9 +37,10 @@ export interface AuthResponse {
 
 interface HunarContextType {
   tinyFish: typeof tinyFish;
-  language: "en" | "hi";
-  setLanguage: (lang: "en" | "hi") => void;
+  language: SupportedLanguage;
+  setLanguage: (lang: SupportedLanguage) => void;
   toggleLanguage: () => void;
+  t: (key: string, fallback?: string) => string;
   currentPersona: Persona;
   setPersona: (personaId: string) => void;
   creators: Creator[];
@@ -92,7 +94,7 @@ interface HunarContextType {
 const HunarContext = createContext<HunarContextType | undefined>(undefined);
 
 export function HunarProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguage] = useState<"en" | "hi">("en");
+  const { currentLanguage: language, setLanguage, toggleLanguage, t } = useLanguage();
   const [currentPersona, setCurrentPersona] = useState<Persona>(MOCK_PERSONAS[0]);
   const [currentUser, setCurrentUser] = useState<UserAccount>(DEMO_ACCOUNTS[0]);
   const [creators, setCreators] = useState<Creator[]>(SEED_CREATORS);
@@ -146,9 +148,6 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
   // Load from local storage in browser
   useEffect(() => {
     try {
-      const savedLang = localStorage.getItem("hunar_lang") as "en" | "hi" | null;
-      if (savedLang) setLanguage(savedLang);
-
       const savedMilestones = localStorage.getItem("hunar_milestones");
       if (savedMilestones) setCompletedMilestones(JSON.parse(savedMilestones));
 
@@ -183,16 +182,6 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
       console.error("TinyFish indexing sync error:", err);
     }
   }, [products, opportunities, creators]);
-
-  const toggleLanguage = () => {
-    const next = language === "en" ? "hi" : "en";
-    setLanguage(next);
-    try {
-      localStorage.setItem("hunar_lang", next);
-    } catch {
-      // ignore
-    }
-  };
 
   const showToast = (title: string, message: string, type: "success" | "info" | "whatsapp" = "success") => {
     const id = Date.now().toString();
@@ -989,6 +978,7 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
         language,
         setLanguage,
         toggleLanguage,
+        t,
         currentPersona,
         setPersona,
         creators,

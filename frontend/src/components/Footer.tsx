@@ -6,9 +6,11 @@ import { useHunar } from "@/context/HunarContext";
 import { ShieldCheck, HeartHandshake, PhoneCall, Sparkles } from "lucide-react";
 import { ApiExplorerModal } from "@/components/ApiExplorerModal";
 
+import { useLanguage } from "@/context/LanguageContext";
+
 export function Footer() {
-  const { language } = useHunar();
-  const isHindi = language === "hi";
+  const { t, currentLanguage } = useLanguage();
+  const isHindi = currentLanguage === "hi";
 
   return (
     <footer className="bg-[#1E2229] text-[#FDFBF7] border-t border-[#2C323D] pt-14 pb-12 mt-20">
@@ -21,12 +23,10 @@ export function Footer() {
             </div>
             <div>
               <h4 className="text-sm font-bold text-[#FDFBF7]">
-                {isHindi ? "0% बिचौलिया कमीशन" : "Zero Middleman Cut"}
+                {t("footer.zeroCut")}
               </h4>
               <p className="text-xs text-[#E8DEC8]/80 mt-1 leading-relaxed">
-                {isHindi
-                  ? "ग्राहकों और संस्थाओं का सीधा संपर्क कारीगर के साथ। 100% कमाई सीधे कलाकार के खाते में।"
-                  : "Direct client inquiries straight to the artisan via verified WhatsApp. 100% earnings go directly to creator bank accounts."}
+                {t("footer.zeroCutDesc")}
               </p>
             </div>
           </div>
@@ -37,12 +37,10 @@ export function Footer() {
             </div>
             <div>
               <h4 className="text-sm font-bold text-[#FDFBF7]">
-                {isHindi ? "पारंपरिक प्रामाणिकता सत्यापन" : "Authentic Craft Verification"}
+                {t("footer.authentic")}
               </h4>
               <p className="text-xs text-[#E8DEC8]/80 mt-1 leading-relaxed">
-                {isHindi
-                  ? "हर प्रोफाइल की हस्तनिर्मित तकनीक, सामग्री और क्षेत्रीय परंपरा की जांच के बाद ही 'हुनर सत्यापित' मुहर।"
-                  : "Every profile is verified for handmade authenticity, raw material sourcing, and regional craft integrity."}
+                {t("footer.authenticDesc")}
               </p>
             </div>
           </div>
@@ -53,12 +51,10 @@ export function Footer() {
             </div>
             <div>
               <h4 className="text-sm font-bold text-[#FDFBF7]">
-                {isHindi ? "स्मार्टफोन एवं व्हाट्सएप सुगम" : "WhatsApp-First Accessible"}
+                {t("footer.whatsappFirst")}
               </h4>
               <p className="text-xs text-[#E8DEC8]/80 mt-1 leading-relaxed">
-                {isHindi
-                  ? "किसी जटिल ऐप डाउनलोड की आवश्यकता नहीं। एक क्लिक में शेयर करें डिजिटल हुनर कार्ड और कोटेशन।"
-                  : "No complex software barriers. Artisans share their lightweight lookbook card instantly over WhatsApp."}
+                {t("footer.whatsappFirstDesc")}
               </p>
             </div>
           </div>
@@ -76,35 +72,33 @@ export function Footer() {
               </span>
             </div>
             <p className="text-xs text-[#E8DEC8]/80 leading-relaxed">
-              {isHindi
-                ? "भारत के दूर-दराज के कारीगरों, मिथिला चित्रकारों, भित्ति कलाकारों, कुम्हारों और मेंहदी शिल्पकारों का स्वावलंबी मंच।"
-                : "India's grassroots marketplace connecting folk artisans, muralists, studio potters, and traditional creators directly to verified buyers."}
+              {t("footer.tagline")}
             </p>
           </div>
 
           <div>
             <h5 className="text-xs font-bold uppercase tracking-wider text-[#E5A93B] mb-3">
-              {isHindi ? "कारीगर मंच" : "Guild Navigation"}
+              {t("nav.studioHub")} / {t("nav.bazaar")}
             </h5>
             <ul className="space-y-2 text-xs text-[#E8DEC8]/80">
               <li>
                 <Link href="/" className="hover:text-[#FDFBF7] transition-colors">
-                  {isHindi ? "कलाकार खोजें (Explore Artists)" : "Explore Artists & Portfolios"}
+                  {t("nav.artisans")}
                 </Link>
               </li>
               <li>
                 <Link href="/opportunities" className="hover:text-[#FDFBF7] transition-colors">
-                  {isHindi ? "अवसर एवं बोलियां (Gigs Radar)" : "Gigs & Opportunities Radar"}
+                  {t("nav.gigsRadar")}
                 </Link>
               </li>
               <li>
                 <Link href="/roadmap" className="hover:text-[#FDFBF7] transition-colors">
-                  {isHindi ? "कला रोडमैप (Kala Roadmap)" : "Kala Roadmap (Income Engine)"}
+                  {t("nav.roadmap")}
                 </Link>
               </li>
               <li>
                 <Link href="/dashboard/customer" className="hover:text-[#FDFBF7] transition-colors">
-                  {isHindi ? "शिल्प बाज़ार (Craft Bazaar)" : "Handmade Craft Bazaar"}
+                  {t("nav.bazaar")}
                 </Link>
               </li>
             </ul>

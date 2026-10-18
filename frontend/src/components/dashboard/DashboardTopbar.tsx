@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useHunar } from "@/context/HunarContext";
+import { useLanguage } from "@/context/LanguageContext";
+import { LanguageSelector } from "@/components/ui/LanguageSelector";
 import {
   Plus,
   Share2,
@@ -36,15 +38,14 @@ export function DashboardTopbar({
   const {
     currentUser,
     switchDemoRole,
-    language,
     products,
     savedProductIds,
     savedCreatorIds,
     inquiries,
     showToast
   } = useHunar();
+  const { t, currentLanguage, isRTL } = useLanguage();
 
-  const isHindi = language === "hi";
   const isCustomerPath = pathname.startsWith("/dashboard/customer");
   const isSellerPath = pathname.startsWith("/dashboard/seller");
   const isSeller = isSellerPath ? true : isCustomerPath ? false : currentUser.role === "SELLER";
@@ -68,91 +69,91 @@ export function DashboardTopbar({
     if (isSeller) {
       if (pathname === "/dashboard/seller") {
         return {
-          badge: "Artisan Studio Hub",
-          title: "Studio Overview & Pipeline",
+          badge: t("auth.artisanStudio"),
+          title: t("dashboard.sellerOverview"),
           subtitle: `${currentUser.name} • ${currentUser.city || "Craft Studio"}`
         };
       }
       if (pathname.startsWith("/dashboard/seller/products/new")) {
         return {
-          badge: "Studio Artwork Upload",
-          title: "Upload New Handcrafted Piece",
+          badge: t("auth.artisanStudio"),
+          title: t("cta.addNewProduct"),
           subtitle: "Catalog addition with photos, medium & pricing"
         };
       }
       if (pathname.startsWith("/dashboard/seller/products")) {
         return {
-          badge: "Craft Inventory Workbench",
-          title: "Workshop Listings & Inventory",
-          subtitle: "Manage batch stocks, pricing and instant visibility"
+          badge: t("nav.inventory"),
+          title: t("nav.inventory"),
+          subtitle: t("dashboard.stockCatalog")
         };
       }
       if (pathname.startsWith("/dashboard/seller/inquiries")) {
         return {
-          badge: "Client Boli & CRM",
-          title: "Client Leads & Inquiries Inbox",
-          subtitle: "Direct patron custom briefs and WhatsApp negotiations"
+          badge: t("nav.leads"),
+          title: t("nav.leads"),
+          subtitle: t("dashboard.clientInquiries")
         };
       }
       if (pathname.startsWith("/dashboard/seller/opportunities")) {
         return {
-          badge: "Opportunity Radar",
-          title: "Open Regional Gigs & Boli",
-          subtitle: "Cafe murals, corporate bulk orders & wedding bookings"
+          badge: t("nav.gigsRadar"),
+          title: t("nav.gigsRadar"),
+          subtitle: t("dashboard.radarDesc")
         };
       }
       if (pathname.startsWith("/dashboard/seller/roadmap")) {
         return {
-          badge: "Career Milestones",
-          title: "Kala Roadmap (Income Steps)",
-          subtitle: "Structured trajectory to ₹1,00,000 monthly craft revenue"
+          badge: t("nav.roadmap"),
+          title: t("nav.roadmap"),
+          subtitle: t("dashboard.incomeEngine")
         };
       }
       return {
-        badge: "Artisan Studio",
-        title: "Artisan Studio Workspace",
+        badge: t("auth.artisanStudio"),
+        title: t("auth.artisanStudio"),
         subtitle: "Grassroots Craft Operations"
       };
     } else {
       // Customer
       if (pathname === "/dashboard/customer") {
         return {
-          badge: "Handmade Bazaar",
-          title: "Bazaar (Explore Direct Crafts)",
-          subtitle: "Browse authentic works directly from folk masters & potters"
+          badge: t("auth.patronGuild"),
+          title: t("nav.bazaar"),
+          subtitle: t("dashboard.customerOverview")
         };
       }
       if (pathname.startsWith("/dashboard/customer/artisans")) {
         return {
-          badge: "Master Directory",
-          title: "Discover Regional Artisans",
-          subtitle: "Find verified folk painters, sculptors, and muralists"
+          badge: t("nav.artisans"),
+          title: t("nav.artisans"),
+          subtitle: t("nav.artisansSub")
         };
       }
       if (pathname.startsWith("/dashboard/customer/post-gig")) {
         return {
-          badge: "Custom Commission",
-          title: "Post a Requirement / Custom Work",
-          subtitle: "Commission bespoke murals, wedding henna, or event decor"
+          badge: t("nav.postGig"),
+          title: t("nav.postGig"),
+          subtitle: t("nav.postGigSub")
         };
       }
       if (pathname.startsWith("/dashboard/customer/orders")) {
         return {
-          badge: "Order Status Tracker",
-          title: "My Orders & Custom Commission Bids",
-          subtitle: "Real-time updates from artisan wheel to your doorstep"
+          badge: t("nav.orders"),
+          title: t("nav.orders"),
+          subtitle: t("nav.ordersSub")
         };
       }
       if (pathname.startsWith("/dashboard/customer/wishlist")) {
         return {
-          badge: "Curated Moodboard",
-          title: "Saved Collections & Shortlisted Artists",
-          subtitle: "Bookmarked artworks and favorite creator profiles"
+          badge: t("nav.wishlist"),
+          title: t("nav.wishlist"),
+          subtitle: t("nav.wishlistSub")
         };
       }
       return {
-        badge: "Patron Guild",
-        title: "Patron Discovery & Curation",
+        badge: t("auth.patronGuild"),
+        title: t("nav.bazaar"),
         subtitle: "Zero Middleman Art Sourcing"
       };
     }
@@ -226,7 +227,7 @@ export function DashboardTopbar({
                 title="Share your live Hunar Card via WhatsApp"
               >
                 <Share2 className="w-3.5 h-3.5 text-[#B4461F]" />
-                <span className="hidden md:inline">Share Card</span>
+                <span className="hidden md:inline">{t("cta.shareLookbook")}</span>
               </button>
 
               {/* + New Artwork / Listing Quick-Action */}
@@ -235,7 +236,7 @@ export function DashboardTopbar({
                 className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-sm bg-[#1E2229] text-white text-xs font-medium hover:bg-[#111418] transition-colors duration-150 shadow-xs"
               >
                 <Plus className="w-4 h-4 text-[#E5A93B]" />
-                <span className="hidden xs:inline">+ New Artwork</span>
+                <span className="hidden xs:inline">{t("cta.addNewProduct")}</span>
               </Link>
             </>
           ) : (
@@ -248,7 +249,7 @@ export function DashboardTopbar({
                 title="View Saved Artworks & Collections"
               >
                 <Bookmark className="w-3.5 h-3.5 text-[#2D583B]" />
-                <span className="hidden sm:inline">Wishlist</span>
+                <span className="hidden sm:inline">{t("nav.wishlist")}</span>
                 {totalSavedCount > 0 && (
                   <span className="ml-0.5 px-1.5 py-0.2 rounded-xs bg-[#E5A93B] text-[#1E2229] text-[10px] font-bold">
                     {totalSavedCount}
@@ -263,7 +264,7 @@ export function DashboardTopbar({
                 title="My Orders & Active Inquiries"
               >
                 <ShoppingBag className="w-3.5 h-3.5 text-[#2D583B]" />
-                <span className="hidden sm:inline">Orders</span>
+                <span className="hidden sm:inline">{t("nav.orders")}</span>
                 {activeOrdersCount > 0 && (
                   <span className="ml-0.5 px-1.5 py-0.2 rounded-xs bg-[#2D583B] text-white text-[10px] font-bold">
                     {activeOrdersCount}
@@ -276,13 +277,13 @@ export function DashboardTopbar({
                 href="/dashboard/customer/post-gig"
                 className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-sm bg-[#2D583B] text-white text-xs font-medium hover:bg-[#23452E] transition-colors duration-150 shadow-xs"
               >
-                <span className="hidden xs:inline">Post Custom Request (₹)</span>
+                <span className="hidden xs:inline">{t("nav.postGig")} (₹)</span>
               </Link>
             </>
           )}
 
           {/* 1-Click Switch Demo Account Toggle */}
-          <div className="flex items-center pl-1 sm:pl-2 border-l border-gray-300">
+          <div className="flex items-center pl-1 sm:pl-2 border-l border-gray-300 gap-2">
             <button
               onClick={() => handleRoleToggle(isSeller ? "CUSTOMER" : "SELLER")}
               className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-sm text-xs font-medium border transition-colors duration-150 ${
@@ -298,9 +299,12 @@ export function DashboardTopbar({
             >
               <RefreshCw className="w-3.5 h-3.5 text-[#E5A93B]" />
               <span className="hidden md:inline">
-                {isSeller ? "Switch to Patron" : "Switch to Artisan"}
+                {isSeller ? "Patron Demo" : "Artisan Demo"}
               </span>
             </button>
+
+            {/* In-Dashboard Language Selector */}
+            <LanguageSelector className="shrink-0" />
           </div>
         </div>
       </div>

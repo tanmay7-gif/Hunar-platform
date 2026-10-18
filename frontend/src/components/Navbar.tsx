@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useHunar } from "@/context/HunarContext";
+import { useLanguage } from "@/context/LanguageContext";
+import { LanguageSelector } from "@/components/ui/LanguageSelector";
 import {
   Compass,
   Users,
@@ -31,8 +33,6 @@ export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const {
-    language,
-    toggleLanguage,
     currentUser,
     switchDemoRole,
     logout,
@@ -42,9 +42,9 @@ export function Navbar() {
     savedCreatorIds,
     showToast
   } = useHunar();
+  const { t, currentLanguage, setLanguage } = useLanguage();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const isHindi = language === "hi";
   const isCustomerPath = pathname.startsWith("/dashboard/customer");
   const isSellerPath = pathname.startsWith("/dashboard/seller");
   const isSeller = isSellerPath ? true : isCustomerPath ? false : currentUser.role === "SELLER";
@@ -63,32 +63,32 @@ export function Navbar() {
   const sellerNav = [
     {
       href: "/dashboard/seller",
-      label: isHindi ? "स्टूडियो हब" : "Studio Hub",
+      label: t("nav.studioHub"),
       icon: LayoutDashboard,
       exact: true
     },
     {
       href: "/dashboard/seller/products",
-      label: isHindi ? "इन्वेंटरी" : "Craft Inventory",
+      label: t("nav.inventory"),
       icon: Package,
       exact: false
     },
     {
       href: "/dashboard/seller/inquiries",
-      label: isHindi ? "ग्राहक लीड्स" : "Leads & Boli",
+      label: t("nav.leads"),
       icon: Inbox,
       badge: pendingInquiriesCount > 0 ? `${pendingInquiriesCount}` : null,
       exact: false
     },
     {
       href: "/dashboard/seller/opportunities",
-      label: isHindi ? "गिग रडार" : "Open Gigs Radar",
+      label: t("nav.gigsRadar"),
       icon: Briefcase,
       exact: false
     },
     {
       href: "/dashboard/seller/roadmap",
-      label: isHindi ? "कला रोडमैप" : "Kala Roadmap",
+      label: t("nav.roadmap"),
       icon: Milestone,
       exact: false
     }
@@ -98,32 +98,32 @@ export function Navbar() {
   const customerNav = [
     {
       href: "/dashboard/customer",
-      label: isHindi ? "शिल्प बाज़ार" : "Bazaar (Explore)",
+      label: t("nav.bazaar"),
       icon: Compass,
       exact: true
     },
     {
       href: "/dashboard/customer/artisans",
-      label: isHindi ? "कारीगर खोजें" : "Discover Artisans",
+      label: t("nav.artisans"),
       icon: Users,
       exact: false
     },
     {
       href: "/dashboard/customer/post-gig",
-      label: isHindi ? "ज़रूरत पोस्ट करें" : "Post Requirement",
+      label: t("nav.postGig"),
       icon: Sparkles,
       exact: false
     },
     {
       href: "/dashboard/customer/orders",
-      label: isHindi ? "मेरे ऑर्डर" : "My Orders & Bids",
+      label: t("nav.orders"),
       icon: ShoppingBag,
       badge: activeOrdersCount > 0 ? `${activeOrdersCount}` : null,
       exact: false
     },
     {
       href: "/dashboard/customer/wishlist",
-      label: isHindi ? "सहेजे गए" : "Saved Collections",
+      label: t("nav.wishlist"),
       icon: Bookmark,
       badge: totalSavedCount > 0 ? `${totalSavedCount}` : null,
       exact: false
@@ -166,8 +166,8 @@ export function Navbar() {
           <div className="flex items-center gap-2 truncate">
             <span className="text-[#D9D0C3] truncate font-medium">
               {isSeller
-                ? "Artisan Studio Mode • 0% Commission • Direct WhatsApp Inquiries"
-                : "Patron Curation Mode • Authentic Grassroots Crafts • Direct Artisan Equity"}
+                ? `${t("auth.artisanStudio")} • ${t("auth.artisanStudioDesc")}`
+                : `${t("auth.patronGuild")} • ${t("auth.patronGuildDesc")}`}
             </span>
           </div>
 
@@ -227,7 +227,7 @@ export function Navbar() {
                   title="Sign out of your session"
                 >
                   <LogOut className="w-3 h-3 text-[#E5A93B]" />
-                  <span className="hidden sm:inline">{isHindi ? "साइन आउट" : "Sign Out"}</span>
+                  <span className="hidden sm:inline">{t("cta.signOut")}</span>
                 </button>
               </div>
             ) : (
@@ -238,27 +238,20 @@ export function Navbar() {
                   title="Sign in with email or demo"
                 >
                   <User className="w-3.5 h-3.5 text-[#E5A93B]" />
-                  <span>{isHindi ? "साइन इन" : "Sign In"}</span>
+                  <span>{t("cta.signIn")}</span>
                 </Link>
                 <Link
                   href="/signup"
                   className="text-xs text-white hover:bg-[#9B3815] flex items-center gap-1 px-2.5 py-0.5 rounded-sm border border-[#B4461F] bg-[#B4461F] transition-colors duration-150"
                   title="Create new account"
                 >
-                  <span>{isHindi ? "खाता बनाएं" : "Sign Up"}</span>
+                  <span>{t("cta.signUp")}</span>
                 </Link>
               </div>
             )}
 
-            {/* Language Toggle */}
-            <button
-              onClick={toggleLanguage}
-              className="flex items-center gap-1 px-2 py-0.5 rounded-sm border border-[#D9D0C3]/30 hover:border-[#E5A93B] text-[#FAF7F2] hover:text-[#E5A93B] transition-colors duration-150"
-              title="Toggle Hindi / English"
-            >
-              <Globe className="w-3.5 h-3.5 text-[#E5A93B]" />
-              <span className="font-semibold">{isHindi ? "English" : "हिन्दी"}</span>
-            </button>
+            {/* Tactile Vernacular Language Selector */}
+            <LanguageSelector />
           </div>
         </div>
       </div>
@@ -362,7 +355,7 @@ export function Navbar() {
                 className="px-4 py-2 rounded-sm bg-[#1E2229] text-[#FAF7F2] text-xs font-medium hover:bg-[#111418] transition-colors duration-150 flex items-center gap-1.5 shadow-xs"
               >
                 <Plus className="w-3.5 h-3.5 text-[#E5A93B]" />
-                <span>{isHindi ? "+ कलाकृति जोड़ें" : "+ New Artwork"}</span>
+                <span>{t("cta.addNewProduct")}</span>
               </Link>
             </>
           ) : (
@@ -385,7 +378,7 @@ export function Navbar() {
                 href="/dashboard/customer/post-gig"
                 className="px-4 py-2 rounded-sm bg-[#1E2229] text-[#FAF7F2] text-xs font-medium hover:bg-[#111418] transition-colors duration-150 flex items-center gap-1.5 shadow-xs"
               >
-                <span>{isHindi ? "ज़रूरत पोस्ट करें (₹)" : "Post Requirement (₹)"}</span>
+                <span>{t("nav.postGig")} (₹)</span>
               </Link>
             </>
           )}
@@ -394,7 +387,7 @@ export function Navbar() {
             href="/login"
             className="px-3 py-2 rounded-sm border border-[#D9D0C3] text-xs font-medium text-[#1A1816] hover:bg-[#EFEAE1] transition-colors duration-150"
           >
-            {isHindi ? "लॉगिन" : "Demo Logins"}
+            Demo Logins
           </Link>
         </div>
 
@@ -463,13 +456,17 @@ export function Navbar() {
           </div>
 
           <div className="pt-3 border-t border-[#E8E2D7] flex flex-col gap-2">
+            <div className="pb-2">
+              <LanguageSelector className="w-full" />
+            </div>
+
             {isSeller ? (
               <Link
                 href="/dashboard/seller/products/new"
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-full text-center px-4 py-2.5 rounded-sm bg-[#1E2229] text-white text-xs font-medium shadow-xs"
               >
-                + Upload New Artwork
+                {t("cta.addNewProduct")}
               </Link>
             ) : (
               <Link
@@ -477,7 +474,7 @@ export function Navbar() {
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-full text-center px-4 py-2.5 rounded-sm bg-[#1E2229] text-white text-xs font-medium shadow-xs"
               >
-                Post a Custom Requirement (₹)
+                {t("nav.postGig")} (₹)
               </Link>
             )}
 
@@ -499,7 +496,7 @@ export function Navbar() {
                 className="w-full text-center px-4 py-2 rounded-sm border border-[#EF4444] text-[#EF4444] hover:bg-[#EF4444]/10 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <LogOut className="w-3.5 h-3.5" />
-                <span>{isHindi ? "साइन आउट (Sign Out)" : "Sign Out"}</span>
+                <span>{t("cta.signOut")}</span>
               </button>
             )}
           </div>
