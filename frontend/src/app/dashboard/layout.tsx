@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import { usePathname } from "next/navigation";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { DashboardTopbar } from "@/components/dashboard/DashboardTopbar";
 import { useHunar } from "@/context/HunarContext";
 
-export default function DashboardLayout({
+function DashboardLayoutInner({
   children
 }: {
   children: React.ReactNode;
@@ -53,3 +53,16 @@ export default function DashboardLayout({
     </div>
   );
 }
+
+export default function DashboardLayout({
+  children
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <Suspense fallback={<div className="min-h-[calc(100vh-57px)] bg-[#F9F6F0]" />}>
+      <DashboardLayoutInner>{children}</DashboardLayoutInner>
+    </Suspense>
+  );
+}
+

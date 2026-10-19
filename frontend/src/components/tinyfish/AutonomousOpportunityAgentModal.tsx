@@ -31,7 +31,7 @@ export function AutonomousOpportunityAgentModal({
 }: AutonomousOpportunityAgentModalProps) {
   const { currentUser, showToast } = useHunar();
   const [goal, setGoal] = useState(
-    `Scout upcoming craft exhibitions & grant schemes for ${currentUser.craftTitle || "Heritage Artisan"} with subsidized stalls and direct bulk buyer matchmaking`
+    `Scout upcoming craft exhibitions & grant schemes for ${currentUser.tagline || currentUser.artCategory || "Heritage Artisan"} with subsidized stalls and direct bulk buyer matchmaking`
   );
   const [targetUrl, setTargetUrl] = useState("https://handicrafts.nic.in/schemes");
   const [running, setRunning] = useState(false);
@@ -51,7 +51,7 @@ export function AutonomousOpportunityAgentModal({
         url: targetUrl,
         parameters: {
           artisanName: currentUser.name,
-          craftCategory: currentUser.craftCategory || "Traditional Handcraft",
+          craftCategory: currentUser.artCategory || "Traditional Handcraft",
           state: currentUser.city || "India"
         }
       });

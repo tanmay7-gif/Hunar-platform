@@ -966,7 +966,7 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
   // IN-APP CHAT & PAYMENTS ENGINE
   // ==========================================
   const getConversation = (id: string): Conversation | undefined => {
-    return conversations.find((c) => c.id === id);
+    return conversations.find((c: Conversation) => c.id === id);
   };
 
   const startOrGetConversation = (params: {
@@ -979,7 +979,7 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
     const actualSellerId = currentUser.role === "SELLER" ? currentUser.id : sellerId;
 
     const existing = conversations.find(
-      (c) =>
+      (c: Conversation) =>
         (c.sellerId === actualSellerId && c.customerId === customerId && (!productId || c.productId === productId)) ||
         (c.sellerId === actualSellerId && c.customerId === customerId)
     );
@@ -1042,7 +1042,7 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
       ]
     };
 
-    setConversations((prev) => {
+    setConversations((prev: Conversation[]) => {
       const updated = [newConv, ...prev];
       try {
         localStorage.setItem("hunar_conversations", JSON.stringify(updated));
@@ -1074,8 +1074,8 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
       createdAt: "Just now"
     };
 
-    setConversations((prev) => {
-      const updated = prev.map((c) => {
+    setConversations((prev: Conversation[]) => {
+      const updated = prev.map((c: Conversation) => {
         if (c.id === conversationId) {
           const isSenderCustomer = currentUser.id === c.customerId;
           return {
@@ -1172,10 +1172,10 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
       createdAt: "Just now"
     };
 
-    setConversations((prev) => {
-      const updated = prev.map((c) => {
+    setConversations((prev: Conversation[]) => {
+      const updated = prev.map((c: Conversation) => {
         if (c.id === conversationId) {
-          const updatedMessages = c.messages.map((m) => {
+          const updatedMessages = c.messages.map((m: Message) => {
             if (
               m.isPaymentCard &&
               m.paymentDetails &&
@@ -1213,9 +1213,9 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
     });
 
     // Cross-Dashboard Reflection: Update matching CustomerInquiry status to "Crafting in Progress"
-    setInquiries((prev) => {
-      const conv = conversations.find((c) => c.id === conversationId);
-      const updated = prev.map((inq) => {
+    setInquiries((prev: CustomerInquiry[]) => {
+      const conv = conversations.find((c: Conversation) => c.id === conversationId);
+      const updated = prev.map((inq: CustomerInquiry) => {
         if (
           (conv?.productId && inq.productId === conv.productId) ||
           (conv && inq.sellerId === conv.sellerId && inq.customerId === conv.customerId)
@@ -1275,10 +1275,10 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
   };
 
   const sellerTotalEarnings = conversations
-    .filter((c) => c.sellerId === currentUser.id || currentUser.id === "demo-seller-rohit")
-    .reduce((sum, c) => {
+    .filter((c: Conversation) => c.sellerId === currentUser.id || currentUser.id === "demo-seller-rohit")
+    .reduce((sum: number, c: Conversation) => {
       const convPayments = (c.payments || []).reduce(
-        (pSum, p) => pSum + (p.status === "PAID" ? p.amount : 0),
+        (pSum: number, p: Payment) => pSum + (p.status === "PAID" ? p.amount : 0),
         0
       );
       return sum + convPayments;

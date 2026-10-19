@@ -14,7 +14,10 @@ export async function GET(request: NextRequest) {
       currentUser,
       demoPresets: demoAccounts
     });
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.digest === "NEXT_PRERENDER_INTERRUPTED" || error?.digest?.startsWith?.("NEXT_")) {
+      throw error;
+    }
     console.error("Auth me error:", error);
     return NextResponse.json(
       { success: false, error: "Internal Server Error" },

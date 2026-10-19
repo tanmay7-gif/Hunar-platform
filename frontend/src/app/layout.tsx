@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Suspense } from "react";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { HunarProvider } from "@/context/HunarContext";
 import { Navbar } from "@/components/Navbar";
@@ -42,7 +43,9 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-[#F9F6F0] text-[#1A1816] antialiased selection:bg-[#F3CFBF] selection:text-[#A33F1C]">
         <LanguageProvider>
           <HunarProvider>
-            <Navbar />
+            <Suspense fallback={<div className="h-16" />}>
+              <Navbar />
+            </Suspense>
             <main className="flex-1">{children}</main>
             <Footer />
             <ToastNotification />

@@ -1,5 +1,5 @@
-// Hunar Platform - Rich Grassroots Creator Seed Data and Storage
 import { Conversation, Message, Payment } from "@/types";
+export type { Conversation, Message, Payment };
 
 export interface CreatorPortfolioItem {
   id: string;

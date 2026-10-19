@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useHunar } from "@/context/HunarContext";
@@ -28,7 +28,7 @@ import {
 } from "lucide-react";
 import { MentorshipBookingModal } from "@/components/customer/MentorshipBookingModal";
 
-export default function HunarCardPage() {
+function HunarCardContent() {
   const params = useParams();
   const router = useRouter();
   const username = params.username as string;
@@ -587,5 +587,13 @@ export default function HunarCardPage() {
         />
       </div>
     </div>
+  );
+}
+
+export default function HunarCardPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#F9F6F0] flex items-center justify-center text-stone-500 font-medium">Loading artisan profile...</div>}>
+      <HunarCardContent />
+    </Suspense>
   );
 }

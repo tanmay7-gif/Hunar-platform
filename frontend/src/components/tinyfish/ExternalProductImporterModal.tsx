@@ -65,7 +65,7 @@ export function ExternalProductImporterModal({
       deliveryFormat: "Physical Artwork",
       leadTime: data.leadTime || "Ready to ship (3-5 days)",
       description: data.description || extractedResult.content.slice(0, 300),
-      image: data.images?.[0] || "https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?w=800&auto=format&fit=crop&q=80",
+      images: data.images || ["https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?w=800&auto=format&fit=crop&q=80"],
       status: "Live"
     });
 
