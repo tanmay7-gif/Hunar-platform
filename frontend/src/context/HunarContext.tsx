@@ -11,13 +11,20 @@ import {
   UserAccount,
   Product,
   CustomerInquiry,
+  MentorshipBooking,
+  MentorshipOffering,
+  Conversation,
+  Message,
+  Payment,
   SEED_CREATORS,
   SEED_OPPORTUNITIES,
   SEED_ROADMAPS,
   MOCK_PERSONAS,
   DEMO_ACCOUNTS,
   SEED_PRODUCTS,
-  SEED_INQUIRIES
+  SEED_INQUIRIES,
+  SEED_MENTORSHIP_BOOKINGS,
+  SEED_CONVERSATIONS
 } from "@/lib/data";
 import { tinyFish } from "@tinyfish/core";
 import { SupportedLanguage, useLanguage } from "@/context/LanguageContext";
@@ -85,6 +92,45 @@ interface HunarContextType {
   createInquiry: (inquiry: Partial<CustomerInquiry>) => CustomerInquiry;
   updateInquiryStatus: (id: string, status: CustomerInquiry["status"], note?: string) => void;
 
+  // Paid Mentorship & 1-on-1 Sessions
+  mentorshipBookings: MentorshipBooking[];
+  updateMentorshipOffering: (mentorId: string, updates: Partial<MentorshipOffering>) => void;
+  bookMentorship: (bookingData: Omit<MentorshipBooking, "id" | "createdAt" | "status">) => MentorshipBooking;
+  updateMentorshipBookingStatus: (bookingId: string, status: MentorshipBooking["status"]) => void;
+
+  // In-App Messaging & Payments
+  conversations: Conversation[];
+  activeConversationId: string | null;
+  setActiveConversationId: (id: string | null) => void;
+  getConversation: (id: string) => Conversation | undefined;
+  startOrGetConversation: (params: {
+    sellerId: string;
+    productId?: string;
+    initialMessage?: string;
+  }) => Conversation;
+  sendMessage: (
+    conversationId: string,
+    text: string,
+    options?: {
+      isPaymentCard?: boolean;
+      paymentDetails?: Message["paymentDetails"];
+      attachmentUrl?: string;
+    }
+  ) => Message;
+  createPaymentRequest: (
+    conversationId: string,
+    amount: number,
+    productTitle?: string
+  ) => Message;
+  processPayment: (
+    conversationId: string,
+    orderId: string,
+    amount: number,
+    method: "UPI_QR" | "NETBANKING_CARD",
+    cardDetails?: any
+  ) => Promise<{ success: boolean; transactionRef: string; payment: Payment }>;
+  sellerTotalEarnings: number;
+
   // Toast
   toast: ToastState | null;
   showToast: (title: string, message: string, type?: "success" | "info" | "whatsapp") => void;
@@ -104,6 +150,17 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [products, setProducts] = useState<Product[]>(SEED_PRODUCTS);
   const [inquiries, setInquiries] = useState<CustomerInquiry[]>(SEED_INQUIRIES);
+  const [mentorshipBookings, setMentorshipBookings] = useState<MentorshipBooking[]>(SEED_MENTORSHIP_BOOKINGS);
+  const [conversations, setConversations] = useState<Conversation[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("hunar_conversations");
+        if (saved) return JSON.parse(saved);
+      } catch {}
+    }
+    return SEED_CONVERSATIONS;
+  });
+  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [savedProductIds, setSavedProductIds] = useState<string[]>([]);
   const [savedCreatorIds, setSavedCreatorIds] = useState<string[]>([]);
   const [completedMilestones, setCompletedMilestones] = useState<Record<string, boolean>>({
@@ -150,6 +207,16 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
     try {
       const savedMilestones = localStorage.getItem("hunar_milestones");
       if (savedMilestones) setCompletedMilestones(JSON.parse(savedMilestones));
+
+      const savedBookings = localStorage.getItem("hunar_mentorship_bookings");
+      if (savedBookings) {
+        try {
+          const parsed = JSON.parse(savedBookings);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setMentorshipBookings(parsed);
+          }
+        } catch {}
+      }
 
       const savedUser = localStorage.getItem("hunar_user_account");
       if (savedUser) {
@@ -784,6 +851,440 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
+  // Mentorship & 1-on-1 Guidance
+  const updateMentorshipOffering = (mentorId: string, updates: Partial<MentorshipOffering>) => {
+    // 1. Update currentUser if matching
+    if (
+      currentUser.id === mentorId ||
+      mentorId === "demo-seller-rohit" ||
+      currentUser.id === "demo-seller-rohit" ||
+      (currentUser.username && currentUser.username === "rohit-pottery")
+    ) {
+      setCurrentUser((prev) => {
+        const updatedUser: UserAccount = {
+          ...prev,
+          offersMentorship: updates.enabled !== undefined ? updates.enabled : prev.offersMentorship,
+          mentorshipTitle: updates.title !== undefined ? updates.title : prev.mentorshipTitle,
+          mentorshipFee: updates.fee !== undefined ? updates.fee : prev.mentorshipFee,
+          mentorshipDuration: updates.duration !== undefined ? updates.duration : prev.mentorshipDuration,
+          mentorshipTopics: updates.agenda !== undefined ? updates.agenda : prev.mentorshipTopics,
+          mentorshipAvailability: updates.availability !== undefined ? updates.availability : prev.mentorshipAvailability
+        };
+        try {
+          localStorage.setItem("hunar_user_account", JSON.stringify(updatedUser));
+        } catch {
+          // ignore
+        }
+        return updatedUser;
+      });
+    }
+
+    // 2. Synchronize creators array
+    setCreators((prev) =>
+      prev.map((c) => {
+        if (
+          c.id === mentorId ||
+          c.username === currentUser.username ||
+          (mentorId === "demo-seller-rohit" && (c.id === "creator-rohit" || c.username === "rohit-pottery"))
+        ) {
+          return {
+            ...c,
+            offersMentorship: updates.enabled !== undefined ? updates.enabled : c.offersMentorship,
+            mentorshipTitle: updates.title !== undefined ? updates.title : c.mentorshipTitle,
+            mentorshipFee: updates.fee !== undefined ? updates.fee : c.mentorshipFee,
+            mentorshipDuration: updates.duration !== undefined ? updates.duration : c.mentorshipDuration,
+            mentorshipTopics: updates.agenda !== undefined ? updates.agenda : c.mentorshipTopics,
+            mentorshipAvailability: updates.availability !== undefined ? updates.availability : c.mentorshipAvailability
+          };
+        }
+        return c;
+      })
+    );
+
+    showToast(
+      language === "hi" ? "परामर्श सेटिंग्स सहेजी गईं" : "Mentorship Offering Updated",
+      language === "hi"
+        ? "आपकी १-ऑन-१ मार्गदर्शन सेटिंग्स और शुल्क प्रोफाइल पर अपडेट कर दिए गए हैं।"
+        : "Your 1-on-1 mentorship settings, agenda, and fee are live on your public Hunar Card.",
+      "success"
+    );
+  };
+
+  const bookMentorship = (
+    bookingData: Omit<MentorshipBooking, "id" | "createdAt" | "status">
+  ): MentorshipBooking => {
+    const slug = (bookingData.mentorName || "mentor").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 4) || "guid";
+    const meetingCode = `${slug}-${Math.random().toString(36).substring(2, 6)}`;
+    const newBooking: MentorshipBooking = {
+      ...bookingData,
+      id: `mb-${Date.now()}`,
+      status: "CONFIRMED",
+      meetingLink: bookingData.meetingLink || `https://meet.google.com/${meetingCode}`,
+      createdAt: new Date().toISOString()
+    };
+
+    setMentorshipBookings((prev) => {
+      const updated = [newBooking, ...prev];
+      try {
+        localStorage.setItem("hunar_mentorship_bookings", JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
+
+    showToast(
+      language === "hi" ? "सत्र सफलतापूर्वक बुक हो गया!" : "Mentorship Booked & Paid!",
+      language === "hi"
+        ? `₹${newBooking.feePaid} का भुगतान प्राप्त हुआ। १-ऑन-१ सत्र विवरण और गूगल मीट लिंक सुरक्षित कर दिए गए हैं।`
+        : `Confirmed 1-on-1 session with ${newBooking.mentorName} for ₹${newBooking.feePaid}. Google Meet link generated.`,
+      "success"
+    );
+
+    return newBooking;
+  };
+
+  const updateMentorshipBookingStatus = (bookingId: string, status: MentorshipBooking["status"]) => {
+    setMentorshipBookings((prev) => {
+      const updated = prev.map((b) => (b.id === bookingId ? { ...b, status } : b));
+      try {
+        localStorage.setItem("hunar_mentorship_bookings", JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
+
+    showToast(
+      language === "hi" ? "बुकिंग स्थिति अपडेट की गई" : "Booking Status Updated",
+      language === "hi" ? `सत्र स्थिति बदलकर "${status}" कर दी गई है।` : `Session marked as ${status}.`,
+      "info"
+    );
+  };
+
+  // ==========================================
+  // IN-APP CHAT & PAYMENTS ENGINE
+  // ==========================================
+  const getConversation = (id: string): Conversation | undefined => {
+    return conversations.find((c) => c.id === id);
+  };
+
+  const startOrGetConversation = (params: {
+    sellerId: string;
+    productId?: string;
+    initialMessage?: string;
+  }): Conversation => {
+    const { sellerId, productId, initialMessage } = params;
+    const customerId = currentUser.role === "CUSTOMER" ? currentUser.id : "demo-customer-priya";
+    const actualSellerId = currentUser.role === "SELLER" ? currentUser.id : sellerId;
+
+    const existing = conversations.find(
+      (c) =>
+        (c.sellerId === actualSellerId && c.customerId === customerId && (!productId || c.productId === productId)) ||
+        (c.sellerId === actualSellerId && c.customerId === customerId)
+    );
+
+    if (existing) {
+      if (initialMessage) {
+        sendMessage(existing.id, initialMessage);
+      }
+      setActiveConversationId(existing.id);
+      return existing;
+    }
+
+    const sellerCreator = creators.find((c) => c.id === actualSellerId || c.username === actualSellerId);
+    const product = productId ? products.find((p) => p.id === productId) : undefined;
+    const sellerName = product?.sellerName || sellerCreator?.name || "Artisan Studio Master";
+    const sellerAvatar =
+      product?.sellerAvatar ||
+      sellerCreator?.avatarUrl ||
+      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&auto=format&fit=crop&q=80";
+    const sellerCity = product?.sellerCity || sellerCreator?.city || "Khurja / Delhi NCR";
+
+    const newConvId = `conv-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+    const newConv: Conversation = {
+      id: newConvId,
+      productId: product?.id,
+      productTitle: product?.title,
+      productImage: product?.images?.[0],
+      productPrice: product?.price,
+      customerId,
+      customerName: currentUser.role === "CUSTOMER" ? currentUser.name : "Priya Nair",
+      customerAvatar:
+        currentUser.role === "CUSTOMER"
+          ? currentUser.avatarUrl
+          : "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80",
+      customerCity: currentUser.city || "New Delhi",
+      sellerId: actualSellerId,
+      sellerName,
+      sellerAvatar,
+      sellerCity,
+      sellerVerified: sellerCreator?.isVerified ?? true,
+      craftTitle: sellerCreator?.primaryArtForm || product?.category || "Handcrafted Art & Studio",
+      lastMessageText: initialMessage || "Conversation initiated.",
+      lastMessageAt: "Just now",
+      unreadCountCustomer: 0,
+      unreadCountSeller: 1,
+      createdAt: new Date().toISOString(),
+      payments: [],
+      messages: [
+        {
+          id: `msg-${Date.now()}`,
+          conversationId: newConvId,
+          senderId: currentUser.id,
+          text:
+            initialMessage ||
+            `Namaste! I would like to inquire about ${
+              product?.title ? `"${product.title}"` : "commissioning a handcrafted piece"
+            }.`,
+          createdAt: "Just now"
+        }
+      ]
+    };
+
+    setConversations((prev) => {
+      const updated = [newConv, ...prev];
+      try {
+        localStorage.setItem("hunar_conversations", JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+
+    setActiveConversationId(newConvId);
+    return newConv;
+  };
+
+  const sendMessage = (
+    conversationId: string,
+    text: string,
+    options?: {
+      isPaymentCard?: boolean;
+      paymentDetails?: Message["paymentDetails"];
+      attachmentUrl?: string;
+    }
+  ): Message => {
+    const newMsg: Message = {
+      id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 5)}`,
+      conversationId,
+      senderId: currentUser.id,
+      text,
+      isPaymentCard: options?.isPaymentCard ?? false,
+      paymentDetails: options?.paymentDetails,
+      attachmentUrl: options?.attachmentUrl,
+      createdAt: "Just now"
+    };
+
+    setConversations((prev) => {
+      const updated = prev.map((c) => {
+        if (c.id === conversationId) {
+          const isSenderCustomer = currentUser.id === c.customerId;
+          return {
+            ...c,
+            lastMessageText: options?.isPaymentCard
+              ? `Payment ${
+                  options.paymentDetails?.status === "PAID" ? "Confirmed" : "Request"
+                } (₹${options.paymentDetails?.amount?.toLocaleString("en-IN")})`
+              : text,
+            lastMessageAt: "Just now",
+            unreadCountCustomer: isSenderCustomer ? c.unreadCountCustomer : (c.unreadCountCustomer || 0) + 1,
+            unreadCountSeller: !isSenderCustomer ? c.unreadCountSeller : (c.unreadCountSeller || 0) + 1,
+            messages: [...c.messages, newMsg]
+          };
+        }
+        return c;
+      });
+      try {
+        localStorage.setItem("hunar_conversations", JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+
+    return newMsg;
+  };
+
+  const createPaymentRequest = (
+    conversationId: string,
+    amount: number,
+    productTitle?: string
+  ): Message => {
+    const orderId = `HNR-ORD-${Math.floor(10000 + Math.random() * 90000)}`;
+    const msg = sendMessage(
+      conversationId,
+      `Commission payment invoice generated for ₹${amount.toLocaleString("en-IN")}.`,
+      {
+        isPaymentCard: true,
+        paymentDetails: {
+          orderId,
+          amount,
+          status: "PENDING",
+          productTitle: productTitle || "Handcrafted Custom Artwork / Commission"
+        }
+      }
+    );
+
+    showToast(
+      language === "hi" ? "भुगतान अनुरोध भेजा गया" : "Payment Request Generated",
+      language === "hi"
+        ? `₹${amount.toLocaleString("en-IN")} का चालान चैट में भेजा गया है।`
+        : `Invoice for ₹${amount.toLocaleString("en-IN")} dispatched in chat.`,
+      "info"
+    );
+
+    return msg;
+  };
+
+  const processPayment = async (
+    conversationId: string,
+    orderId: string,
+    amount: number,
+    method: "UPI_QR" | "NETBANKING_CARD",
+    cardDetails?: any
+  ): Promise<{ success: boolean; transactionRef: string; payment: Payment }> => {
+    const transactionRef = `HNR-TXN-${Math.floor(10000 + Math.random() * 90000)}`;
+    const payment: Payment = {
+      id: `pay-${Date.now()}`,
+      conversationId,
+      orderId,
+      amount,
+      method,
+      status: "PAID",
+      transactionRef,
+      createdAt: new Date().toISOString()
+    };
+
+    const receiptMessage: Message = {
+      id: `msg-receipt-${Date.now()}`,
+      conversationId,
+      senderId: currentUser.id,
+      text: `Payment Confirmed: ₹${amount.toLocaleString("en-IN")} received via ${
+        method === "UPI_QR" ? "UPI QR Scan" : "Netbanking / RuPay Card"
+      }.`,
+      isPaymentCard: true,
+      paymentDetails: {
+        orderId,
+        amount,
+        status: "PAID",
+        method,
+        transactionRef,
+        timestamp: "Just now",
+        productTitle: "Commission Order"
+      },
+      createdAt: "Just now"
+    };
+
+    setConversations((prev) => {
+      const updated = prev.map((c) => {
+        if (c.id === conversationId) {
+          const updatedMessages = c.messages.map((m) => {
+            if (
+              m.isPaymentCard &&
+              m.paymentDetails &&
+              (m.paymentDetails.orderId === orderId || m.paymentDetails.status === "PENDING")
+            ) {
+              return {
+                ...m,
+                paymentDetails: {
+                  ...m.paymentDetails,
+                  status: "PAID" as const,
+                  transactionRef,
+                  method,
+                  timestamp: "Just now"
+                }
+              };
+            }
+            return m;
+          });
+
+          return {
+            ...c,
+            lastMessageText: `Payment Confirmed: ₹${amount.toLocaleString("en-IN")}`,
+            lastMessageAt: "Just now",
+            payments: [...(c.payments || []), payment],
+            messages: [...updatedMessages, receiptMessage]
+          };
+        }
+        return c;
+      });
+
+      try {
+        localStorage.setItem("hunar_conversations", JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+
+    // Cross-Dashboard Reflection: Update matching CustomerInquiry status to "Crafting in Progress"
+    setInquiries((prev) => {
+      const conv = conversations.find((c) => c.id === conversationId);
+      const updated = prev.map((inq) => {
+        if (
+          (conv?.productId && inq.productId === conv.productId) ||
+          (conv && inq.sellerId === conv.sellerId && inq.customerId === conv.customerId)
+        ) {
+          const existingUpdates = inq.statusUpdates || [];
+          return {
+            ...inq,
+            status: "Crafting in Progress" as const,
+            statusUpdates: [
+              ...existingUpdates,
+              {
+                timestamp: "Today",
+                note: `Payment of ₹${amount.toLocaleString(
+                  "en-IN"
+                )} confirmed (${method} - Txn: ${transactionRef}). Crafting officially in progress!`
+              }
+            ]
+          };
+        }
+        return inq;
+      });
+
+      try {
+        localStorage.setItem("hunar_inquiries", JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+
+    // Cloud background sync via TinyFish
+    try {
+      fetch("/api/tinyfish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "sync",
+          payload: {
+            collection: "payments",
+            action: "create",
+            data: payment,
+            timestamp: Date.now()
+          }
+        })
+      }).catch(() => {});
+    } catch {}
+
+    showToast(
+      language === "hi" ? "भुगतान सफल! निर्माण प्रारंभ" : "Payment Confirmed! Crafting in Progress",
+      language === "hi"
+        ? `₹${amount.toLocaleString("en-IN")} का भुगतान सुरक्षित रूप से प्राप्त हुआ (Txn: ${transactionRef})।`
+        : `₹${amount.toLocaleString("en-IN")} received via ${
+            method === "UPI_QR" ? "UPI QR" : "Netbanking"
+          }. Order status set to 'Crafting in Progress'.`,
+      "success"
+    );
+
+    return { success: true, transactionRef, payment };
+  };
+
+  const sellerTotalEarnings = conversations
+    .filter((c) => c.sellerId === currentUser.id || currentUser.id === "demo-seller-rohit")
+    .reduce((sum, c) => {
+      const convPayments = (c.payments || []).reduce(
+        (pSum, p) => pSum + (p.status === "PAID" ? p.amount : 0),
+        0
+      );
+      return sum + convPayments;
+    }, 18450);
+
+
   const toggleMilestone = (milestoneId: string) => {
     setCompletedMilestones((prev) => {
       const nextState = { ...prev, [milestoneId]: !prev[milestoneId] };
@@ -1016,6 +1517,23 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
         inquiries,
         createInquiry,
         updateInquiryStatus,
+
+        // Mentorship
+        mentorshipBookings,
+        updateMentorshipOffering,
+        bookMentorship,
+        updateMentorshipBookingStatus,
+
+        // In-App Messaging & Payments
+        conversations,
+        activeConversationId,
+        setActiveConversationId,
+        getConversation,
+        startOrGetConversation,
+        sendMessage,
+        createPaymentRequest,
+        processPayment,
+        sellerTotalEarnings,
 
         // Toast
         toast,

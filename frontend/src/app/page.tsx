@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useHunar } from "@/context/HunarContext";
 import {
   Sparkles,
@@ -14,6 +15,7 @@ import {
   Briefcase,
   Star,
   MessageCircle,
+  MessageSquare,
   ExternalLink,
   Shield,
   Layers,
@@ -21,7 +23,8 @@ import {
 } from "lucide-react";
 
 export default function HomePage() {
-  const { language, creators, currentPersona, opportunities } = useHunar();
+  const router = useRouter();
+  const { language, creators, currentPersona, opportunities, startOrGetConversation } = useHunar();
   const isHindi = language === "hi";
 
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
@@ -329,17 +332,20 @@ export default function HomePage() {
                       <ArrowRight className="w-3 h-3 text-[#B4461F]" />
                     </Link>
 
-                    <a
-                      href={`https://wa.me/${creator.whatsapp}?text=${encodeURIComponent(
-                        creator.whatsappInquiryText
-                      )}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-2 rounded-sm bg-[#2D583B] text-white hover:bg-[#23452E] transition-colors duration-150"
-                      title="Direct WhatsApp Inquiry"
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const conv = startOrGetConversation({
+                          sellerId: creator.id,
+                          initialMessage: `Namaste ${creator.name}! I discovered your featured studio on Hunar and would like to chat about custom artwork.`
+                        });
+                        router.push(`/dashboard/chat/${conv.id}`);
+                      }}
+                      className="p-2 rounded-sm bg-[#B4461F] text-white hover:bg-[#963715] transition-colors duration-150"
+                      title={isHindi ? "सीधा संदेश भेजें" : "Direct In-App Chat"}
                     >
-                      <MessageCircle className="w-4 h-4" />
-                    </a>
+                      <MessageSquare className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
               </div>

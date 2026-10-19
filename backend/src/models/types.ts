@@ -19,6 +19,12 @@ export interface UserAccount {
   rating?: number;
   reviewsCount?: number;
   isVerified?: boolean;
+  offersMentorship?: boolean;
+  mentorshipTitle?: string;
+  mentorshipFee?: number;
+  mentorshipDuration?: number;
+  mentorshipTopics?: string[];
+  mentorshipAvailability?: string;
 }
 
 export interface CreatorPortfolioItem {
@@ -60,6 +66,12 @@ export interface Creator {
   portfolioImages: CreatorPortfolioItem[];
   whatsappInquiryText: string;
   completedGigsCount: number;
+  offersMentorship?: boolean;
+  mentorshipTitle?: string;
+  mentorshipFee?: number;
+  mentorshipDuration?: number;
+  mentorshipTopics?: string[];
+  mentorshipAvailability?: string;
 }
 
 export type ProductCategory =
@@ -144,5 +156,25 @@ export interface CustomerInquiry {
   timeline: string;
   status: InquiryStatus;
   statusUpdates?: { timestamp: string; note: string }[];
+  createdAt: string;
+}
+
+export interface MentorshipBooking {
+  id: string;
+  mentorId: string;
+  mentorName: string;
+  learnerId?: string;
+  learnerName: string;
+  learnerPhone: string;
+  learnerEmail?: string;
+  topic: string;
+  learnerQuery?: string;
+  scheduledDate: string;
+  scheduledTime: string;
+  scheduledAt: string;
+  duration: number;
+  feePaid: number;
+  status: "CONFIRMED" | "COMPLETED" | "CANCELLED";
+  meetingLink?: string;
   createdAt: string;
 }

@@ -32,9 +32,19 @@ model User {
   reviewsCount   Int           @default(18)
   createdAt      DateTime      @default(now())
 
+  offersMentorship     Boolean             @default(false)
+  mentorshipTitle      String?
+  mentorshipFee        Float?
+  mentorshipDuration   Int?                // In minutes, e.g., 45
+  mentorshipTopics     String?             // JSON array string of focus topics
+  mentorshipBookings   MentorshipBooking[] @relation("MentorBookings")
+  bookedSessions       MentorshipBooking[] @relation("LearnerBookings")
+
   products       Product[]     // Defined for SELLER
   inquiriesSent  Inquiry[]     @relation("CustomerInquiries")
   inquiriesRecv  Inquiry[]     @relation("SellerInquiries")
+  conversationsAsCustomer Conversation[] @relation("CustomerConversations")
+  conversationsAsSeller   Conversation[] @relation("SellerConversations")
   applications   Application[]
   mentorships    MentorshipSession[] @relation("MentorSessions")
 }
@@ -138,3 +148,55 @@ model MentorshipSession {
 
   mentor           User?    @relation("MentorSessions", fields: [mentorId], references: [id])
 }
+
+model MentorshipBooking {
+  id           String   @id @default(uuid())
+  mentorId     String
+  mentor       User     @relation("MentorBookings", fields: [mentorId], references: [id])
+  learnerId    String?
+  learner      User?    @relation("LearnerBookings", fields: [learnerId], references: [id])
+  learnerName  String
+  learnerPhone String
+  topic        String
+  scheduledAt  DateTime
+  duration     Int
+  feePaid      Float
+  status       String   // "CONFIRMED", "COMPLETED", "CANCELLED"
+  meetingLink  String?
+  createdAt    DateTime @default(now())
+}
+
+model Conversation {
+  id          String        @id @default(uuid())
+  productId   String?
+  customerId  String
+  sellerId    String
+  customer    User          @relation("CustomerConversations", fields: [customerId], references: [id])
+  seller      User          @relation("SellerConversations", fields: [sellerId], references: [id])
+  messages    Message[]
+  payments    Payment[]
+  createdAt   DateTime      @default(now())
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  conversationId String
+  senderId       String
+  text           String
+  isPaymentCard  Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+}
+
+model Payment {
+  id             String       @id @default(uuid())
+  conversationId String
+  orderId        String       @unique
+  amount         Float
+  method         String       // "UPI_QR" | "NETBANKING_CARD"
+  status         String       // "PENDING" | "PAID" | "FAILED"
+  transactionRef String
+  createdAt      DateTime     @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+}
+

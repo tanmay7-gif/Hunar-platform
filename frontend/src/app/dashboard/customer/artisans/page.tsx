@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useHunar } from "@/context/HunarContext";
 import { Creator } from "@/lib/data";
 import {
@@ -10,6 +11,7 @@ import {
   MapPin,
   CheckCircle2,
   MessageCircle,
+  MessageSquare,
   ExternalLink,
   Star,
   Award,
@@ -23,8 +25,10 @@ import {
   PhoneCall,
   X
 } from "lucide-react";
+import { MarketIntelligenceBar } from "@/components/tinyfish/MarketIntelligenceBar";
 
 export default function DiscoverArtisansPage() {
+  const router = useRouter();
   const {
     creators,
     currentUser,
@@ -32,6 +36,7 @@ export default function DiscoverArtisansPage() {
     savedCreatorIds,
     toggleSaveCreator,
     createInquiry,
+    startOrGetConversation,
     showToast
   } = useHunar();
 
@@ -136,6 +141,9 @@ export default function DiscoverArtisansPage() {
           </div>
         </div>
       </div>
+
+      {/* TinyFish Live Heritage GI Radar & Raw Material Index */}
+      <MarketIntelligenceBar />
 
       {/* Filter and Search Bar */}
       <div className="bg-white rounded-sm p-4 border border-[#E8DEC8] shadow-[0_2px_8px_rgba(0,0,0,0.04)] space-y-4">
@@ -305,15 +313,20 @@ export default function DiscoverArtisansPage() {
 
                 {/* Action Buttons */}
                 <div className="grid grid-cols-2 gap-2 pt-1">
-                  <a
-                    href={whatsappUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-sm bg-[#2D583B] text-white text-xs font-medium hover:bg-[#23452E] transition-colors duration-150"
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const conv = startOrGetConversation({
+                        sellerId: creator.id,
+                        initialMessage: `Namaste ${creator.name}, I discovered your studio on Hunar and would like to chat about commissioning custom artwork.`
+                      });
+                      router.push(`/dashboard/chat/${conv.id}`);
+                    }}
+                    className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-sm btn-terracotta text-white text-xs font-semibold shadow-xs"
                   >
-                    <MessageCircle className="w-3.5 h-3.5" />
-                    <span>WhatsApp</span>
-                  </a>
+                    <MessageSquare className="w-3.5 h-3.5" />
+                    <span>In-App Chat</span>
+                  </button>
 
                   <button
                     onClick={() => setSelectedCreatorForCommission(creator)}

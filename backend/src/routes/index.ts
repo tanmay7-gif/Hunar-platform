@@ -5,6 +5,9 @@ import creatorsRoutes from "./creators.routes";
 import inquiriesRoutes from "./inquiries.routes";
 import opportunitiesRoutes from "./opportunities.routes";
 import statsRoutes from "./stats.routes";
+import chatRoutes from "./chat";
+import paymentRoutes from "./payment";
+import tinyfishRoutes from "./tinyfish";
 
 const apiRouter = Router();
 
@@ -14,6 +17,9 @@ apiRouter.use("/creators", creatorsRoutes);
 apiRouter.use("/inquiries", inquiriesRoutes);
 apiRouter.use("/opportunities", opportunitiesRoutes);
 apiRouter.use("/stats", statsRoutes);
+apiRouter.use("/chat", chatRoutes);
+apiRouter.use("/payment", paymentRoutes);
+apiRouter.use("/tinyfish", tinyfishRoutes);
 
 // Health check
 apiRouter.get("/health", (req: Request, res: Response) => {

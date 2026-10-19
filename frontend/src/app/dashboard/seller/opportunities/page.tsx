@@ -5,6 +5,9 @@ import Link from "next/link";
 import { useHunar } from "@/context/HunarContext";
 import { Opportunity } from "@/lib/data";
 import { useTinyFishOpportunityRadar } from "@tinyfish/core";
+import { MarketIntelligenceBar } from "@/components/tinyfish/MarketIntelligenceBar";
+import { AutonomousOpportunityAgentModal } from "@/components/tinyfish/AutonomousOpportunityAgentModal";
+import { CloudBrowserViewerModal } from "@/components/tinyfish/CloudBrowserViewerModal";
 import {
   Target,
   Briefcase,
@@ -20,7 +23,10 @@ import {
   ShieldCheck,
   ArrowRight,
   TrendingUp,
-  Check
+  Check,
+  Bot,
+  Monitor,
+  Globe
 } from "lucide-react";
 
 export default function SellerOpportunitiesPage() {
@@ -34,6 +40,10 @@ export default function SellerOpportunitiesPage() {
   } = useHunar();
 
   const isHindi = language === "hi";
+
+  // TinyFish Modal States
+  const [isAgentModalOpen, setIsAgentModalOpen] = useState(false);
+  const [isCloudBrowserOpen, setIsCloudBrowserOpen] = useState(false);
 
   // Filter States
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -103,18 +113,33 @@ export default function SellerOpportunitiesPage() {
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 shrink-0">
-            <div className="px-3.5 py-2 rounded-sm bg-[#2A313D] border border-[#3E4756] text-xs">
-              <span className="text-[#8A7561] block text-[10px] uppercase font-semibold">Matched Radar Gigs:</span>
-              <span className="text-base font-bold text-[#E5A93B]">{opportunities.length} Live Openings</span>
-            </div>
-            <div className="px-3.5 py-2 rounded-sm bg-[#223528] border border-[#2D583B] text-xs">
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+            <button
+              onClick={() => setIsAgentModalOpen(true)}
+              className="px-3.5 py-2.5 rounded-sm bg-[#B4461F] hover:bg-[#963816] text-white text-xs font-semibold flex items-center gap-2 transition-colors cursor-pointer shadow-sm"
+              title="Deploy autonomous AI web agent to scout schemes on handicrafts.nic.in, Dastkar, and TRIFED"
+            >
+              <Bot className="w-4 h-4 text-[#E5A93B]" />
+              <span>Deploy Scout Agent (Web Agent)</span>
+            </button>
+            <button
+              onClick={() => setIsCloudBrowserOpen(true)}
+              className="px-3.5 py-2.5 rounded-sm bg-[#2A313D] hover:bg-[#343C4B] text-[#FAF7F2] text-xs font-medium flex items-center gap-2 border border-[#3E4756] transition-colors cursor-pointer"
+              title="Remote Playwright/CDP cloud browser inspection for official craft portals"
+            >
+              <Monitor className="w-3.5 h-3.5 text-[#4E9B6E]" />
+              <span>Cloud Browser (CDP Sandbox)</span>
+            </button>
+            <div className="px-3 py-2 rounded-sm bg-[#223528] border border-[#2D583B] text-xs">
               <span className="text-[#86A890] block text-[10px] uppercase font-semibold">Top Studio Fits:</span>
-              <span className="text-base font-bold text-[#81C784]">{radarStats.topPicks} Priority Matches</span>
+              <span className="text-sm font-bold text-[#81C784]">{radarStats.topPicks} Priority Matches</span>
             </div>
           </div>
         </div>
       </div>
+
+      {/* TinyFish Search API: Live Craft Market Intelligence & Raw Material Index */}
+      <MarketIntelligenceBar />
 
       {/* Filter and Search Bar with TinyFish Telemetry */}
       <div className="bg-white rounded-sm p-4 border border-[#E8E2D7] shadow-[0_2px_8px_rgba(0,0,0,0.04)] space-y-4">
@@ -413,6 +438,18 @@ export default function SellerOpportunitiesPage() {
           </div>
         </div>
       )}
+
+      {/* TinyFish Web Agent: Autonomous Opportunity & Grant Scout Modal */}
+      <AutonomousOpportunityAgentModal
+        isOpen={isAgentModalOpen}
+        onClose={() => setIsAgentModalOpen(false)}
+      />
+
+      {/* TinyFish Browser Infrastructure: Playwright/CDP Cloud Browser Modal */}
+      <CloudBrowserViewerModal
+        isOpen={isCloudBrowserOpen}
+        onClose={() => setIsCloudBrowserOpen(false)}
+      />
     </div>
   );
 }

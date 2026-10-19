@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useHunar } from "@/context/HunarContext";
 import { useTinyFishQuery } from "@tinyfish/core";
 import { Product, CustomerInquiry, Creator } from "@/lib/data";
@@ -10,6 +11,7 @@ import {
   Filter,
   Heart,
   MessageCircle,
+  MessageSquare,
   MapPin,
   Clock,
   CheckCircle2,
@@ -30,6 +32,7 @@ import {
 } from "lucide-react";
 
 export default function CustomerDashboardPage() {
+  const router = useRouter();
   const {
     language,
     currentUser,
@@ -40,8 +43,18 @@ export default function CustomerDashboardPage() {
     savedProductIds,
     toggleSaveProduct,
     createInquiry,
+    startOrGetConversation,
     showToast
   } = useHunar();
+
+  const handleStartChat = (product: Product) => {
+    const conv = startOrGetConversation({
+      sellerId: product.sellerId,
+      productId: product.id,
+      initialMessage: `Namaste ${product.sellerName}! I am inquiring about "${product.title}" (₹${product.price}). Is this currently available?`
+    });
+    router.push(`/dashboard/chat/${conv.id}`);
+  };
 
   const isHindi = language === "hi";
 
@@ -520,17 +533,14 @@ export default function CustomerDashboardPage() {
                         <Eye className="w-3.5 h-3.5" />
                       </button>
 
-                      <a
-                        href={`https://wa.me/${product.sellerWhatsapp}?text=${encodeURIComponent(
-                          `Namaste ${product.sellerName}, I am inquiring about "${product.title}" (Item ID: ${product.id}) listed on Hunar for ₹${product.price}. Is this currently available?`
-                        )}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-2 rounded-sm bg-[#2D583B] text-white text-xs font-medium hover:bg-[#23452E] transition-colors duration-150 flex items-center gap-1"
+                      <button
+                        type="button"
+                        onClick={() => handleStartChat(product)}
+                        className="px-3 py-2 rounded-sm bg-[#B4461F] text-white text-xs font-medium hover:bg-[#963715] transition-colors duration-150 flex items-center gap-1.5 shadow-xs"
                       >
-                        <MessageCircle className="w-3.5 h-3.5" />
-                        <span>WhatsApp</span>
-                      </a>
+                        <MessageSquare className="w-3.5 h-3.5" />
+                        <span>{isHindi ? "सीधी बात करें" : "Inquire / Chat"}</span>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -878,17 +888,17 @@ export default function CustomerDashboardPage() {
 
               {/* 2 Clear Action Buttons */}
               <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
-                <a
-                  href={`https://wa.me/${quickViewProduct.sellerWhatsapp}?text=${encodeURIComponent(
-                    `Namaste ${quickViewProduct.sellerName}, I am interested in buying "${quickViewProduct.title}" (Item ID: ${quickViewProduct.id}) listed for ₹${quickViewProduct.price}. Could you share delivery timeline and payment details?`
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full sm:flex-1 py-3 rounded-sm bg-[#2D583B] text-white font-medium text-xs hover:bg-[#23452E] transition-colors duration-150 flex items-center justify-center gap-2"
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleStartChat(quickViewProduct);
+                    setQuickViewProduct(null);
+                  }}
+                  className="w-full sm:flex-1 py-3 rounded-sm bg-[#B4461F] text-white font-medium text-xs hover:bg-[#963715] transition-colors duration-150 flex items-center justify-center gap-2 shadow-xs"
                 >
-                  <MessageCircle className="w-4 h-4" />
-                  <span>Buy Now / Inquire via WhatsApp</span>
-                </a>
+                  <MessageSquare className="w-4 h-4" />
+                  <span>{isHindi ? "कारीगर से चैट / खरीदें" : "Inquire & Chat / Buy Now"}</span>
+                </button>
 
                 <button
                   onClick={() => {

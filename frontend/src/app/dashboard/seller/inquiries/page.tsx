@@ -2,11 +2,13 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useHunar } from "@/context/HunarContext";
 import { CustomerInquiry } from "@/lib/data";
 import {
   Inbox,
   MessageCircle,
+  MessageSquare,
   Phone,
   CheckCircle2,
   Clock,
@@ -23,11 +25,13 @@ import {
 } from "lucide-react";
 
 export default function SellerInquiriesPage() {
+  const router = useRouter();
   const {
     inquiries,
     currentUser,
     language,
     updateInquiryStatus,
+    startOrGetConversation,
     showToast
   } = useHunar();
 
@@ -207,16 +211,22 @@ export default function SellerInquiriesPage() {
                     {badge.label}
                   </span>
 
-                  {/* Accept & Start Chat CTA */}
-                  <a
-                    href={whatsappUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center gap-2 px-3.5 py-2 rounded-sm bg-[#2D583B] text-white text-xs font-medium hover:bg-[#23452E] transition-colors duration-150"
+                  {/* Open In-App Chat CTA */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const conv = startOrGetConversation({
+                        sellerId: currentUser.id,
+                        productId: lead.productId,
+                        initialMessage: `Namaste ${lead.customerName}! I received your commission inquiry for "${lead.productTitle || "Custom Brief"}" (Budget: ₹${lead.proposedBudget}). Let's discuss details and timelines.`
+                      });
+                      router.push(`/dashboard/chat/${conv.id}`);
+                    }}
+                    className="flex items-center gap-2 px-3.5 py-2 rounded-sm btn-terracotta text-white text-xs font-semibold shadow-xs"
                   >
-                    <MessageCircle className="w-4 h-4" />
-                    <span>Accept & Start Chat</span>
-                  </a>
+                    <MessageSquare className="w-4 h-4" />
+                    <span>Open In-App Chat & Invoice</span>
+                  </button>
                 </div>
               </div>
 

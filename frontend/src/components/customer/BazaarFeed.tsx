@@ -1,8 +1,11 @@
 "use client";
 
 import React from "react";
+import { useRouter } from "next/navigation";
 import { Product } from "@/types";
-import { Heart, Clock, CheckCircle2, Eye, MessageCircle } from "lucide-react";
+import { useHunar } from "@/context/HunarContext";
+import { Heart, Clock, CheckCircle2, Eye, MessageSquare } from "lucide-react";
+
 
 interface BazaarFeedProps {
   products: Product[];
@@ -19,6 +22,18 @@ export function BazaarFeed({
   onQuickView,
   isHindi = false,
 }: BazaarFeedProps) {
+  const router = useRouter();
+  const { startOrGetConversation } = useHunar();
+
+  const handleStartChat = (product: Product) => {
+    const conv = startOrGetConversation({
+      sellerId: product.sellerId,
+      productId: product.id,
+      initialMessage: `Namaste ${product.sellerName}! I am inquiring about "${product.title}" (₹${product.price}). Is this currently available for shipping or custom finish?`
+    });
+    router.push(`/dashboard/chat/${conv.id}`);
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       {products.map((product) => {
@@ -124,17 +139,14 @@ export function BazaarFeed({
                   <Eye className="w-3.5 h-3.5" />
                 </button>
 
-                <a
-                  href={`https://wa.me/${product.sellerWhatsapp}?text=${encodeURIComponent(
-                    `Namaste ${product.sellerName}, I am inquiring about "${product.title}" (Item ID: ${product.id}) listed on Hunar for ₹${product.price}. Is this currently available?`
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3 py-2 rounded-sm bg-[#2D583B] text-white text-xs font-medium hover:bg-[#23452E] transition-colors duration-150 flex items-center gap-1"
+                <button
+                  type="button"
+                  onClick={() => handleStartChat(product)}
+                  className="px-3 py-2 rounded-sm bg-[#B4461F] text-white text-xs font-medium hover:bg-[#963715] transition-colors duration-150 flex items-center gap-1.5 shadow-xs"
                 >
-                  <MessageCircle className="w-3.5 h-3.5" />
-                  <span>WhatsApp</span>
-                </a>
+                  <MessageSquare className="w-3.5 h-3.5" />
+                  <span>{isHindi ? "सीधी बात करें" : "Inquire / Chat"}</span>
+                </button>
               </div>
             </div>
           </div>

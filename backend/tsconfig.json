@@ -4,13 +4,17 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "outDir": "./dist",
-    "rootDir": "./src",
+    "baseUrl": ".",
+    "paths": {
+      "@hunar/tinyfish": ["../tinyfish/src"],
+      "@hunar/tinyfish/*": ["../tinyfish/src/*"]
+    },
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "../tinyfish/src/**/*"],
   "exclude": ["node_modules", "dist"]
 }

@@ -15,40 +15,55 @@ It eliminates intermediary exploitation by guaranteeing **100% direct artisan eq
 
 ## 🏛️ Monorepo Architecture
 
-The repository is organized as a clean, decoupled monorepo separating client presentation from core business logic:
+The repository is organized into three completely decoupled sub-projects:
 
 ```text
 hunar-platform/
-├── backend/
+├── tinyfish/                     # DEDICATED TINYFISH AGENT PACKAGE
 │   ├── src/
-│   │   ├── config/           # Database connections, env setup, seed singletons
-│   │   ├── controllers/      # Route logic & request handlers
-│   │   ├── middleware/       # Auth validation, error handling, request logger
-│   │   ├── models/           # Data schemas (Prisma & TypeScript interfaces)
-│   │   ├── routes/           # REST endpoints / API routers
-│   │   └── server.ts         # Express application entry point
-│   ├── .env.example
+│   │   ├── client.ts             # Core TinyFish SDK client instance & API key auth
+│   │   ├── services/
+│   │   │   ├── search.ts         # Search API: Live craft & GI registry search
+│   │   │   ├── fetch.ts          # Fetch API: Clean markdown/JSON scraping & courier SOPs
+│   │   │   ├── web-agent.ts      # Web Agent: Goal-driven multi-step courier rate comparisons
+│   │   │   └── browser.ts        # Browser Infra: Cloud browser automation for rural hub discovery
+│   │   ├── mock/                 # Resilient fallback fixtures & simulated agent logs
+│   │   └── index.ts              # Unified module exports
 │   ├── package.json
-│   └── tsconfig.json
-├── frontend/
-│   ├── public/               # Static assets, logos, craft lookbook media
+│   ├── tsconfig.json
+│   └── README.md
+│
+├── backend/                      # CORE SERVER & DATABASE API
 │   ├── src/
-│   │   ├── app/              # Next.js App Router (Public & Dashboard routes)
-│   │   ├── components/
-│   │   │   ├── ui/           # Tactile, physical UI elements (Button, Card, Input, Badge)
-│   │   │   ├── customer/     # Customer modules (BazaarFeed, OrderTracker)
-│   │   │   ├── seller/       # Seller modules (StudioHub, ProductUploader)
-│   │   │   ├── dashboard/    # Differentiated Topbar & Sidebar layouts
-│   │   │   └── Navbar.tsx    # Responsive header with dual-language toggle
-│   │   ├── context/          # Global state (HunarContext) with persistent mock store
-│   │   ├── lib/              # Client API helpers & craft dataset
-│   │   └── types/            # TypeScript interfaces & domain models
-│   ├── .env.example
+│   │   ├── controllers/          # Orders, Products, In-App Chat, Mentorship handlers
+│   │   ├── models/               # Prisma schema, database migrations
+│   │   ├── routes/               # Express/REST API endpoints
+│   │   │   ├── chat.ts
+│   │   │   ├── payment.ts
+│   │   │   └── tinyfish.ts       # Routes invoking the ./tinyfish service
+│   │   ├── middleware/           # Session auth & role checks
+│   │   └── config/
+│   ├── package.json
+│   ├── tsconfig.json
+│   └── .env.example
+│
+├── frontend/                     # USER INTERFACE (Next.js 14+)
+│   ├── src/
+│   │   ├── app/                  # Next.js App Router
+│   │   │   ├── dashboard/
+│   │   │   │   ├── customer/     # Customer Bazaar, Orders, In-app Chat
+│   │   │   │   ├── seller/       # Studio Workbench, Products, Mentorship setup
+│   │   │   │   └── admin/        # Logistics Benchmarks, Hubs, TinyFish Live Monitor
+│   │   │   ├── login/
+│   │   │   └── layout.tsx        # Wrapped with LanguageProvider
+│   │   ├── components/           # UI elements, Chat modals, QR payment widgets
+│   │   ├── context/              # LanguageContext (8 Indian languages)
+│   │   └── lib/                  # Frontend utilities & TinyFish API consumers
 │   ├── package.json
 │   ├── tailwind.config.js
 │   └── tsconfig.json
+│
 ├── .gitignore
-├── package.json              # Monorepo workspace configuration
 └── README.md
 ```
 

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useHunar } from "@/context/HunarContext";
 import { Product, CustomerInquiry } from "@/lib/data";
 import {
@@ -10,6 +11,7 @@ import {
   TrendingUp,
   Eye,
   MessageCircle,
+  MessageSquare,
   Phone,
   Trash2,
   Edit3,
@@ -27,26 +29,45 @@ import {
   X,
   AlertCircle,
   RefreshCw,
-  ShoppingBag
+  ShoppingBag,
+  Video
+} from "lucide-react";
+import { MentorshipManager } from "@/components/seller/MentorshipManager";
+import { MarketIntelligenceBar } from "@/components/tinyfish/MarketIntelligenceBar";
+import { ExternalProductImporterModal } from "@/components/tinyfish/ExternalProductImporterModal";
+import { AutonomousOpportunityAgentModal } from "@/components/tinyfish/AutonomousOpportunityAgentModal";
+import { CloudBrowserViewerModal } from "@/components/tinyfish/CloudBrowserViewerModal";
+import {
+  Globe,
+  Bot,
+  Monitor,
+  FileText
 } from "lucide-react";
 
 export default function SellerStudioDashboard() {
+  const router = useRouter();
   const {
     language,
     currentUser,
     switchDemoRole,
     products,
     inquiries,
+    mentorshipBookings,
     deleteProduct,
     toggleProductStatus,
     updateInquiryStatus,
+    sellerTotalEarnings,
+    startOrGetConversation,
     showToast
   } = useHunar();
 
   const isHindi = language === "hi";
 
   // Filter or tab state
-  const [activeTab, setActiveTab] = useState<"catalog" | "inbox" | "analytics">("catalog");
+  const [activeTab, setActiveTab] = useState<"catalog" | "inbox" | "mentorship" | "intelligence">("catalog");
+  const [isImporterOpen, setIsImporterOpen] = useState(false);
+  const [isAgentOpen, setIsAgentOpen] = useState(false);
+  const [isCloudBrowserOpen, setIsCloudBrowserOpen] = useState(false);
   const [editingInquiryId, setEditingInquiryId] = useState<string | null>(null);
   const [newStatus, setNewStatus] = useState<CustomerInquiry["status"]>("Crafting in Progress");
   const [statusNote, setStatusNote] = useState("");
@@ -56,6 +77,14 @@ export default function SellerStudioDashboard() {
 
   // Inquiries strictly addressed to this authenticated artisan
   const sellerInquiries = inquiries.filter((inq) => inq.sellerId === currentUser.id);
+
+  // Mentorship Bookings addressed to this artisan
+  const sellerMentorshipBookings = mentorshipBookings.filter(
+    (b) =>
+      b.mentorId === currentUser.id ||
+      b.mentorId === "demo-seller-rohit" ||
+      (currentUser.username && b.mentorId === "creator-rohit")
+  );
 
   // Studio Metrics Overview Calculation
   const totalCatalogValue = sellerProducts.reduce((acc, p) => acc + p.price * p.stock, 0);
@@ -158,17 +187,20 @@ export default function SellerStudioDashboard() {
           </p>
         </div>
 
-        <div className="p-6 rounded-sm bg-white border border-[#E8E2D7] shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+        <div className="p-6 rounded-sm bg-white border border-[#E8DEC8] shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
           <div className="flex items-center justify-between text-xs text-[#8A7561] font-semibold uppercase tracking-wider mb-3">
-            <span>{isHindi ? "हुनर कार्ड व्यूज" : "Profile Views"}</span>
-            <Eye className="w-4 h-4 text-[#8A7561]" />
+            <span>{isHindi ? "पुष्टीकृत स्टूडियो आय" : "Studio Confirmed Earnings"}</span>
+            <DollarSign className="w-4 h-4 text-[#2D583B]" />
           </div>
-          <p className="text-2xl sm:text-3xl font-serif font-bold text-[#1E2229]">
-            {simulatedViewsCount.toLocaleString("en-IN")}
+          <p className="text-2xl sm:text-3xl font-serif font-bold text-[#2D583B]">
+            ₹{sellerTotalEarnings.toLocaleString("en-IN")}
           </p>
-          <p className="text-[11px] text-[#635C53] mt-2">
-            {isHindi ? "पिछले ३० दिनों में" : "Past 30 days direct traffic"}
-          </p>
+          <div className="flex items-center gap-1.5 mt-2">
+            <span className="w-2 h-2 rounded-full bg-[#2D583B]" />
+            <span className="text-[11px] text-[#2D583B] font-semibold">
+              Order Paid / In Production
+            </span>
+          </div>
         </div>
       </div>
 
@@ -205,6 +237,38 @@ export default function SellerStudioDashboard() {
                 {sellerInquiries.length}
               </span>
             )}
+          </button>
+
+          <button
+            onClick={() => setActiveTab("mentorship")}
+            className={`px-4 py-2 rounded-sm text-xs font-medium transition-colors duration-150 flex items-center gap-2 border-b-2 ${
+              activeTab === "mentorship"
+                ? "border-[#B4461F] text-[#B4461F] bg-[#FAF7F2]"
+                : "border-transparent text-[#635C53] hover:text-[#1E2229]"
+            }`}
+          >
+            <Video className="w-4 h-4" />
+            <span>{isHindi ? "१-ऑन-१ मेंटरशिप" : "Mentorship & 1-on-1 Guidance"}</span>
+            {sellerMentorshipBookings.length > 0 && (
+              <span className="px-1.5 py-0.2 rounded-xs text-[10px] bg-[#2D583B] text-white">
+                {sellerMentorshipBookings.length}
+              </span>
+            )}
+          </button>
+
+          <button
+            onClick={() => setActiveTab("intelligence")}
+            className={`px-4 py-2 rounded-sm text-xs font-medium transition-colors duration-150 flex items-center gap-2 border-b-2 ${
+              activeTab === "intelligence"
+                ? "border-[#B4461F] text-[#B4461F] bg-[#FAF7F2]"
+                : "border-transparent text-[#635C53] hover:text-[#1E2229]"
+            }`}
+          >
+            <Globe className="w-4 h-4 text-[#E5A93B]" />
+            <span>{isHindi ? "वेब इंटेलिजेंस एवं एजेंट्स" : "TinyFish Web Intelligence"}</span>
+            <span className="px-1.5 py-0.2 rounded-xs text-[10px] bg-[#B4461F] text-white">
+              4 APIs
+            </span>
           </button>
         </div>
 
@@ -434,17 +498,21 @@ export default function SellerStudioDashboard() {
 
                         <div className="flex items-center gap-2.5">
                           {/* Direct Contact Buttons */}
-                          <a
-                            href={`https://wa.me/${inq.customerPhone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
-                              `Namaste ${inq.customerName}, this is ${currentUser.name}. I received your commission request for "${inq.productTitle || "Custom Art"}" (Proposed Budget: ₹${inq.proposedBudget}). I am glad to proceed!`
-                            )}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="px-3.5 py-2 rounded-sm bg-[#2D583B] text-white text-xs font-medium hover:bg-[#23452E] transition-colors duration-150 flex items-center gap-1.5"
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const conv = startOrGetConversation({
+                                sellerId: currentUser.id,
+                                productId: inq.productId,
+                                initialMessage: `Namaste ${inq.customerName}, this is ${currentUser.name}. I received your commission request for "${inq.productTitle || "Custom Art"}" (Proposed Budget: ₹${inq.proposedBudget}). Let's discuss details and timelines.`
+                              });
+                              router.push(`/dashboard/chat/${conv.id}`);
+                            }}
+                            className="btn-terracotta px-3.5 py-2 rounded-sm text-xs font-semibold flex items-center gap-1.5 shadow-xs"
                           >
-                            <MessageCircle className="w-3.5 h-3.5" />
-                            <span>WhatsApp</span>
-                          </a>
+                            <MessageSquare className="w-3.5 h-3.5" />
+                            <span>In-App Chat</span>
+                          </button>
 
                           <a
                             href={`tel:${inq.customerPhone}`}
@@ -544,6 +612,154 @@ export default function SellerStudioDashboard() {
             )}
           </div>
         )}
-      </div>
+
+      {/* ========================================================= */}
+      {/* TAB 3: MENTORSHIP SETTINGS & BOOKINGS                     */}
+      {/* ========================================================= */}
+      {activeTab === "mentorship" && (
+        <MentorshipManager isHindi={isHindi} />
+      )}
+
+      {/* ========================================================= */}
+      {/* TAB 4: TINYFISH WEB INTELLIGENCE & AGENTS                 */}
+      {/* ========================================================= */}
+      {activeTab === "intelligence" && (
+        <div className="space-y-6">
+          {/* Header Card */}
+          <div className="p-6 rounded-sm bg-[#1E2229] border border-[#2C323D] text-[#FAF7F2] shadow-sm space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-0.5 rounded-xs text-[10px] font-semibold uppercase tracking-wider bg-[#B4461F] text-white">
+                Live AI Web Connectivity
+              </span>
+              <span className="text-xs text-[#E5A93B] font-mono">
+                Official TinyFish Infrastructure
+              </span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#FAF7F2]">
+              {isHindi ? "टाइनीफिश लाइव वेब इंटेलिजेंस एवं ऑटोमेशन" : "TinyFish Live Web Intelligence & Automation Engine"}
+            </h2>
+            <p className="text-xs sm:text-sm text-stone-300 max-w-3xl leading-relaxed">
+              Equips grassroots artisans with 4 enterprise web capabilities: live material spot pricing, automated product importing from external shops, autonomous grant scouting agents, and cloud browser execution.
+            </p>
+          </div>
+
+          {/* Capability 1: Search API (Live Market Intelligence) */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-xs font-semibold text-stone-300 uppercase tracking-wider">
+              <span className="w-2 h-2 rounded-full bg-[#E5A93B]" />
+              <span>1. Search API: Live Web Intelligence & Spot Rates</span>
+            </div>
+            <MarketIntelligenceBar />
+          </div>
+
+          {/* Capabilities 2, 3, 4: Action Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Capability 2: Fetch API */}
+            <div className="p-6 bg-white border border-[#E8E2D7] rounded-sm shadow-[0_2px_8px_rgba(0,0,0,0.04)] flex flex-col justify-between space-y-4">
+              <div className="space-y-2">
+                <div className="w-10 h-10 rounded-full bg-[#B4461F]/10 border border-[#B4461F]/30 flex items-center justify-center text-[#B4461F]">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#B4461F]">
+                    Fetch API
+                  </span>
+                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-stone-100 text-stone-600">
+                    JSON & Markdown
+                  </span>
+                </div>
+                <h3 className="font-serif font-bold text-base text-[#1E2229]">
+                  External Catalog Importer
+                </h3>
+                <p className="text-xs text-[#635C53] leading-relaxed">
+                  Extract clean markdown, craft techniques, pricing, and high-res imagery directly from Etsy, Instagram, or artisan portfolio blogs into your Hunar catalog.
+                </p>
+              </div>
+              <button
+                onClick={() => setIsImporterOpen(true)}
+                className="w-full py-2.5 bg-[#B4461F] hover:bg-[#963816] text-white text-xs font-semibold rounded-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[#E5A93B]" />
+                <span>Launch URL Importer</span>
+              </button>
+            </div>
+
+            {/* Capability 3: Web Agent */}
+            <div className="p-6 bg-white border border-[#E8E2D7] rounded-sm shadow-[0_2px_8px_rgba(0,0,0,0.04)] flex flex-col justify-between space-y-4">
+              <div className="space-y-2">
+                <div className="w-10 h-10 rounded-full bg-[#2D583B]/10 border border-[#2D583B]/30 flex items-center justify-center text-[#2D583B]">
+                  <Bot className="w-5 h-5" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#2D583B]">
+                    Web Agent
+                  </span>
+                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-stone-100 text-stone-600">
+                    Autonomous Multi-Step
+                  </span>
+                </div>
+                <h3 className="font-serif font-bold text-base text-[#1E2229]">
+                  Autonomous Grant & Fair Scout
+                </h3>
+                <p className="text-xs text-[#635C53] leading-relaxed">
+                  Autonomous AI agent navigates official directories (handicrafts.nic.in, Dastkar, TRIFED), evaluates eligibility requirements, and synthesizes bespoke application strategies.
+                </p>
+              </div>
+              <button
+                onClick={() => setIsAgentOpen(true)}
+                className="w-full py-2.5 bg-[#2D583B] hover:bg-[#23452e] text-white text-xs font-semibold rounded-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
+              >
+                <Bot className="w-3.5 h-3.5 text-[#81C784]" />
+                <span>Deploy Scout Agent</span>
+              </button>
+            </div>
+
+            {/* Capability 4: Browser Infrastructure */}
+            <div className="p-6 bg-white border border-[#E8E2D7] rounded-sm shadow-[0_2px_8px_rgba(0,0,0,0.04)] flex flex-col justify-between space-y-4">
+              <div className="space-y-2">
+                <div className="w-10 h-10 rounded-full bg-[#1E2229]/10 border border-[#1E2229]/30 flex items-center justify-center text-[#1E2229]">
+                  <Monitor className="w-5 h-5" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#1E2229]">
+                    Cloud Browser
+                  </span>
+                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-stone-100 text-stone-600">
+                    Playwright / CDP
+                  </span>
+                </div>
+                <h3 className="font-serif font-bold text-base text-[#1E2229]">
+                  Remote Verification Sandbox
+                </h3>
+                <p className="text-xs text-[#635C53] leading-relaxed">
+                  Connects to TinyFish cloud browser sessions to inspect live pages, verify GI tag licenses, and audit external sources without requiring local browser drivers.
+                </p>
+              </div>
+              <button
+                onClick={() => setIsCloudBrowserOpen(true)}
+                className="w-full py-2.5 bg-[#1E2229] hover:bg-[#2A313D] text-[#FAF7F2] text-xs font-semibold rounded-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
+              >
+                <Monitor className="w-3.5 h-3.5 text-[#E5A93B]" />
+                <span>Launch Cloud Sandbox</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TinyFish Modals */}
+      <ExternalProductImporterModal
+        isOpen={isImporterOpen}
+        onClose={() => setIsImporterOpen(false)}
+      />
+      <AutonomousOpportunityAgentModal
+        isOpen={isAgentOpen}
+        onClose={() => setIsAgentOpen(false)}
+      />
+      <CloudBrowserViewerModal
+        isOpen={isCloudBrowserOpen}
+        onClose={() => setIsCloudBrowserOpen(false)}
+      />
+    </div>
   );
 }

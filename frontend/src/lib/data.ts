@@ -1,4 +1,5 @@
 // Hunar Platform - Rich Grassroots Creator Seed Data and Storage
+import { Conversation, Message, Payment } from "@/types";
 
 export interface CreatorPortfolioItem {
   id: string;
@@ -39,6 +40,12 @@ export interface Creator {
   portfolioImages: CreatorPortfolioItem[];
   whatsappInquiryText: string;
   completedGigsCount: number;
+  offersMentorship?: boolean;
+  mentorshipTitle?: string;
+  mentorshipFee?: number;
+  mentorshipDuration?: number;
+  mentorshipTopics?: string[];
+  mentorshipAvailability?: string;
 }
 
 export interface Opportunity {
@@ -130,6 +137,42 @@ export interface UserAccount {
   reviewsCount?: number;
   isVerified?: boolean;
   onboardingCompleted?: boolean;
+  offersMentorship?: boolean;
+  mentorshipTitle?: string;
+  mentorshipFee?: number;
+  mentorshipDuration?: number;
+  mentorshipTopics?: string[];
+  mentorshipAvailability?: string;
+}
+
+export interface MentorshipOffering {
+  enabled: boolean;
+  title: string;
+  duration: number; // in minutes (30, 45, 60)
+  fee: number;
+  agenda: string[];
+  availability: string;
+}
+
+export interface MentorshipBooking {
+  id: string;
+  mentorId: string;
+  mentorName: string;
+  mentorAvatar?: string;
+  learnerId?: string;
+  learnerName: string;
+  learnerPhone: string;
+  learnerEmail?: string;
+  topic: string;
+  learnerQuery?: string;
+  scheduledDate: string;
+  scheduledTime: string;
+  scheduledAt: string;
+  duration: number;
+  feePaid: number;
+  status: "CONFIRMED" | "COMPLETED" | "CANCELLED";
+  meetingLink?: string;
+  createdAt: string;
 }
 
 export interface Product {
@@ -211,6 +254,17 @@ export const SEED_CREATORS: Creator[] = [
     skills: ["Natural Pigments", "Kachni Fine Lines", "Bharni Color Fills", "Tussar Silk Painting", "Wall Murals", "Packaging Licensing"],
     badges: ["National Merit 2021", "Verified Folk Master", "Top Rated 4.9★", "Direct Producer"],
     whatsappInquiryText: "Namaste Sunitaji, I saw your Hunar Card for Madhubani art. I would like to inquire about a custom commission.",
+    offersMentorship: true,
+    mentorshipTitle: "Traditional Madhubani Pigment Prep & Kachni Lines",
+    mentorshipFee: 999,
+    mentorshipDuration: 60,
+    mentorshipTopics: [
+      "Extracting organic natural dyes from soot, turmeric & aparajita flowers",
+      "Ancestral Kachni geometric fine line brushwork",
+      "Bharni solid mineral pigment filling without bleeding",
+      "Preserving handmade paper & folk motifs for exhibitions"
+    ],
+    mentorshipAvailability: "Fridays & Saturdays, 3 PM – 6 PM",
     portfolioImages: [
       {
         id: "p1",
@@ -259,6 +313,17 @@ export const SEED_CREATORS: Creator[] = [
     skills: ["Exterior Acrylics", "Heritage Wall Restoration", "Spray & Brush Technique", "Weatherproof Top-coating", "Lime Plaster Relief"],
     badges: ["Verified Muralist", "Architectural Guild", "Speed Delivery"],
     whatsappInquiryText: "Hey Arif, saw your Hunar Card portfolio. We have a cafe/office wall we'd like to commission.",
+    offersMentorship: true,
+    mentorshipTitle: "Large-Scale Lime-Plaster Murals & Bulk Pricing",
+    mentorshipFee: 1499,
+    mentorshipDuration: 60,
+    mentorshipTopics: [
+      "Surface preparation on raw masonry & lime-wash walls",
+      "Scaling grid artwork to 20ft+ architectural facades",
+      "Commercial client contracts & milestone billing",
+      "Weatherproof outdoor protective top-sealants"
+    ],
+    mentorshipAvailability: "Saturdays, 11 AM – 2 PM",
     portfolioImages: [
       {
         id: "p3",
@@ -387,6 +452,17 @@ export const SEED_CREATORS: Creator[] = [
     skills: ["Wheel Throwing", "Wood-fired Kilns", "Food-safe Glazes", "Terracotta Tableware", "Custom Logo Stamping"],
     badges: ["Khurja Heritage Master", "Eco Artisan", "Top Rated 4.9★", "Direct Producer"],
     whatsappInquiryText: "Namaste Rohitji, I found your Hunar Card. I would like to inquire about studio terracotta pieces.",
+    offersMentorship: true,
+    mentorshipTitle: "Khurja Terracotta Glazing & Kiln Setup",
+    mentorshipFee: 899,
+    mentorshipDuration: 45,
+    mentorshipTopics: [
+      "Wheel-throwing centering & trimming precision",
+      "Wood-fired kiln temperature management (Cone 04-06)",
+      "Formulating food-safe, non-toxic studio glazes",
+      "Bulk tableware pricing & safe transit packaging"
+    ],
+    mentorshipAvailability: "Saturdays & Sundays, 4 PM – 7 PM",
     portfolioImages: [
       {
         id: "p7",
@@ -1012,7 +1088,18 @@ export const DEMO_ACCOUNTS: UserAccount[] = [
     rating: 4.96,
     reviewsCount: 38,
     isVerified: true,
-    onboardingCompleted: true
+    onboardingCompleted: true,
+    offersMentorship: true,
+    mentorshipTitle: "Khurja Terracotta Glazing & Kiln Setup",
+    mentorshipFee: 899,
+    mentorshipDuration: 45,
+    mentorshipTopics: [
+      "Wheel-throwing centering & trimming precision",
+      "Wood-fired kiln temperature management (Cone 04-06)",
+      "Formulating food-safe, non-toxic studio glazes",
+      "Bulk tableware pricing & safe transit packaging"
+    ],
+    mentorshipAvailability: "Saturdays & Sundays, 4 PM – 7 PM"
   },
   {
     id: "demo-customer-priya",
@@ -1311,4 +1398,250 @@ export const SEED_INQUIRIES: CustomerInquiry[] = [
     createdAt: "2026-10-14"
   }
 ];
+
+// ==========================================
+// SEED MENTORSHIP BOOKINGS
+// ==========================================
+export const SEED_MENTORSHIP_BOOKINGS: MentorshipBooking[] = [
+  {
+    id: "mb-booking-01",
+    mentorId: "demo-seller-rohit",
+    mentorName: "Rohit Sharma",
+    mentorAvatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=600&q=80",
+    learnerId: "demo-customer-priya",
+    learnerName: "Aditya Verma",
+    learnerPhone: "+91 98201 45678",
+    learnerEmail: "aditya.v@craftdesign.in",
+    topic: "Khurja Terracotta Glazing & Kiln Setup",
+    learnerQuery: "Building a small electric kiln studio in Gurgaon. Struggling with pinholing and blistering on our terracotta glazes.",
+    scheduledDate: "Tomorrow",
+    scheduledTime: "04:30 PM",
+    scheduledAt: "2026-10-21T11:00:00.000Z",
+    duration: 45,
+    feePaid: 899,
+    status: "CONFIRMED",
+    meetingLink: "https://meet.google.com/hun-roht-pottery",
+    createdAt: "2026-10-18T14:20:00.000Z"
+  },
+  {
+    id: "mb-booking-02",
+    mentorId: "demo-seller-rohit",
+    mentorName: "Rohit Sharma",
+    mentorAvatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=600&q=80",
+    learnerId: "user-meera-p",
+    learnerName: "Meera Patel",
+    learnerPhone: "+91 97123 88990",
+    learnerEmail: "meera.patel@gmail.com",
+    topic: "Bulk Tableware Pricing for Boutique Cafes",
+    learnerQuery: "Need mentorship on cost calculations, material loss percentages, and packing fragile tea mugs for long-distance transport.",
+    scheduledDate: "Saturday, Oct 24",
+    scheduledTime: "05:30 PM",
+    scheduledAt: "2026-10-24T12:00:00.000Z",
+    duration: 45,
+    feePaid: 899,
+    status: "CONFIRMED",
+    meetingLink: "https://meet.google.com/hun-roht-pottery",
+    createdAt: "2026-10-19T09:15:00.000Z"
+  },
+  {
+    id: "mb-booking-03",
+    mentorId: "creator-sunita",
+    mentorName: "Smt. Sunita Devi",
+    mentorAvatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=600&q=80",
+    learnerId: "demo-customer-priya",
+    learnerName: "Priya Nair",
+    learnerPhone: "+91 98711 44220",
+    learnerEmail: "priya.patron@hunar.in",
+    topic: "Traditional Madhubani Pigment Prep & Kachni Lines",
+    learnerQuery: "Learning organic soot pigment binder ratios with neem gum for canvas painting.",
+    scheduledDate: "Friday, Oct 23",
+    scheduledTime: "03:30 PM",
+    scheduledAt: "2026-10-23T10:00:00.000Z",
+    duration: 60,
+    feePaid: 999,
+    status: "CONFIRMED",
+    meetingLink: "https://meet.google.com/hun-sunt-madhubani",
+    createdAt: "2026-10-18T16:00:00.000Z"
+  }
+];
+
+// ==========================================
+// SEED IN-APP CONVERSATIONS & CHAT THREADS
+// ==========================================
+export const SEED_CONVERSATIONS: Conversation[] = [
+  {
+    id: "conv-rohit-priya",
+    productId: "prod-khurja-tea-set",
+    productTitle: "Hand-thrown Terracotta Chai Set (6 Kulhads + Kettle)",
+    productImage: "https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?w=800&auto=format&fit=crop&q=80",
+    productPrice: 2450,
+    customerId: "demo-customer-priya",
+    customerName: "Priya Nair",
+    customerAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80",
+    customerCity: "New Delhi",
+    sellerId: "demo-seller-rohit",
+    sellerName: "Rohit Sharma",
+    sellerAvatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=600&q=80",
+    sellerCity: "Khurja / Greater Noida",
+    sellerVerified: true,
+    craftTitle: "Khurja Terracotta & Ceramic Studio",
+    lastMessageText: "Payment request sent for custom glaze batch (₹2,450).",
+    lastMessageAt: "10 mins ago",
+    unreadCountCustomer: 1,
+    unreadCountSeller: 0,
+    createdAt: "2026-10-18T10:30:00.000Z",
+    payments: [],
+    messages: [
+      {
+        id: "msg-101",
+        conversationId: "conv-rohit-priya",
+        senderId: "demo-customer-priya",
+        text: "Namaste Rohit ji! I adore this Hand-thrown Khurja Chai Set. Could we get this custom glazed in an earthy indigo ash finish for 6 cups?",
+        createdAt: "Yesterday, 4:20 PM"
+      },
+      {
+        id: "msg-102",
+        conversationId: "conv-rohit-priya",
+        senderId: "demo-seller-rohit",
+        text: "Namaste Priya ji! Thank you so much for appreciating our studio work. Yes, absolutely! We formulate our own natural wood-ash glazes. It will require 4 days for wheel shaping, bisque firing, and the high-temperature glaze kiln.",
+        createdAt: "Yesterday, 4:35 PM"
+      },
+      {
+        id: "msg-103",
+        conversationId: "conv-rohit-priya",
+        senderId: "demo-customer-priya",
+        text: "That timeline works great for our anniversary gathering. Could you please send across the direct payment invoice so I can confirm the order?",
+        createdAt: "Yesterday, 5:10 PM"
+      },
+      {
+        id: "msg-104",
+        conversationId: "conv-rohit-priya",
+        senderId: "demo-seller-rohit",
+        text: "Certainly! Generating the studio commission invoice below. Once payment is confirmed, we'll immediately prep the clay batch.",
+        isPaymentCard: true,
+        paymentDetails: {
+          orderId: "HNR-ORD-89214",
+          amount: 2450,
+          status: "PENDING",
+          productTitle: "Custom Hand-thrown Terracotta Chai Set (Indigo Ash Glaze)"
+        },
+        createdAt: "10 mins ago"
+      }
+    ]
+  },
+  {
+    id: "conv-sunita-priya",
+    productId: "prod-mithila-tree-of-life",
+    productTitle: "Tree of Life (Kohbar Kachni Madhubani Scroll)",
+    productImage: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=800&auto=format&fit=crop&q=80",
+    productPrice: 6800,
+    customerId: "demo-customer-priya",
+    customerName: "Priya Nair",
+    customerAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80",
+    customerCity: "New Delhi",
+    sellerId: "creator-sunita",
+    sellerName: "Smt. Sunita Devi",
+    sellerAvatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=600&q=80",
+    sellerCity: "Madhubani / Delhi NCR",
+    sellerVerified: true,
+    craftTitle: "Madhubani & Mithila Folk Master",
+    lastMessageText: "Payment Confirmed: ₹6,800 received via UPI QR.",
+    lastMessageAt: "Yesterday",
+    unreadCountCustomer: 0,
+    unreadCountSeller: 0,
+    createdAt: "2026-10-17T14:15:00.000Z",
+    payments: [
+      {
+        id: "pay-sunita-01",
+        conversationId: "conv-sunita-priya",
+        orderId: "HNR-ORD-44129",
+        amount: 6800,
+        method: "UPI_QR",
+        status: "PAID",
+        transactionRef: "HNR-TXN-44129",
+        createdAt: "2026-10-17T16:45:00.000Z"
+      }
+    ],
+    messages: [
+      {
+        id: "msg-201",
+        conversationId: "conv-sunita-priya",
+        senderId: "demo-customer-priya",
+        text: "Sunita ji, Namaste! We have a living room niche (4x3 ft). Is it possible to commission this Tree of Life with intricate peacock border lines?",
+        createdAt: "Oct 17, 2:15 PM"
+      },
+      {
+        id: "msg-202",
+        conversationId: "conv-sunita-priya",
+        senderId: "creator-sunita",
+        text: "Namaste Priya beti! Bilkul. I prepare all pigments myself with cow dung wash, neem gum, and turmeric extract on pure handmade paper.",
+        createdAt: "Oct 17, 3:00 PM"
+      },
+      {
+        id: "msg-203",
+        conversationId: "conv-sunita-priya",
+        senderId: "creator-sunita",
+        text: "Payment invoice for ₹6,800 sent.",
+        isPaymentCard: true,
+        paymentDetails: {
+          orderId: "HNR-ORD-44129",
+          amount: 6800,
+          status: "PAID",
+          method: "UPI_QR",
+          transactionRef: "HNR-TXN-44129",
+          timestamp: "Oct 17, 4:45 PM",
+          productTitle: "Tree of Life (Kohbar Kachni Madhubani Scroll)"
+        },
+        createdAt: "Oct 17, 4:45 PM"
+      },
+      {
+        id: "msg-204",
+        conversationId: "conv-sunita-priya",
+        senderId: "creator-sunita",
+        text: "Dhanyawad Priya ji! Payment is verified. Natural pigment grinding has begun in our Madhubani workshop. Crafting in Progress!",
+        createdAt: "Oct 17, 5:02 PM"
+      }
+    ]
+  },
+  {
+    id: "conv-meenakshi-priya",
+    productId: "prod-sanganeri-dupatta",
+    productTitle: "Hand-block Sanganeri Dabu Indigo Dupatta",
+    productImage: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&auto=format&fit=crop&q=80",
+    productPrice: 3200,
+    customerId: "demo-customer-priya",
+    customerName: "Priya Nair",
+    customerAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80",
+    customerCity: "New Delhi",
+    sellerId: "creator-meenakshi",
+    sellerName: "Meenakshi Chhipa",
+    sellerAvatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80",
+    sellerCity: "Sanganer, Jaipur",
+    sellerVerified: true,
+    craftTitle: "Handloom & Wooden Block Printing",
+    lastMessageText: "Would you like vegetable indigo dye or natural madder red?",
+    lastMessageAt: "2 days ago",
+    unreadCountCustomer: 0,
+    unreadCountSeller: 0,
+    createdAt: "2026-10-16T11:00:00.000Z",
+    payments: [],
+    messages: [
+      {
+        id: "msg-301",
+        conversationId: "conv-meenakshi-priya",
+        senderId: "demo-customer-priya",
+        text: "Hello Meenakshi ji! I want to order 2 custom stoles in Chanderi silk with your traditional floral wooden block motifs.",
+        createdAt: "Oct 16, 11:00 AM"
+      },
+      {
+        id: "msg-302",
+        conversationId: "conv-meenakshi-priya",
+        senderId: "creator-meenakshi",
+        text: "Khamma Ghani Priya ji! We can hand-print those on hand-spun Chanderi. Would you like vegetable indigo dye or natural madder red?",
+        createdAt: "Oct 16, 11:45 AM"
+      }
+    ]
+  }
+];
+
 

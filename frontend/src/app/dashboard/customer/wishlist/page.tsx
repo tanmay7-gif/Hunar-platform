@@ -2,12 +2,14 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useHunar } from "@/context/HunarContext";
 import { useLanguage } from "@/context/LanguageContext";
 import {
   Bookmark,
   Heart,
   MessageCircle,
+  MessageSquare,
   ExternalLink,
   Trash2,
   MapPin,
@@ -18,13 +20,15 @@ import {
 } from "lucide-react";
 
 export default function SavedCollectionsPage() {
+  const router = useRouter();
   const {
     products,
     creators,
     savedProductIds,
     toggleSaveProduct,
     savedCreatorIds,
-    toggleSaveCreator
+    toggleSaveCreator,
+    startOrGetConversation
   } = useHunar();
   const { t, currentLanguage } = useLanguage();
   const isHindi = currentLanguage === "hi";
@@ -142,15 +146,21 @@ export default function SavedCollectionsPage() {
                           <p className="font-bold text-base text-[#1E2229]">₹{prod.price.toLocaleString("en-IN")}</p>
                         </div>
 
-                        <a
-                          href={whatsappUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm bg-[#2D583B] text-white text-xs font-medium hover:bg-[#23452E] transition-colors duration-150"
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const conv = startOrGetConversation({
+                              sellerId: prod.sellerId,
+                              productId: prod.id,
+                              initialMessage: `Namaste ${prod.sellerName}! I have saved "${prod.title}" (₹${prod.price}) to my wishlist and would like to inquire about ordering.`
+                            });
+                            router.push(`/dashboard/chat/${conv.id}`);
+                          }}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm btn-terracotta text-white text-xs font-semibold shadow-xs"
                         >
-                          <MessageCircle className="w-3.5 h-3.5" />
-                          <span>Inquire</span>
-                        </a>
+                          <MessageSquare className="w-3.5 h-3.5" />
+                          <span>Inquire / Chat</span>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -226,14 +236,20 @@ export default function SavedCollectionsPage() {
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <a
-                          href={whatsappUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="px-3 py-1.5 rounded-sm bg-[#2D583B] text-white text-xs font-medium hover:bg-[#23452E] transition-colors duration-150"
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const conv = startOrGetConversation({
+                              sellerId: creator.id,
+                              initialMessage: `Namaste ${creator.name}! I shortlisted your craft studio on Hunar and would like to discuss a custom project.`
+                            });
+                            router.push(`/dashboard/chat/${conv.id}`);
+                          }}
+                          className="px-3 py-1.5 rounded-sm btn-terracotta text-white text-xs font-semibold shadow-xs flex items-center gap-1"
                         >
-                          WhatsApp
-                        </a>
+                          <MessageSquare className="w-3.5 h-3.5" />
+                          <span>Chat</span>
+                        </button>
                         <Link
                           href={`/u/${creator.username}`}
                           className="p-1.5 rounded-sm border border-[#D3CBBE] text-[#635C53] hover:bg-[#FAF7F2] transition-colors duration-150"

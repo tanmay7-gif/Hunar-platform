@@ -23,7 +23,9 @@ import {
   CheckCircle2,
   Clock,
   ExternalLink,
-  ChevronRight
+  ChevronRight,
+  Video,
+  MessageSquare
 } from "lucide-react";
 
 interface DashboardSidebarProps {
@@ -41,7 +43,9 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
     inquiries,
     opportunities,
     savedProductIds,
-    savedCreatorIds
+    savedCreatorIds,
+    mentorshipBookings,
+    conversations
   } = useHunar();
   const { t, currentLanguage, isRTL } = useLanguage();
 
@@ -70,6 +74,12 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
     (i) => i.sellerId === currentUser.id && i.status === "Under Review"
   ).length;
   const openGigsCount = opportunities.length;
+  const sellerMentorshipCount = mentorshipBookings.filter(
+    (b) =>
+      b.mentorId === currentUser.id ||
+      b.mentorId === "demo-seller-rohit" ||
+      (currentUser.username && b.mentorId === "creator-rohit")
+  ).length;
 
   const customerOrdersCount = inquiries.filter((i) => i.customerId === currentUser.id).length;
   const customerSavedCount = savedProductIds.length + savedCreatorIds.length;
@@ -93,12 +103,30 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
       exact: false
     },
     {
+      title: t("nav.mentorship", "Mentorship & Guidance"),
+      href: "/dashboard/seller/mentorship",
+      icon: Video,
+      badge: sellerMentorshipCount > 0 ? `${sellerMentorshipCount} Active` : "Opt-in",
+      badgeColor: "bg-[#2D583B] text-white",
+      sublabel: "1-on-1 Paid Sessions",
+      exact: false
+    },
+    {
       title: t("nav.leads"),
       href: "/dashboard/seller/inquiries",
       icon: Inbox,
       badge: pendingInquiriesCount > 0 ? `${pendingInquiriesCount} ${t("dashboard.new")}` : `${sellerInquiriesCount}`,
       badgeColor: pendingInquiriesCount > 0 ? "bg-[#C85A32] text-white" : "bg-[#FAF5EC] text-[#8B3B18]",
       sublabel: t("nav.leadsSub"),
+      exact: false
+    },
+    {
+      title: "Direct Messages & Chat",
+      href: "/dashboard/chat",
+      icon: MessageSquare,
+      badge: "In-App",
+      badgeColor: "bg-[#2D583B] text-white",
+      sublabel: "Buyer & Patron Chat",
       exact: false
     },
     {
@@ -116,6 +144,15 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
       badge: null,
       sublabel: t("nav.roadmapSub"),
       exact: false
+    },
+    {
+      title: "Admin Logistics & Hubs",
+      href: "/dashboard/admin",
+      icon: ShieldCheck,
+      badge: "TinyFish Live",
+      badgeColor: "bg-[#1E2229] text-white",
+      sublabel: "Logistics Benchmarks & Hubs",
+      exact: false
     }
   ];
 
@@ -128,6 +165,15 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
       badge: `${products.length} ${t("dashboard.pieces")}`,
       sublabel: t("nav.bazaarSub"),
       exact: true
+    },
+    {
+      title: "Messages & Inquiries",
+      href: "/dashboard/customer/messages",
+      icon: MessageSquare,
+      badge: "Live",
+      badgeColor: "bg-[#B4461F] text-white",
+      sublabel: "Chat with Artisans",
+      exact: false
     },
     {
       title: t("nav.artisans"),

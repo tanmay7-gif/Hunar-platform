@@ -26,6 +26,7 @@ import {
   RefreshCw
 } from "lucide-react";
 import { useTinyFishSyncQueue } from "@tinyfish/core";
+import { ExternalProductImporterModal } from "@/components/tinyfish/ExternalProductImporterModal";
 
 export default function SellerProductsPage() {
   const {
@@ -46,6 +47,7 @@ export default function SellerProductsPage() {
   const [statusFilter, setStatusFilter] = useState<"ALL" | "Live" | "Draft">("ALL");
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
 
+  const [isImporterOpen, setIsImporterOpen] = useState(false);
   const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newCategory, setNewCategory] = useState<Product["category"]>("Terracotta & Pottery");
@@ -157,6 +159,14 @@ export default function SellerProductsPage() {
               )}
             </div>
 
+            <button
+              onClick={() => setIsImporterOpen(true)}
+              className="px-3.5 py-2.5 rounded-sm bg-[#B4461F]/20 hover:bg-[#B4461F]/30 text-[#FAF7F2] text-xs font-medium transition-colors duration-150 flex items-center gap-1.5 border border-[#B4461F]/50 cursor-pointer shadow-sm"
+              title="Extract craft listings from Etsy, Instagram, or external URLs via TinyFish Fetch API"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-[#E5A93B]" />
+              <span>Import via TinyFish Fetch</span>
+            </button>
             <button
               onClick={() => setIsAddDrawerOpen(true)}
               className="px-4 py-2.5 rounded-sm bg-[#2A313D] hover:bg-[#343C4B] text-[#FAF7F2] text-xs font-medium transition-colors duration-150 flex items-center gap-1.5 border border-[#3E4756]"
@@ -864,6 +874,12 @@ export default function SellerProductsPage() {
           </div>
         </div>
       )}
+
+      {/* TinyFish Fetch External Product Importer Modal */}
+      <ExternalProductImporterModal
+        isOpen={isImporterOpen}
+        onClose={() => setIsImporterOpen(false)}
+      />
     </div>
   );
 }

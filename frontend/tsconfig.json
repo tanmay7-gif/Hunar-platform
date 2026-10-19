@@ -21,7 +21,9 @@
     "paths": {
       "@/*": ["./src/*"],
       "@tinyfish/core": ["./src/lib/tinyfish"],
-      "@tinyfish/core/*": ["./src/lib/tinyfish/*"]
+      "@tinyfish/core/*": ["./src/lib/tinyfish/*"],
+      "@hunar/tinyfish": ["../tinyfish/src"],
+      "@hunar/tinyfish/*": ["../tinyfish/src/*"]
     }
   },
   "include": [

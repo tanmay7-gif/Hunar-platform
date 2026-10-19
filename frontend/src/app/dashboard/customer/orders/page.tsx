@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useHunar } from "@/context/HunarContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { CustomerInquiry } from "@/lib/data";
@@ -12,6 +13,7 @@ import {
   Package,
   Truck,
   MessageCircle,
+  MessageSquare,
   ExternalLink,
   ChevronRight,
   MapPin,
@@ -20,7 +22,8 @@ import {
 } from "lucide-react";
 
 export default function CustomerOrdersPage() {
-  const { currentUser, inquiries } = useHunar();
+  const router = useRouter();
+  const { currentUser, inquiries, startOrGetConversation } = useHunar();
   const { t, currentLanguage } = useLanguage();
   const isHindi = currentLanguage === "hi";
 
@@ -194,15 +197,22 @@ export default function CustomerOrdersPage() {
                   >
                     {stageInfo.label}
                   </span>
-                  <a
-                    href={whatsappUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="p-2 rounded-sm bg-[#2D583B] text-white hover:bg-[#23452E] transition-colors duration-150"
-                    title="Direct WhatsApp Chat with Artisan"
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const conv = startOrGetConversation({
+                        sellerId: order.sellerId,
+                        productId: order.productId,
+                        initialMessage: `Namaste ${order.sellerName}, following up regarding our commission "${order.productTitle || "Custom Brief"}" (Order ID: ${order.id}).`
+                      });
+                      router.push(`/dashboard/chat/${conv.id}`);
+                    }}
+                    className="p-2 rounded-sm btn-terracotta text-white shadow-xs flex items-center gap-1.5 text-xs font-medium"
+                    title="Open In-App Artisan Chat"
                   >
-                    <MessageCircle className="w-4 h-4" />
-                  </a>
+                    <MessageSquare className="w-4 h-4" />
+                    <span>In-App Chat</span>
+                  </button>
                 </div>
               </div>
 

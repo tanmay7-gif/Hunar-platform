@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useHunar } from "@/context/HunarContext";
 import {
   Sparkles,
@@ -11,11 +11,14 @@ import {
   Share2,
   Copy,
   MessageCircle,
+  MessageSquare,
   Star,
   Award,
   Layers,
   Phone,
   Calendar,
+  Clock,
+  Video,
   DollarSign,
   ArrowRight,
   ShieldCheck,
@@ -23,14 +26,27 @@ import {
   ExternalLink,
   ChevronLeft
 } from "lucide-react";
+import { MentorshipBookingModal } from "@/components/customer/MentorshipBookingModal";
 
 export default function HunarCardPage() {
   const params = useParams();
+  const router = useRouter();
   const username = params.username as string;
-  const { language, creators, hireCreator, showToast } = useHunar();
+  const { language, creators, hireCreator, showToast, startOrGetConversation } = useHunar();
   const isHindi = language === "hi";
 
   const creator = creators.find((c) => c.username === username) || creators[0];
+
+  const handleStartDirectChat = () => {
+    const conv = startOrGetConversation({
+      sellerId: creator.id,
+      initialMessage: `Namaste ${creator.name}! I am viewing your verified Hunar Lookbook and would like to inquire about commissioning custom artwork.`
+    });
+    router.push(`/dashboard/chat/${conv.id}`);
+  };
+
+  // State for "Book Mentorship" Modal
+  const [mentorshipModalOpen, setMentorshipModalOpen] = useState(false);
 
   // State for "Request a Quote / Hire" Modal
   const [hireModalOpen, setHireModalOpen] = useState(false);
@@ -116,19 +132,16 @@ export default function HunarCardPage() {
               <span>{isHindi ? "हुनर सत्यापित कार्ड" : "Verified Hunar Card"}</span>
             </div>
 
-            {/* Direct WhatsApp Share button in top right */}
+            {/* Direct In-App Chat button in top right */}
             <div className="absolute top-4 right-4">
-              <a
-                href={`https://wa.me/${creator.whatsapp}?text=${encodeURIComponent(
-                  creator.whatsappInquiryText
-                )}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-3.5 py-1.5 rounded-sm bg-[#2D583B] text-white text-xs font-medium hover:bg-[#23452E] transition-colors duration-150 flex items-center gap-1.5"
+              <button
+                type="button"
+                onClick={handleStartDirectChat}
+                className="px-3.5 py-1.5 rounded-sm bg-[#B4461F] text-white text-xs font-medium hover:bg-[#963715] transition-colors duration-150 flex items-center gap-1.5 shadow-xs"
               >
-                <MessageCircle className="w-4 h-4" />
-                <span>{isHindi ? "व्हाट्सएप संपर्क" : "WhatsApp Inquiry"}</span>
-              </a>
+                <MessageSquare className="w-4 h-4" />
+                <span>{isHindi ? "कारीगर से चैट करें" : "Inquire / Direct Chat"}</span>
+              </button>
             </div>
           </div>
 
@@ -161,14 +174,28 @@ export default function HunarCardPage() {
                 </div>
               </div>
 
-              {/* Hire / Request Quote Button */}
-              <div className="flex items-center gap-2.5 w-full sm:w-auto">
+              {/* Profile Actions: Mentorship + Commission */}
+              <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 w-full sm:w-auto">
+                {creator.offersMentorship !== false && (
+                  <button
+                    onClick={() => setMentorshipModalOpen(true)}
+                    className="flex-1 sm:flex-initial px-4 sm:px-5 py-2.5 rounded-sm font-semibold text-xs flex items-center justify-center gap-2 bg-[#1E2229] text-white hover:bg-[#2D3440] transition-colors duration-150 shadow-sm border border-[#3E4756]"
+                  >
+                    <Video className="w-3.5 h-3.5 text-[#E5A93B]" />
+                    <span>
+                      {isHindi
+                        ? `१-ऑन-१ मेंटरशिप (₹${(creator.mentorshipFee || 899).toLocaleString("en-IN")})`
+                        : `Book 1-on-1 Guidance (₹${(creator.mentorshipFee || 899).toLocaleString("en-IN")})`}
+                    </span>
+                  </button>
+                )}
+
                 <button
                   onClick={() => setHireModalOpen(true)}
-                  className="btn-terracotta flex-1 sm:flex-initial px-5 py-2.5 rounded-sm font-medium text-xs flex items-center justify-center gap-2 transition-colors duration-150"
+                  className="btn-terracotta flex-1 sm:flex-initial px-4 sm:px-5 py-2.5 rounded-sm font-medium text-xs flex items-center justify-center gap-2 transition-colors duration-150"
                 >
                   <Calendar className="w-3.5 h-3.5" />
-                  <span>{isHindi ? "कोटेशन मांगें / बुक करें" : "Request a Quote / Hire"}</span>
+                  <span>{isHindi ? "कोटेशन मांगें / कमीशन" : "Commission Work"}</span>
                 </button>
               </div>
             </div>
@@ -241,6 +268,101 @@ export default function HunarCardPage() {
               </div>
             </div>
 
+            {/* ========================================================= */}
+            {/* DEDICATED MENTORSHIP & MASTERCLASS SECTION               */}
+            {/* ========================================================= */}
+            {creator.offersMentorship !== false && (
+              <div
+                id="mentorship"
+                className="mt-8 p-6 sm:p-8 rounded-sm bg-[#FAF7F2] border border-[#E8DEC8] shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
+              >
+                <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 pb-6 border-b border-[#E8DEC8]">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2.5 py-0.5 rounded-xs text-[10px] font-semibold uppercase tracking-wider bg-[#2D583B] text-white flex items-center gap-1.5">
+                        <Video className="w-3 h-3" />
+                        <span>{isHindi ? "१-ऑन-१ मेंटरशिप" : "1-on-1 Paid Masterclass"}</span>
+                      </span>
+                      <span className="px-2 py-0.5 rounded-xs text-[10px] font-semibold bg-white text-[#B4461F] border border-[#E8DEC8]">
+                        100% Direct Payouts
+                      </span>
+                    </div>
+
+                    <h3 className="font-serif text-xl sm:text-2xl font-bold text-[#1E2229]">
+                      {creator.mentorshipTitle || `${creator.primaryArtForm} Technique & 1-on-1 Masterclass`}
+                    </h3>
+
+                    <p className="text-xs text-[#535A66] max-w-xl leading-relaxed">
+                      {isHindi
+                        ? `शिल्पी ${creator.nameHindi || creator.name} से सीधे वीडियो कॉल पर सीखें। तकनीक, खनिज वर्णक, भट्टी तापमान और बाज़ार मूल्य निर्धारण पर व्यक्तिगत मार्गदर्शन प्राप्त करें।`
+                        : `Learn ancestral techniques directly from ${creator.name}. A private ${creator.mentorshipDuration || 45}-minute video session tailored to your portfolio, craft questions, or business inquiries.`}
+                    </p>
+                  </div>
+
+                  {/* Pricing & Booking CTA Card */}
+                  <div className="p-4 rounded-sm bg-white border border-[#E8DEC8] shadow-xs text-center sm:text-right shrink-0 space-y-2">
+                    <div>
+                      <span className="text-[10px] font-bold text-[#8A7561] uppercase tracking-wider">
+                        {isHindi ? "सत्र शुल्क" : "Consultation Fee"}
+                      </span>
+                      <p className="text-2xl font-serif font-bold text-[#1E2229]">
+                        ₹{(creator.mentorshipFee || 899).toLocaleString("en-IN")}
+                      </p>
+                      <p className="text-[11px] text-[#635C53]">
+                        {creator.mentorshipDuration || 45} Mins via Video Call
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={() => setMentorshipModalOpen(true)}
+                      className="w-full px-5 py-2.5 rounded-sm bg-[#1E2229] hover:bg-[#2C323D] text-white text-xs font-semibold flex items-center justify-center gap-2 transition-colors duration-150"
+                    >
+                      <Calendar className="w-3.5 h-3.5 text-[#E5A93B]" />
+                      <span>{isHindi ? "सत्र बुक करें" : "Book Mentorship Session"}</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Agenda & Availability Sub-strip */}
+                <div className="pt-6 grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+                  <div className="md:col-span-8 space-y-2">
+                    <p className="text-[11px] font-bold text-[#8A7561] uppercase tracking-wider">
+                      {isHindi ? "सत्र का मुख्य एजेंडा" : "Curated Session Agenda:"}
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      {(creator.mentorshipTopics || [
+                        "Raw material sourcing & organic pigment extraction",
+                        "Ancestral line balance & precision finishing",
+                        "Commercial client proposals & milestone budgeting",
+                        "Packaging & weatherproofing fragile handmade works"
+                      ]).map((topic, idx) => (
+                        <div
+                          key={idx}
+                          className="p-2.5 rounded-xs bg-white border border-[#E8DEC8] flex items-start gap-2 text-xs text-[#1E2229]"
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#B4461F] mt-1.5 shrink-0" />
+                          <span className="leading-snug">{topic}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="md:col-span-4 p-4 rounded-xs bg-white border border-[#E8DEC8] space-y-2 text-xs">
+                    <p className="text-[11px] font-bold text-[#8A7561] uppercase tracking-wider">
+                      {isHindi ? "उपलब्ध समय" : "Availability Window:"}
+                    </p>
+                    <div className="flex items-center gap-2 text-[#1E2229] font-medium">
+                      <Clock className="w-4 h-4 text-[#B4461F] shrink-0" />
+                      <span>{creator.mentorshipAvailability || "Saturdays & Sundays, 4 PM – 7 PM"}</span>
+                    </div>
+                    <p className="text-[11px] text-[#635C53] leading-relaxed pt-1 border-t border-[#E8DEC8]">
+                      Confirmed upon instant checkout with automated Google Meet & Calendar links.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Verified Portfolio Gallery */}
             <div className="mt-8 pt-8 border-t border-[#E8E2D7]">
               <div className="flex items-center justify-between mb-4">
@@ -306,28 +428,25 @@ export default function HunarCardPage() {
                 <div>
                   <h4 className="font-serif font-bold text-base text-[#1E2229]">
                     {isHindi
-                      ? `${creator.nameHindi || creator.name} से सीधे व्हाट्सएप पर बात करें`
-                      : `Chat with ${creator.name} directly on WhatsApp`}
+                      ? `${creator.nameHindi || creator.name} से सीधे चैट पर बात करें`
+                      : `Chat with ${creator.name} directly in-app`}
                   </h4>
                   <p className="text-xs text-[#535A66] mt-0.5">
                     {isHindi
-                      ? "बिना किसी बिचौलिए के अपना विचार, दीवार या उत्पाद का आकार साझा करें।"
-                      : "Send requirements, photo references, and finalize dates instantly."}
+                      ? "बिना किसी बिचौलिए के अपना विचार साझा करें और इन-चैट सुरक्षित भुगतान करें।"
+                      : "Send requirements, photo references, finalize custom sizes, and pay securely in-chat."}
                   </p>
                 </div>
               </div>
 
-              <a
-                href={`https://wa.me/${creator.whatsapp}?text=${encodeURIComponent(
-                  creator.whatsappInquiryText
-                )}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-4 py-2 rounded-sm bg-[#2D583B] text-white text-xs font-medium hover:bg-[#23452E] transition-colors duration-150 shrink-0 flex items-center gap-1.5"
+              <button
+                type="button"
+                onClick={handleStartDirectChat}
+                className="px-4 py-2.5 rounded-sm btn-terracotta text-white text-xs font-semibold hover:bg-[#963715] transition-colors duration-150 shrink-0 flex items-center gap-1.5 shadow-xs"
               >
-                <span>{isHindi ? "व्हाट्सएप संदेश भेजें" : "Start WhatsApp Chat"}</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
+                <MessageSquare className="w-4 h-4" />
+                <span>{isHindi ? "सीधा संदेश व चैट शुरू करें" : "Start In-App Chat"}</span>
+              </button>
             </div>
           </div>
         </div>
@@ -458,6 +577,14 @@ export default function HunarCardPage() {
             </div>
           </div>
         )}
+
+        {/* Mentorship Booking Modal */}
+        <MentorshipBookingModal
+          isOpen={mentorshipModalOpen}
+          onClose={() => setMentorshipModalOpen(false)}
+          creator={creator}
+          isHindi={isHindi}
+        />
       </div>
     </div>
   );

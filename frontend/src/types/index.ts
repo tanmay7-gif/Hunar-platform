@@ -19,6 +19,12 @@ export interface UserAccount {
   rating?: number;
   reviewsCount?: number;
   isVerified?: boolean;
+  offersMentorship?: boolean;
+  mentorshipTitle?: string;
+  mentorshipFee?: number;
+  mentorshipDuration?: number;
+  mentorshipTopics?: string[];
+  mentorshipAvailability?: string;
 }
 
 export interface CreatorPortfolioItem {
@@ -60,6 +66,12 @@ export interface Creator {
   portfolioImages: CreatorPortfolioItem[];
   whatsappInquiryText: string;
   completedGigsCount: number;
+  offersMentorship?: boolean;
+  mentorshipTitle?: string;
+  mentorshipFee?: number;
+  mentorshipDuration?: number;
+  mentorshipTopics?: string[];
+  mentorshipAvailability?: string;
 }
 
 export type ProductCategory =
@@ -193,3 +205,89 @@ export interface Booking {
   createdAt: string;
   status: "confirmed" | "pending";
 }
+
+export interface MentorshipOffering {
+  enabled: boolean;
+  title: string;
+  duration: number; // in minutes (30, 45, 60)
+  fee: number;
+  agenda: string[];
+  availability: string;
+}
+
+export interface MentorshipBooking {
+  id: string;
+  mentorId: string;
+  mentorName: string;
+  mentorAvatar?: string;
+  learnerId?: string;
+  learnerName: string;
+  learnerPhone: string;
+  learnerEmail?: string;
+  topic: string;
+  learnerQuery?: string;
+  scheduledDate: string;
+  scheduledTime: string;
+  scheduledAt: string;
+  duration: number;
+  feePaid: number;
+  status: "CONFIRMED" | "COMPLETED" | "CANCELLED";
+  meetingLink?: string;
+  createdAt: string;
+}
+
+export interface Message {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  text: string;
+  isPaymentCard?: boolean;
+  paymentDetails?: {
+    orderId: string;
+    amount: number;
+    status: "PENDING" | "PAID" | "FAILED";
+    method?: "UPI_QR" | "NETBANKING_CARD";
+    transactionRef?: string;
+    timestamp?: string;
+    productTitle?: string;
+  };
+  attachmentUrl?: string;
+  createdAt: string;
+}
+
+export interface Payment {
+  id: string;
+  conversationId: string;
+  orderId: string;
+  amount: number;
+  method: "UPI_QR" | "NETBANKING_CARD";
+  status: "PENDING" | "PAID" | "FAILED";
+  transactionRef: string;
+  createdAt: string;
+}
+
+export interface Conversation {
+  id: string;
+  productId?: string;
+  productTitle?: string;
+  productImage?: string;
+  productPrice?: number;
+  customerId: string;
+  customerName: string;
+  customerAvatar: string;
+  customerCity?: string;
+  sellerId: string;
+  sellerName: string;
+  sellerAvatar: string;
+  sellerCity?: string;
+  sellerVerified?: boolean;
+  craftTitle?: string;
+  messages: Message[];
+  payments: Payment[];
+  unreadCountCustomer?: number;
+  unreadCountSeller?: number;
+  lastMessageText?: string;
+  lastMessageAt?: string;
+  createdAt: string;
+}
+

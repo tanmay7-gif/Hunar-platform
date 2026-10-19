@@ -7,6 +7,8 @@ export * from "./types";
 export * from "./engine";
 export * from "./matchScorer";
 export * from "./hooks";
+export * from "./client";
 
 // Default export of the singleton
 export { tinyFish as default } from "./engine";
+

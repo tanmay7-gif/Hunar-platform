@@ -11,6 +11,7 @@ out/
 build/
 dist/
 backend/dist/
+tinyfish/dist/
 
 # Environment Files
 .env
