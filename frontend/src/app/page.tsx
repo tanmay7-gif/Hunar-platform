@@ -50,78 +50,128 @@ export default function HomePage() {
   return (
     <div className="min-h-screen">
       {/* Editorial Artisanal Hero Section */}
-      <section className="relative overflow-hidden bg-[#FAF7F2] border-b border-[#E8E2D7] py-16 sm:py-24">
+      <section className="relative overflow-hidden bg-[#FAF7F2] border-b border-[#E8E2D7]">
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 relative z-10">
-          <div className="max-w-3xl">
-            {/* Grounded Editorial Section Label */}
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#8A7561] mb-3">
-              {isHindi ? "जमीनी भारतीय कलाकारों का स्वावलंबी मंच" : "Grassroots Creator & Artisan Guild"}
-            </p>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center min-h-[75vh] py-12 md:py-20">
+            {/* Left Column (lg:col-span-7) */}
+            <div className="lg:col-span-7">
+              {/* Grounded Editorial Section Label */}
+              <p className="text-xs font-semibold uppercase tracking-wider text-[#8A7561] mb-3">
+                {isHindi ? "जमीनी भारतीय कलाकारों का स्वावलंबी मंच" : "Grassroots Creator & Artisan Guild"}
+              </p>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-[#1E2229] leading-[1.15] tracking-tight">
-              {isHindi ? (
-                <>
-                  हस्तकला की सच्ची कीमत। <br />
-                  <span className="text-[#B4461F]">बिना किसी बिचौलिए के।</span>
-                </>
-              ) : (
-                <>
-                  Dignity, Direct Gigs & <br />
-                  <span className="text-[#B4461F]">Fair Value for Grassroots Masters.</span>
-                </>
-              )}
-            </h1>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-[#1E2229] leading-[1.15] tracking-tight">
+                {isHindi ? (
+                  <>
+                    हस्तकला की सच्ची कीमत। <br />
+                    <span className="text-[#B4461F]">बिना किसी बिचौलिए के।</span>
+                  </>
+                ) : (
+                  <>
+                    Dignity, Direct Gigs & <br />
+                    <span className="text-[#B4461F]">Fair Value for Grassroots Masters.</span>
+                  </>
+                )}
+              </h1>
 
-            <p className="mt-5 text-base sm:text-lg text-[#635C53] leading-relaxed max-w-2xl font-normal">
-              {isHindi
-                ? "मधुबनी चित्रकारों, भित्ति कलाकारों, कुम्हारों और मेंहदी शिल्पकारों के लिए एक प्रामाणिक डिजिटल मंच। शेयर करें अपना डिजिटल हुनर कार्ड, सीधे व्हाट्सएप पर पाएं क्लाइंट्स और बढ़ाएं अपनी आजीविका।"
-                : "The hyper-local career and monetization platform for India's folk painters, muralists, studio potters, and henna artisans. Share your lookbook Hunar Card, match with regional gigs, and scale income with structured roadmaps."}
-            </p>
+              <p className="mt-5 text-base sm:text-lg text-[#635C53] leading-relaxed max-w-2xl font-normal">
+                {isHindi
+                  ? "मधुबनी चित्रकारों, भित्ति कलाकारों, कुम्हारों और मेंहदी शिल्पकारों के लिए एक प्रामाणिक डिजिटल मंच। शेयर करें अपना डिजिटल हुनर कार्ड, सीधे व्हाट्सएप पर पाएं क्लाइंट्स और बढ़ाएं अपनी आजीविका।"
+                  : "The hyper-local career and monetization platform for India's folk painters, muralists, studio potters, and henna artisans. Share your lookbook Hunar Card, match with regional gigs, and scale income with structured roadmaps."}
+              </p>
 
-            {/* Hero CTAs */}
-            <div className="mt-8 flex flex-wrap items-center gap-3.5">
-              <Link
-                href="/onboarding"
-                className="px-6 py-3 rounded-sm bg-[#1E2229] hover:bg-[#111418] text-[#FAF7F2] font-medium text-xs sm:text-sm shadow-sm transition-colors duration-150 flex items-center gap-2 group"
-              >
-                <span>{isHindi ? "2 मिनट में हुनर कार्ड बनाएं" : "Create My Hunar Card (Free)"}</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
+              {/* Hero CTAs */}
+              <div className="mt-8 flex flex-wrap items-center gap-3.5">
+                <Link
+                  href="/dashboard/customer"
+                  className="px-6 py-3 rounded-sm bg-[#1E2229] hover:bg-[#111418] text-[#FAF7F2] font-medium text-xs sm:text-sm shadow-sm transition-colors duration-150 flex items-center gap-2 group"
+                >
+                  <Compass className="w-4 h-4 text-[#E5A93B]" />
+                  <span>{isHindi ? "शिल्प बाज़ार देखें" : "Explore Bazaar"}</span>
+                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                </Link>
 
-              <Link
-                href="/opportunities"
-                className="px-5 py-3 rounded-sm border border-[#D9D0C3] bg-transparent text-[#2D2A26] hover:bg-[#EFEAE1] font-medium text-xs sm:text-sm transition-colors duration-150 flex items-center gap-2"
-              >
-                <Briefcase className="w-4 h-4 text-[#B4461F]" />
-                <span>{isHindi ? "ताज़ा अवसर व बोलियां देखें" : "Explore Opportunity Radar"}</span>
-              </Link>
+                <Link
+                  href="/onboarding"
+                  className="px-5 py-3 rounded-sm border border-[#D9D0C3] bg-[#FAF7F2] hover:bg-[#EFEAE1] text-[#1E2229] font-medium text-xs sm:text-sm transition-colors duration-150 flex items-center gap-2 shadow-xs"
+                >
+                  <Sparkles className="w-4 h-4 text-[#B4461F]" />
+                  <span>{isHindi ? "कारीगर के रूप में जुड़ें" : "Join as Creator"}</span>
+                </Link>
+              </div>
+
+              {/* Trust Indicators */}
+              <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-[#635C53]">
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle className="w-3.5 h-3.5 text-[#2E7D32]" />
+                  <span>{isHindi ? "100% सत्यापित शिल्पकार" : "100% Verified Artisans"}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Shield className="w-3.5 h-3.5 text-[#B4461F]" />
+                  <span>{isHindi ? "सीधा खाता भुगतान (0% कट)" : "Direct Bank Payouts (0% Cut)"}</span>
+                </div>
+              </div>
+
+              {/* Live stats summary */}
+              <div className="mt-10 pt-8 border-t border-[#E8E2D7] grid grid-cols-2 sm:grid-cols-4 gap-6">
+                <div>
+                  <p className="text-2xl sm:text-3xl font-serif font-bold text-[#1E2229]">450+</p>
+                  <p className="text-xs text-gray-500 font-medium mt-0.5">
+                    {isHindi ? "सत्यापित कलाकार" : "Verified Artisans"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-2xl sm:text-3xl font-serif font-bold text-[#B4461F]">0%</p>
+                  <p className="text-xs text-gray-500 font-medium mt-0.5">
+                    {isHindi ? "बिचौलिया कमीशन" : "Commission Taken"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-2xl sm:text-3xl font-serif font-bold text-[#1E2229]">₹1.4 Cr+</p>
+                  <p className="text-xs text-gray-500 font-medium mt-0.5">
+                    {isHindi ? "सीधी कमाई कराई" : "Direct Gig Payouts"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-2xl sm:text-3xl font-serif font-bold text-[#1E2229]">4.94★</p>
+                  <p className="text-xs text-gray-500 font-medium mt-0.5">
+                    {isHindi ? "क्लाइंट संतुष्टि दर" : "Client Satisfaction"}
+                  </p>
+                </div>
+              </div>
             </div>
 
-            {/* Live stats summary */}
-            <div className="mt-12 pt-8 border-t border-[#E8E2D7] grid grid-cols-2 sm:grid-cols-4 gap-6">
-              <div>
-                <p className="text-2xl sm:text-3xl font-serif font-bold text-[#1E2229]">450+</p>
-                <p className="text-xs text-gray-500 font-medium mt-0.5">
-                  {isHindi ? "सत्यापित कलाकार" : "Verified Artisans"}
-                </p>
-              </div>
-              <div>
-                <p className="text-2xl sm:text-3xl font-serif font-bold text-[#B4461F]">0%</p>
-                <p className="text-xs text-gray-500 font-medium mt-0.5">
-                  {isHindi ? "बिचौलिया कमीशन" : "Commission Taken"}
-                </p>
-              </div>
-              <div>
-                <p className="text-2xl sm:text-3xl font-serif font-bold text-[#1E2229]">₹1.4 Cr+</p>
-                <p className="text-xs text-gray-500 font-medium mt-0.5">
-                  {isHindi ? "सीधी कमाई कराई" : "Direct Gig Payouts"}
-                </p>
-              </div>
-              <div>
-                <p className="text-2xl sm:text-3xl font-serif font-bold text-[#1E2229]">4.94★</p>
-                <p className="text-xs text-gray-500 font-medium mt-0.5">
-                  {isHindi ? "क्लाइंट संतुष्टि दर" : "Client Satisfaction"}
-                </p>
+            {/* Right Column (lg:col-span-5): Authentic Artisan Showcase */}
+            <div className="lg:col-span-5 relative">
+              <div className="relative w-full max-w-md mx-auto lg:max-w-none">
+                {/* Tactile border frame */}
+                <div className="relative overflow-hidden rounded-sm border border-[#E7E0D6] bg-[#FFFFFF] p-3 shadow-[0_4px_20px_rgba(0,0,0,0.06)]">
+                  <div className="relative aspect-[4/5] w-full overflow-hidden rounded-sm bg-[#F4EFE6]">
+                    <img
+                      src="https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?auto=format&fit=crop&w=1000&q=80"
+                      alt="Master artisan handcrafting raw terracotta clay on a potter's wheel"
+                      className="h-full w-full object-cover select-none pointer-events-none"
+                      draggable={false}
+                    />
+                  </div>
+
+                  {/* Authentic Caption Plate */}
+                  <div className="mt-3.5 px-2 pb-1.5 flex items-center justify-between text-xs">
+                    <div>
+                      <p className="font-serif font-semibold text-[#1E2229] text-sm">Rohit Sharma</p>
+                      <p className="text-[#635C53]">Master Potter & Terracotta Sculptor • Khurja, UP</p>
+                    </div>
+                    <span className="inline-flex items-center rounded-sm bg-[#F0EAE1] px-2 py-1 text-[11px] font-medium text-[#1E2229] border border-[#D9D0C3]">
+                      Verified Artisan
+                    </span>
+                  </div>
+                </div>
+
+                {/* Subtle, physical offset accent card (non-AI, non-floating) */}
+                <div className="hidden sm:block absolute -bottom-5 -left-6 rounded-sm border border-[#E7E0D6] bg-[#FAF7F2] p-4 shadow-md max-w-[210px]">
+                  <p className="text-[11px] font-medium uppercase tracking-wider text-[#8A7561]">Direct Monetization</p>
+                  <p className="mt-1 text-sm font-semibold text-[#1E2229]">100% earnings to creator bank accounts</p>
+                </div>
               </div>
             </div>
           </div>
