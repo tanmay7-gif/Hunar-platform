@@ -16,6 +16,7 @@ import {
   Eye,
   ExternalLink
 } from "lucide-react";
+import { ProtectedImage } from "@/components/ui/ProtectedImage";
 
 interface ExternalProductImporterModalProps {
   isOpen: boolean;
@@ -159,15 +160,16 @@ export function ExternalProductImporterModal({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Product Thumbnail */}
               <div className="relative aspect-square rounded-xs overflow-hidden border border-[#2C323D] bg-stone-900">
-                <img
+                <ProtectedImage
                   src={
                     extractedResult.extractedData.images?.[0] ||
                     "https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?w=800&auto=format&fit=crop&q=80"
                   }
                   alt={extractedResult.extractedData.title}
                   className="w-full h-full object-cover"
+                  wrapperClassName="w-full h-full"
                 />
-                <span className="absolute bottom-1 right-1 text-[9px] px-1 bg-black/70 text-white rounded">
+                <span className="absolute bottom-1 right-1 z-20 text-[9px] px-1 bg-black/70 text-white rounded">
                   Extracted Image
                 </span>
               </div>

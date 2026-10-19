@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { db } from "../config/db";
+import { protectCreator } from "../services/imageProtection";
 
 export const CreatorsController = {
   getAll: (req: Request, res: Response) => {
@@ -34,7 +35,9 @@ export const CreatorsController = {
         );
       }
 
-      return res.status(200).json(creators);
+      // Backend-enforced watermarking and resolution capping on all creator portfolio images
+      const protectedCreators = creators.map((c) => protectCreator(c));
+      return res.status(200).json(protectedCreators);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Failed to fetch creators";
       return res.status(500).json({ error: message });
@@ -47,6 +50,6 @@ export const CreatorsController = {
     if (!creator) {
       return res.status(404).json({ error: "Artisan profile not found" });
     }
-    return res.status(200).json(creator);
+    return res.status(200).json(protectCreator(creator));
   },
 };

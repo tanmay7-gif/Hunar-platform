@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { db } from "../config/db";
+import { protectProduct, protectImageUrls } from "../services/imageProtection";
 
 export const ProductsController = {
   getAll: (req: Request, res: Response) => {
@@ -33,7 +34,9 @@ export const ProductsController = {
         );
       }
 
-      return res.status(200).json(products);
+      // Backend-enforced watermarking and resolution capping on all public catalog feeds
+      const protectedProducts = products.map((p) => protectProduct(p));
+      return res.status(200).json(protectedProducts);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Failed to fetch products";
       return res.status(500).json({ error: message });
@@ -46,7 +49,7 @@ export const ProductsController = {
     if (!product) {
       return res.status(404).json({ error: "Product not found" });
     }
-    return res.status(200).json(product);
+    return res.status(200).json(protectProduct(product));
   },
 
   create: (req: Request, res: Response) => {
@@ -77,13 +80,21 @@ export const ProductsController = {
         return res.status(400).json({ error: "Title, price, and category are required" });
       }
 
+      // Never trust the client: sanitize and watermark any master images before storage
+      const rawImages = images && images.length > 0
+        ? images
+        : ["https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=800&q=80"];
+      const securedImages = protectImageUrls(rawImages, {
+        watermarkText: sellerName ? `Hunar • ${sellerName}` : "Hunar",
+      });
+
       const newProduct = db.createProduct({
         title,
         titleHindi,
         description: description || "Authentic handcrafted regional piece.",
         price: Number(price),
         category,
-        images: images && images.length > 0 ? images : ["https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=800&q=80"],
+        images: securedImages,
         leadTime: leadTime || "Ready to ship",
         stock: stock ? Number(stock) : 1,
         deliveryFormat: deliveryFormat || "Physical Artwork",
@@ -99,7 +110,7 @@ export const ProductsController = {
         sellerVerified: sellerVerified ?? true,
       });
 
-      return res.status(201).json(newProduct);
+      return res.status(201).json(protectProduct(newProduct));
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Failed to create product";
       return res.status(500).json({ error: message });

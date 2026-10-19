@@ -27,6 +27,7 @@ import {
   ChevronLeft
 } from "lucide-react";
 import { MentorshipBookingModal } from "@/components/customer/MentorshipBookingModal";
+import { ProtectedImage } from "@/components/ui/ProtectedImage";
 
 function HunarCardContent() {
   const params = useParams();
@@ -118,11 +119,11 @@ function HunarCardContent() {
           {/* Top Artisanal Solid Header Banner */}
           <div className="relative h-48 sm:h-64 bg-[#1E2229] border-b border-[#2C323D] overflow-hidden">
             {creator.coverImage && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <ProtectedImage
                 src={creator.coverImage}
                 alt="Craft texture"
                 className="w-full h-full object-cover opacity-20"
+                wrapperClassName="w-full h-full"
               />
             )}
 
@@ -150,11 +151,11 @@ function HunarCardContent() {
             {/* Header row: Avatar, Name, Rating, and Quick Hire CTA */}
             <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 -mt-16 sm:-mt-20 relative z-10 pb-6 border-b border-[#E8E2D7]">
               <div className="flex items-end gap-5">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <ProtectedImage
                   src={creator.avatarUrl}
                   alt={creator.name}
-                  className="w-28 h-28 sm:w-32 sm:h-32 rounded-sm object-cover aspect-square border-2 border-white shadow-[0_2px_8px_rgba(0,0,0,0.08)] bg-white shrink-0"
+                  className="w-28 h-28 sm:w-32 sm:h-32 rounded-sm object-cover aspect-square"
+                  wrapperClassName="w-28 h-28 sm:w-32 sm:h-32 rounded-sm border-2 border-white shadow-[0_2px_8px_rgba(0,0,0,0.08)] bg-white shrink-0"
                 />
                 <div className="pb-1">
                   <div className="flex items-center gap-2">
@@ -386,14 +387,15 @@ function HunarCardContent() {
                     onClick={() => setSelectedImage(item.imageUrl)}
                   >
                     <div className="relative h-60 bg-[#FAF7F2] overflow-hidden">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
+                      <ProtectedImage
                         src={item.imageUrl}
                         alt={item.title}
                         className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-200"
+                        wrapperClassName="w-full h-full"
+                        shieldClassName="cursor-pointer"
                       />
                       {item.price && (
-                        <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded-xs bg-[#1E2229] text-[#FAF7F2] text-xs font-medium">
+                        <div className="absolute bottom-3 right-3 z-20 px-2.5 py-1 rounded-xs bg-[#1E2229] text-[#FAF7F2] text-xs font-medium">
                           ₹{item.price.toLocaleString("en-IN")}
                         </div>
                       )}
@@ -562,15 +564,15 @@ function HunarCardContent() {
             onClick={() => setSelectedImage(null)}
           >
             <div className="relative max-w-3xl max-h-[90vh]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <ProtectedImage
                 src={selectedImage}
                 alt="Enlarged artwork"
                 className="max-h-[85vh] w-auto rounded-sm object-contain shadow-2xl"
+                wrapperClassName="max-h-[85vh] w-auto rounded-sm"
               />
               <button
                 onClick={() => setSelectedImage(null)}
-                className="absolute top-2 right-2 p-1.5 bg-[#1E2229] rounded-sm text-white hover:bg-black"
+                className="absolute top-2 right-2 z-20 p-1.5 bg-[#1E2229] rounded-sm text-white hover:bg-black"
               >
                 <X className="w-5 h-5" />
               </button>

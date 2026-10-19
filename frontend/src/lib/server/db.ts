@@ -16,6 +16,12 @@ import {
   SEED_PRODUCTS,
   SEED_INQUIRIES
 } from "@/lib/data";
+import {
+  protectProduct,
+  protectCreator,
+  protectInquiry,
+  protectImageUrls,
+} from "@/lib/imageProtection";
 
 // In-memory persistent singleton in Node runtime
 declare global {
@@ -122,17 +128,19 @@ export const CreatorService = {
       results = results.filter((c) => c.isVerified);
     }
 
-    return results;
+    return results.map((c) => protectCreator(c));
   },
 
   getByUsername: (username: string) => {
     const db = getDatabase();
-    return db.creators.find((c) => c.username.toLowerCase() === username.toLowerCase());
+    const creator = db.creators.find((c) => c.username.toLowerCase() === username.toLowerCase());
+    return creator ? protectCreator(creator) : undefined;
   },
 
   getById: (id: string) => {
     const db = getDatabase();
-    return db.creators.find((c) => c.id === id);
+    const creator = db.creators.find((c) => c.id === id);
+    return creator ? protectCreator(creator) : undefined;
   },
 
   create: (data: Partial<Creator>) => {
@@ -188,8 +196,12 @@ export const CreatorService = {
           ]
     };
 
-    db.creators.unshift(newCreator);
-    return newCreator;
+    const securedCreator = protectCreator(newCreator, {
+      watermarkText: newCreator.name ? `Hunar • ${newCreator.name}` : "Hunar",
+    });
+
+    db.creators.unshift(securedCreator);
+    return securedCreator;
   },
 
   update: (username: string, updates: Partial<Creator>) => {
@@ -507,12 +519,13 @@ export const ProductService = {
       );
     }
 
-    return results;
+    return results.map((p) => protectProduct(p));
   },
 
   getById: (id: string) => {
     const db = getDatabase();
-    return db.products.find((p) => p.id === id);
+    const product = db.products.find((p) => p.id === id);
+    return product ? protectProduct(product) : undefined;
   },
 
   create: (data: Partial<Product>) => {
@@ -524,9 +537,12 @@ export const ProductService = {
       description: data.description || "Authentic handmade piece crafted by grassroots artisan.",
       price: Number(data.price || 1500),
       category: (data.category as Product["category"]) || "Terracotta & Pottery",
-      images: data.images && data.images.length > 0
-        ? data.images
-        : ["https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=800&auto=format&fit=crop&q=80"],
+      images: protectImageUrls(
+        data.images && data.images.length > 0
+          ? data.images
+          : ["https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=800&auto=format&fit=crop&q=80"],
+        { watermarkText: data.sellerName ? `Hunar • ${data.sellerName}` : "Hunar" }
+      ),
       leadTime: data.leadTime || "Ready to ship",
       stock: Number(data.stock ?? 1),
       deliveryFormat: (data.deliveryFormat as Product["deliveryFormat"]) || "Physical Artwork",
@@ -545,8 +561,9 @@ export const ProductService = {
       createdAt: new Date().toISOString().split("T")[0]
     };
 
-    db.products.unshift(newProduct);
-    return newProduct;
+    const securedProduct = protectProduct(newProduct);
+    db.products.unshift(securedProduct);
+    return securedProduct;
   },
 
   update: (id: string, updates: Partial<Product>) => {
@@ -581,17 +598,17 @@ export const ProductService = {
 export const InquiryService = {
   getAll: () => {
     const db = getDatabase();
-    return db.inquiries;
+    return db.inquiries.map((i) => protectInquiry(i));
   },
 
   getByCustomer: (customerId: string) => {
     const db = getDatabase();
-    return db.inquiries.filter((inq) => inq.customerId === customerId);
+    return db.inquiries.filter((inq) => inq.customerId === customerId).map((i) => protectInquiry(i));
   },
 
   getBySeller: (sellerId: string) => {
     const db = getDatabase();
-    return db.inquiries.filter((inq) => inq.sellerId === sellerId);
+    return db.inquiries.filter((inq) => inq.sellerId === sellerId).map((i) => protectInquiry(i));
   },
 
   create: (data: Partial<CustomerInquiry>) => {
@@ -624,8 +641,9 @@ export const InquiryService = {
       createdAt: new Date().toISOString().split("T")[0]
     };
 
-    db.inquiries.unshift(newInquiry);
-    return newInquiry;
+    const securedInquiry = protectInquiry(newInquiry);
+    db.inquiries.unshift(securedInquiry);
+    return securedInquiry;
   },
 
   updateStatus: (id: string, status: CustomerInquiry["status"], note?: string) => {

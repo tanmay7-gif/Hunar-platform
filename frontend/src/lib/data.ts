@@ -471,6 +471,14 @@ export const SEED_CREATORS: Creator[] = [
         imageUrl: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=800&auto=format&fit=crop&q=80",
         price: 3200,
         clientQuote: "Keeps chai piping hot with an authentic earthen fragrance."
+      },
+      {
+        id: "p7-cloud",
+        title: "Smoked Khurja Terracotta Master Urn (Cloudinary Protected)",
+        medium: "River clay burnished with quartz stones",
+        imageUrl: "https://res.cloudinary.com/demo/image/upload/sample.jpg",
+        price: 4500,
+        clientQuote: "Exquisite earthen finish with permanent artisan provenance."
       }
     ]
   }
@@ -1155,8 +1163,8 @@ export const SEED_PRODUCTS: Product[] = [
     price: 4800,
     category: "Terracotta & Pottery",
     images: [
-      "https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=800&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?w=800&auto=format&fit=crop&q=80"
+      "https://res.cloudinary.com/demo/image/upload/sample.jpg",
+      "https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=800&auto=format&fit=crop&q=80"
     ],
     leadTime: "Ready to ship",
     stock: 3,

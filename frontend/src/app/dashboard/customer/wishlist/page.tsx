@@ -18,6 +18,7 @@ import {
   Package,
   Users
 } from "lucide-react";
+import { ProtectedImage } from "@/components/ui/ProtectedImage";
 
 export default function SavedCollectionsPage() {
   const router = useRouter();
@@ -113,14 +114,15 @@ export default function SavedCollectionsPage() {
                     className="group bg-white rounded-sm border border-[#E8DEC8] hover:border-[#B4461F] transition-all duration-150 overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-md flex flex-col"
                   >
                     <div className="relative aspect-4/3 overflow-hidden bg-gray-100">
-                      <img
+                      <ProtectedImage
                         src={prod.images[0]}
                         alt={prod.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                        wrapperClassName="w-full h-full"
                       />
                       <button
                         onClick={() => toggleSaveProduct(prod.id)}
-                        className="absolute top-3 right-3 p-2 rounded-sm bg-white border border-[#E8DEC8] text-[#B4461F] hover:bg-[#FAF7F2] transition-colors duration-150"
+                        className="absolute top-3 right-3 z-20 p-2 rounded-sm bg-white border border-[#E8DEC8] text-[#B4461F] hover:bg-[#FAF7F2] transition-colors duration-150"
                         title="Remove from saved collection"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -199,10 +201,11 @@ export default function SavedCollectionsPage() {
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3.5">
-                        <img
+                        <ProtectedImage
                           src={creator.avatarUrl}
                           alt={creator.name}
-                          className="w-14 h-14 rounded-full object-cover aspect-square ring-1 ring-[#E8DEC8] shrink-0"
+                          className="w-14 h-14 rounded-full object-cover aspect-square"
+                          wrapperClassName="w-14 h-14 rounded-full ring-1 ring-[#E8DEC8] shrink-0"
                         />
                         <div>
                           <div className="flex items-center gap-1.5 mb-0.5">

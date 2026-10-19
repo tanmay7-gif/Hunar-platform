@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { useTinyFishSyncQueue } from "@tinyfish/core";
 import { ExternalProductImporterModal } from "@/components/tinyfish/ExternalProductImporterModal";
+import { ProtectedImage } from "@/components/ui/ProtectedImage";
 
 export default function SellerProductsPage() {
   const {
@@ -347,12 +348,13 @@ export default function SellerProductsPage() {
               >
                 {/* Product Image Cover */}
                 <div className="relative aspect-4/3 bg-[#FAF7F2] overflow-hidden">
-                  <img
+                  <ProtectedImage
                     src={product.images[0]}
                     alt={product.title}
                     className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-200"
+                    wrapperClassName="w-full h-full"
                   />
-                  <div className="absolute top-3 left-3 flex items-center gap-1.5">
+                  <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5">
                     <span
                       className={`px-2 py-0.5 rounded-xs text-[10px] font-semibold uppercase tracking-wider ${statusBadge.color}`}
                     >
@@ -363,7 +365,7 @@ export default function SellerProductsPage() {
                     </span>
                   </div>
 
-                  <div className="absolute top-3 right-3 flex items-center gap-1">
+                  <div className="absolute top-3 right-3 z-20 flex items-center gap-1">
                     <button
                       onClick={() => handleOpenEdit(product)}
                       className="p-1.5 rounded-sm bg-white/95 text-[#1A1816] hover:bg-white shadow-xs border border-[#E8E2D7] transition-colors duration-150"
@@ -477,10 +479,11 @@ export default function SellerProductsPage() {
                     <tr key={product.id} className="hover:bg-[#FAF7F2]/50 transition-colors">
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-3">
-                          <img
+                          <ProtectedImage
                             src={product.images[0]}
                             alt={product.title}
-                            className="w-10 h-10 rounded-lg object-cover border shrink-0"
+                            className="w-10 h-10 rounded-lg object-cover"
+                            wrapperClassName="w-10 h-10 rounded-lg border shrink-0"
                           />
                           <div>
                             <p className="font-bold text-[#1E2229] truncate max-w-xs">{product.title}</p>

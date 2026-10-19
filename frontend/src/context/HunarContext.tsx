@@ -28,6 +28,13 @@ import {
 } from "@/lib/data";
 import { tinyFish } from "@tinyfish/core";
 import { SupportedLanguage, useLanguage } from "@/context/LanguageContext";
+import {
+  getProtectedImageUrl,
+  protectImageUrls,
+  protectProduct,
+  protectCreator,
+  protectInquiry
+} from "@/lib/imageProtection";
 
 interface ToastState {
   id: string;
@@ -143,13 +150,13 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
   const { currentLanguage: language, setLanguage, toggleLanguage, t } = useLanguage();
   const [currentPersona, setCurrentPersona] = useState<Persona>(MOCK_PERSONAS[0]);
   const [currentUser, setCurrentUser] = useState<UserAccount>(DEMO_ACCOUNTS[0]);
-  const [creators, setCreators] = useState<Creator[]>(SEED_CREATORS);
+  const [creators, setCreators] = useState<Creator[]>(() => SEED_CREATORS.map((c) => protectCreator(c)));
   const [opportunities, setOpportunities] = useState<Opportunity[]>(SEED_OPPORTUNITIES);
   const [roadmaps, setRoadmaps] = useState<Record<string, RoadmapStep[]>>(SEED_ROADMAPS);
   const [applications, setApplications] = useState<Application[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [products, setProducts] = useState<Product[]>(SEED_PRODUCTS);
-  const [inquiries, setInquiries] = useState<CustomerInquiry[]>(SEED_INQUIRIES);
+  const [products, setProducts] = useState<Product[]>(() => SEED_PRODUCTS.map((p) => protectProduct(p)));
+  const [inquiries, setInquiries] = useState<CustomerInquiry[]>(() => SEED_INQUIRIES.map((i) => protectInquiry(i)));
   const [mentorshipBookings, setMentorshipBookings] = useState<MentorshipBooking[]>(SEED_MENTORSHIP_BOOKINGS);
   const [conversations, setConversations] = useState<Conversation[]>(() => {
     if (typeof window !== "undefined") {
@@ -677,16 +684,21 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
   };
 
   const addProduct = (prodData: Partial<Product>): Product => {
-    const newProduct: Product = {
+    const rawImages = prodData.images && prodData.images.length > 0
+      ? prodData.images
+      : ["https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=800&auto=format&fit=crop&q=80"];
+    const securedImages = protectImageUrls(rawImages, {
+      watermarkText: currentUser.name ? `Hunar • ${currentUser.name}` : "Hunar",
+    });
+
+    const newProduct: Product = protectProduct({
       id: `prod-${Date.now()}`,
       title: prodData.title || "Handmade Artisan Piece",
       titleHindi: prodData.titleHindi || prodData.title,
       description: prodData.description || "Authentic handmade piece created with traditional techniques.",
       price: Number(prodData.price || 2500),
       category: (prodData.category as Product["category"]) || "Terracotta & Pottery",
-      images: prodData.images && prodData.images.length > 0
-        ? prodData.images
-        : ["https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=800&auto=format&fit=crop&q=80"],
+      images: securedImages,
       leadTime: prodData.leadTime || "Ready to ship",
       stock: Number(prodData.stock ?? 1),
       deliveryFormat: (prodData.deliveryFormat as Product["deliveryFormat"]) || "Physical Artwork",
@@ -701,7 +713,7 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
       sellerWhatsapp: currentUser.whatsapp || "919811876543",
       sellerVerified: currentUser.isVerified ?? true,
       createdAt: new Date().toISOString().split("T")[0]
-    };
+    });
 
     setProducts((prev) => [newProduct, ...prev]);
 
@@ -724,13 +736,22 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateProduct = (id: string, updates: Partial<Product>) => {
+    const securedUpdates = updates.images
+      ? {
+          ...updates,
+          images: protectImageUrls(updates.images, {
+            watermarkText: currentUser.name ? `Hunar • ${currentUser.name}` : "Hunar",
+          }),
+        }
+      : updates;
+
     setProducts((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, ...updates } : p))
+      prev.map((p) => (p.id === id ? { ...p, ...securedUpdates } : p))
     );
 
     // Enqueue update in TinyFish offline-ready sync queue
     try {
-      tinyFish.getSyncQueue().enqueue("products", "update", { id, ...updates });
+      tinyFish.getSyncQueue().enqueue("products", "update", { id, ...securedUpdates });
     } catch (err) {
       console.warn("TinyFish update enqueue error:", err);
     }

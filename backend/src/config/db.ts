@@ -5,6 +5,12 @@ import {
   CustomerInquiry,
   UserAccount,
 } from "../models/types";
+import {
+  protectProduct,
+  protectCreator,
+  protectInquiry,
+  protectImageUrls,
+} from "../services/imageProtection";
 
 // In-memory persistent database singleton for backend service
 export interface HunarDatabase {
@@ -189,40 +195,48 @@ class DatabaseSingleton {
   }
 
   getProducts(): Product[] {
-    return this.db.products;
+    return this.db.products.map((p) => protectProduct(p));
   }
 
   getProductById(id: string): Product | undefined {
-    return this.db.products.find((p) => p.id === id);
+    const product = this.db.products.find((p) => p.id === id);
+    return product ? protectProduct(product) : undefined;
   }
 
   createProduct(data: Omit<Product, "id" | "createdAt">): Product {
-    const newProduct: Product = {
+    const securedProduct: Product = protectProduct({
       ...data,
+      images: protectImageUrls(data.images, {
+        watermarkText: data.sellerName ? `Hunar • ${data.sellerName}` : "Hunar",
+      }),
       id: `prod-${Date.now()}`,
       createdAt: new Date().toISOString().split("T")[0],
-    };
-    this.db.products.unshift(newProduct);
-    return newProduct;
+    });
+    this.db.products.unshift(securedProduct);
+    return securedProduct;
   }
 
   getCreators(): Creator[] {
-    return this.db.creators;
+    return this.db.creators.map((c) => protectCreator(c));
   }
 
   getCreatorByUsername(username: string): Creator | undefined {
-    return this.db.creators.find(
+    const creator = this.db.creators.find(
       (c) => c.username.toLowerCase() === username.toLowerCase()
     );
+    return creator ? protectCreator(creator) : undefined;
   }
 
   getInquiries(): CustomerInquiry[] {
-    return this.db.inquiries;
+    return this.db.inquiries.map((i) => protectInquiry(i));
   }
 
   createInquiry(data: Omit<CustomerInquiry, "id" | "createdAt">): CustomerInquiry {
-    const newInquiry: CustomerInquiry = {
+    const newInquiry: CustomerInquiry = protectInquiry({
       ...data,
+      productImage: data.productImage
+        ? protectImageUrls([data.productImage], { watermarkText: data.sellerName || "Hunar" })[0]
+        : data.productImage,
       id: `inq-${Date.now()}`,
       createdAt: new Date().toISOString().split("T")[0],
       statusUpdates: [
@@ -231,7 +245,7 @@ class DatabaseSingleton {
           note: "Inquiry registered and routed to artisan studio.",
         },
       ],
-    };
+    });
     this.db.inquiries.unshift(newInquiry);
     return newInquiry;
   }

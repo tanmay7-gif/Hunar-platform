@@ -30,6 +30,7 @@ import {
   Star,
   RefreshCw
 } from "lucide-react";
+import { ProtectedImage } from "@/components/ui/ProtectedImage";
 
 export default function CustomerDashboardPage() {
   const router = useRouter();
@@ -432,15 +433,17 @@ export default function CustomerDashboardPage() {
                   <div>
                     {/* Product Image & Badges */}
                     <div className="relative h-60 bg-gray-100 overflow-hidden">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
+                      <ProtectedImage
                         src={product.images[0]}
                         alt={product.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                        wrapperClassName="w-full h-full cursor-pointer"
+                        shieldClassName="cursor-pointer"
+                        onClick={() => setQuickViewProduct(product)}
                       />
 
                       {/* Format Tag */}
-                      <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-xs bg-[#1E2229] text-[#FAF7F2] text-[10px] font-medium">
+                      <div className="absolute top-2.5 left-2.5 z-20 px-2 py-0.5 rounded-xs bg-[#1E2229] text-[#FAF7F2] text-[10px] font-medium">
                         {product.deliveryFormat === "On-site Commission" ? "On-site Mural / Event" : "Physical Ship"}
                       </div>
 
@@ -450,7 +453,7 @@ export default function CustomerDashboardPage() {
                           e.stopPropagation();
                           toggleSaveProduct(product.id);
                         }}
-                        className={`absolute top-2.5 right-2.5 p-1.5 rounded-sm border border-[#E8DEC8] transition-colors duration-150 ${
+                        className={`absolute top-2.5 right-2.5 z-20 p-1.5 rounded-sm border border-[#E8DEC8] transition-colors duration-150 ${
                           isSaved
                             ? "bg-rose-50 text-rose-600"
                             : "bg-white text-gray-500 hover:text-[#B4461F]"
@@ -461,7 +464,7 @@ export default function CustomerDashboardPage() {
                       </button>
 
                       {/* Lead time badge */}
-                      <div className="absolute bottom-2.5 left-2.5 px-2 py-0.5 rounded-xs text-[10px] font-medium bg-[#FAF6EE] text-[#1E2229] border border-[#E8DEC8] flex items-center gap-1">
+                      <div className="absolute bottom-2.5 left-2.5 z-20 px-2 py-0.5 rounded-xs text-[10px] font-medium bg-[#FAF6EE] text-[#1E2229] border border-[#E8DEC8] flex items-center gap-1">
                         <Clock className="w-3 h-3 text-[#B4461F]" />
                         <span>{product.leadTime}</span>
                       </div>
@@ -477,11 +480,11 @@ export default function CustomerDashboardPage() {
                         }}
                       >
                         <div className="flex items-center gap-2">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
+                          <ProtectedImage
                             src={product.sellerAvatar}
                             alt={product.sellerName}
-                            className="w-6 h-6 rounded-full object-cover aspect-square ring-1 ring-[#E8DEC8]"
+                            className="w-6 h-6 rounded-full object-cover aspect-square"
+                            wrapperClassName="w-6 h-6 rounded-full ring-1 ring-[#E8DEC8] shrink-0"
                           />
                           <span className="text-xs font-semibold text-[#1E2229] hover:text-[#B4461F] transition-colors duration-150 flex items-center gap-1">
                             {product.sellerName}
@@ -604,11 +607,11 @@ export default function CustomerDashboardPage() {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#F0E8D9] pb-4">
                       <div className="flex items-center gap-3">
                         {inq.productImage && (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
+                          <ProtectedImage
                             src={inq.productImage}
                             alt={inq.productTitle || "Custom"}
-                            className="w-12 h-12 rounded-sm object-cover border border-[#E8DEC8]"
+                            className="w-12 h-12 rounded-sm object-cover"
+                            wrapperClassName="w-12 h-12 rounded-sm border border-[#E8DEC8] shrink-0"
                           />
                         )}
                         <div>
@@ -797,22 +800,22 @@ export default function CustomerDashboardPage() {
                 {/* Image showcase */}
                 <div className="space-y-2">
                   <div className="h-64 rounded-sm bg-gray-100 overflow-hidden border border-[#E8DEC8]">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    <ProtectedImage
                       src={quickViewProduct.images[0]}
                       alt={quickViewProduct.title}
                       className="w-full h-full object-cover"
+                      wrapperClassName="w-full h-full"
                     />
                   </div>
                   {quickViewProduct.images.length > 1 && (
                     <div className="flex gap-2">
                       {quickViewProduct.images.slice(1).map((img, idx) => (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
+                        <ProtectedImage
                           key={idx}
                           src={img}
                           alt="thumbnail"
-                          className="w-16 h-16 rounded-sm object-cover border border-[#E8DEC8]"
+                          className="w-16 h-16 rounded-sm object-cover"
+                          wrapperClassName="w-16 h-16 rounded-sm border border-[#E8DEC8] shrink-0"
                         />
                       ))}
                     </div>
@@ -858,11 +861,11 @@ export default function CustomerDashboardPage() {
                   {/* Artisan Micro Card */}
                   <div className="p-3 rounded-sm border border-[#DACABA] bg-[#FFFDF9] flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
+                      <ProtectedImage
                         src={quickViewProduct.sellerAvatar}
                         alt={quickViewProduct.sellerName}
-                        className="w-10 h-10 rounded-sm object-cover border border-[#B4461F]"
+                        className="w-10 h-10 rounded-sm object-cover"
+                        wrapperClassName="w-10 h-10 rounded-sm border border-[#B4461F] shrink-0"
                       />
                       <div>
                         <p className="font-medium text-xs text-[#1E2229] flex items-center gap-1">

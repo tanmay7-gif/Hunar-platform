@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Product } from "@/types";
 import { useHunar } from "@/context/HunarContext";
 import { Heart, Clock, CheckCircle2, Eye, MessageSquare } from "lucide-react";
-
+import { ProtectedImage } from "@/components/ui/ProtectedImage";
 
 interface BazaarFeedProps {
   products: Product[];
@@ -47,14 +47,16 @@ export function BazaarFeed({
             <div>
               {/* Product Image & Badges */}
               <div className="relative h-60 bg-gray-100 overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <ProtectedImage
                   src={product.images[0]}
                   alt={product.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                  wrapperClassName="w-full h-full cursor-pointer"
+                  shieldClassName="cursor-pointer"
+                  onClick={() => onQuickView(product)}
                 />
 
-                <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-xs bg-[#1E2229] text-[#FAF7F2] text-[10px] font-medium">
+                <div className="absolute top-2.5 left-2.5 z-20 px-2 py-0.5 rounded-xs bg-[#1E2229] text-[#FAF7F2] text-[10px] font-medium">
                   {product.deliveryFormat === "On-site Commission"
                     ? "On-site Mural / Event"
                     : "Physical Ship"}
@@ -65,7 +67,7 @@ export function BazaarFeed({
                     e.stopPropagation();
                     onToggleSave(product.id);
                   }}
-                  className={`absolute top-2.5 right-2.5 p-1.5 rounded-sm border border-[#E8DEC8] transition-colors duration-150 ${
+                  className={`absolute top-2.5 right-2.5 z-20 p-1.5 rounded-sm border border-[#E8DEC8] transition-colors duration-150 ${
                     isSaved
                       ? "bg-rose-50 text-rose-600"
                       : "bg-white text-gray-500 hover:text-[#B4461F]"
@@ -75,7 +77,7 @@ export function BazaarFeed({
                   <Heart className={`w-4 h-4 ${isSaved ? "fill-rose-600" : ""}`} />
                 </button>
 
-                <div className="absolute bottom-2.5 left-2.5 px-2 py-0.5 rounded-xs text-[10px] font-medium bg-[#FAF6EE] text-[#1E2229] border border-[#E8DEC8] flex items-center gap-1">
+                <div className="absolute bottom-2.5 left-2.5 z-20 px-2 py-0.5 rounded-xs text-[10px] font-medium bg-[#FAF6EE] text-[#1E2229] border border-[#E8DEC8] flex items-center gap-1">
                   <Clock className="w-3 h-3 text-[#B4461F]" />
                   <span>{product.leadTime}</span>
                 </div>
@@ -85,11 +87,11 @@ export function BazaarFeed({
               <div className="p-6 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    <ProtectedImage
                       src={product.sellerAvatar}
                       alt={product.sellerName}
-                      className="w-6 h-6 rounded-full object-cover aspect-square ring-1 ring-[#E8DEC8]"
+                      className="w-6 h-6 rounded-full object-cover aspect-square"
+                      wrapperClassName="w-6 h-6 rounded-full ring-1 ring-[#E8DEC8] shrink-0"
                     />
                     <span className="text-xs font-semibold text-[#1E2229] hover:text-[#B4461F] transition-colors duration-150 flex items-center gap-1">
                       {product.sellerName}

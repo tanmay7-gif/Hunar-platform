@@ -19,8 +19,10 @@ import {
   Truck,
   Eye,
   HelpCircle,
-  Tag
+  Tag,
+  ShieldCheck
 } from "lucide-react";
+import { getProtectedImageUrl } from "@/lib/imageProtection";
 
 export default function NewProductUploadPage() {
   const router = useRouter();
@@ -61,6 +63,14 @@ export default function NewProductUploadPage() {
     {
       url: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=800&auto=format&fit=crop&q=80",
       label: "Mithila Tree of Life Canvas"
+    },
+    {
+      url: "https://res.cloudinary.com/demo/image/upload/sample.jpg",
+      label: "Master Artisan Pottery (Cloudinary Protected)"
+    },
+    {
+      url: "https://res.cloudinary.com/demo/image/upload/pottery.jpg",
+      label: "Terracotta Planter Master (Cloudinary Protected)"
     },
     {
       url: "https://images.unsplash.com/photo-1549887534-1541e9326642?w=800&auto=format&fit=crop&q=80",
@@ -437,11 +447,32 @@ export default function NewProductUploadPage() {
               <div>
                 <input
                   type="url"
-                  placeholder="Or paste an image URL directly (e.g. https://images.unsplash.com/...)"
+                  placeholder="Or paste an image URL directly (e.g. Cloudinary https://res.cloudinary.com/... or Unsplash)"
                   value={customImageUrl}
                   onChange={(e) => setCustomImageUrl(e.target.value)}
                   className="w-full px-3.5 py-2 rounded-sm bg-[#FDFCF9] border border-[#D3CBBE] text-xs text-[#1A1816] focus:outline-none focus:border-[#B4461F]"
                 />
+              </div>
+
+              {/* Dynamic Watermark Security Shield Notice */}
+              <div className="p-3.5 bg-[#FAF7F2] border border-[#E8E2D7] rounded-sm flex items-start gap-3">
+                <ShieldCheck className="w-4 h-4 text-[#B4461F] shrink-0 mt-0.5" />
+                <div className="text-xs space-y-1 w-full">
+                  <p className="font-semibold text-[#1A1816]">
+                    Backend-Enforced Cloudinary Dynamic Watermarking & Resolution Limiting
+                  </p>
+                  <p className="text-[#635C53] leading-relaxed">
+                    Master image assets are never delivered in their raw high-resolution format. All public lookbook views and product cards are automatically watermarked (<code className="bg-[#EFE9DF] px-1 py-0.5 rounded text-[11px] font-mono text-[#8A7561]">Hunar • {currentUser.name}</code>) and restricted to 800px max width via Cloudinary URL transformation.
+                  </p>
+                  {((customImageUrl && customImageUrl.includes("res.cloudinary.com")) || selectedImage.includes("res.cloudinary.com")) && (
+                    <div className="mt-2 pt-2 border-t border-[#E8E2D7] text-[11px] text-[#635C53]">
+                      <span className="font-medium text-[#1A1816]">Transformed Public Derivative:</span>
+                      <p className="font-mono text-[10px] text-[#B4461F] break-all mt-0.5 bg-white p-2 border border-[#E8E2D7] rounded-xs select-all">
+                        {getProtectedImageUrl(customImageUrl.trim() || selectedImage, { watermarkText: `Hunar • ${currentUser.name}` })}
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 

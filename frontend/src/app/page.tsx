@@ -21,6 +21,7 @@ import {
   Layers,
   Award
 } from "lucide-react";
+import { ProtectedImage } from "@/components/ui/ProtectedImage";
 
 export default function HomePage() {
   const router = useRouter();
@@ -238,15 +239,15 @@ export default function HomePage() {
               >
                 {/* Cover & Portfolio Image Preview */}
                 <div className="relative h-60 bg-[#F5EFE6] overflow-hidden">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <ProtectedImage
                     src={primarySample ? primarySample.imageUrl : creator.avatarUrl}
                     alt={creator.name}
                     className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
+                    wrapperClassName="w-full h-full"
                   />
 
                   {/* Primary Craft Tag */}
-                  <div className="absolute top-3 left-3 flex items-center gap-1.5">
+                  <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5">
                     <span className="px-2.5 py-1 rounded-xs text-[11px] font-semibold bg-[#FAF7F2] text-[#1A1816] border border-[#E8E2D7] shadow-xs">
                       {isHindi ? creator.artFormHindi : creator.primaryArtForm}
                     </span>
@@ -254,19 +255,19 @@ export default function HomePage() {
 
                   {/* Verified Seal Stamp */}
                   {creator.isVerified && (
-                    <div className="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-0.5 rounded-xs bg-[#2D583B] text-white text-[10px] font-bold shadow-xs">
+                    <div className="absolute top-3 right-3 z-20 flex items-center gap-1 px-2.5 py-0.5 rounded-xs bg-[#2D583B] text-white text-[10px] font-bold shadow-xs">
                       <CheckCircle className="w-3 h-3 text-[#E5A93B]" />
                       <span>{isHindi ? "प्रमाणित" : "Verified"}</span>
                     </div>
                   )}
 
                   {/* Base Pricing Box on bottom right */}
-                  <div className="absolute bottom-3 right-3 bg-[#1E2229] text-[#FAF7F2] px-2.5 py-1 rounded-xs text-xs font-mono">
+                  <div className="absolute bottom-3 right-3 z-20 bg-[#1E2229] text-[#FAF7F2] px-2.5 py-1 rounded-xs text-xs font-mono">
                     {creator.unitPricingLabel.split("•")[0]}
                   </div>
 
                   {/* Location badge on bottom left */}
-                  <div className="absolute bottom-3 left-3 text-[#FAF7F2] text-xs flex items-center gap-1 font-medium bg-[#1E2229]/80 px-2 py-0.5 rounded-xs">
+                  <div className="absolute bottom-3 left-3 z-20 text-[#FAF7F2] text-xs flex items-center gap-1 font-medium bg-[#1E2229]/80 px-2 py-0.5 rounded-xs">
                     <MapPin className="w-3.5 h-3.5 text-[#E5A93B]" />
                     <span>{creator.city}</span>
                   </div>
@@ -277,11 +278,11 @@ export default function HomePage() {
                   <div>
                     {/* Avatar & Name */}
                     <div className="flex items-start gap-3.5">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
+                      <ProtectedImage
                         src={creator.avatarUrl}
                         alt={creator.name}
-                        className="w-14 h-14 rounded-full object-cover aspect-square ring-2 ring-[#E8E2D7] border-2 border-white shadow-sm shrink-0 -mt-10 relative z-10 bg-white"
+                        className="w-14 h-14 rounded-full object-cover aspect-square"
+                        wrapperClassName="w-14 h-14 rounded-full ring-2 ring-[#E8E2D7] border-2 border-white shadow-sm shrink-0 -mt-10 relative z-20 bg-white"
                       />
                       <div className="flex-1 min-w-0">
                         <Link

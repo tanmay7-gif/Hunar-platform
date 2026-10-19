@@ -26,6 +26,7 @@ import {
   X
 } from "lucide-react";
 import { MarketIntelligenceBar } from "@/components/tinyfish/MarketIntelligenceBar";
+import { ProtectedImage } from "@/components/ui/ProtectedImage";
 
 export default function DiscoverArtisansPage() {
   const router = useRouter();
@@ -225,10 +226,11 @@ export default function DiscoverArtisansPage() {
               {/* Creator Card Top Header */}
               <div className="p-6 pb-5 border-b border-[#E8DEC8] flex items-start justify-between gap-4 bg-[#FAF7F2]">
                 <div className="flex items-center gap-4 min-w-0">
-                  <img
+                  <ProtectedImage
                     src={creator.avatarUrl}
                     alt={creator.name}
-                    className="w-16 h-16 rounded-full object-cover aspect-square ring-1 ring-[#E8DEC8] group-hover:ring-[#B4461F] transition-colors shrink-0"
+                    className="w-16 h-16 rounded-full object-cover aspect-square"
+                    wrapperClassName="w-16 h-16 rounded-full ring-1 ring-[#E8DEC8] group-hover:ring-[#B4461F] transition-colors shrink-0"
                   />
                   <div className="min-w-0">
                     <div className="flex items-center gap-1.5 mb-0.5">
@@ -378,10 +380,11 @@ export default function DiscoverArtisansPage() {
           <div className="bg-white rounded-sm max-w-lg w-full p-6 border border-[#E8DEC8] shadow-2xl space-y-5">
             <div className="flex items-center justify-between pb-3 border-b border-[#F0E8D9]">
               <div className="flex items-center gap-3">
-                <img
+                <ProtectedImage
                   src={selectedCreatorForCommission.avatarUrl}
                   alt={selectedCreatorForCommission.name}
-                  className="w-10 h-10 rounded-sm object-cover border border-[#E8DEC8]"
+                  className="w-10 h-10 rounded-sm object-cover"
+                  wrapperClassName="w-10 h-10 rounded-sm border border-[#E8DEC8] shrink-0"
                 />
                 <div>
                   <h3 className="font-serif font-bold text-base text-[#1E2229]">
