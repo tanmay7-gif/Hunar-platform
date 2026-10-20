@@ -2,25 +2,14 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useHunar } from "@/context/HunarContext";
 import {
-  Sparkles,
   MapPin,
   CheckCircle,
-  Share2,
   ArrowRight,
-  TrendingUp,
-  Compass,
-  Briefcase,
   Star,
-  MessageCircle,
-  MessageSquare,
-  ExternalLink,
-  Shield,
-  Layers,
-  Award
+  MessageSquare
 } from "lucide-react";
 import { ProtectedImage } from "@/components/ui/ProtectedImage";
 
@@ -50,153 +39,89 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen">
-      {/* Editorial Artisanal Hero Section */}
-      <section className="relative overflow-hidden bg-[#FAF7F2] border-b border-[#E8E2D7]">
-        <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center min-h-[75vh] py-12 md:py-20">
-            {/* Left Column (lg:col-span-7) */}
-            <div className="lg:col-span-7">
-              {/* Grounded Editorial Section Label */}
-              <div className="flex items-center gap-2.5 mb-3">
-                <div className="relative h-7 w-7 flex-shrink-0">
-                  <Image
-                    src="/assets/logo-compact.png"
-                    alt="Hunar Logo"
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-                <div className="flex items-center gap-1.5 select-none">
-                  <span className="font-serif font-bold text-sm tracking-tight text-[#C85A32]">Hunar</span>
-                  <span className="text-[10px] font-medium tracking-wide uppercase text-[#8A7561]">• A home for art. By Flytech</span>
-                </div>
-              </div>
-
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-[#1E2229] leading-[1.15] tracking-tight">
-                {isHindi ? (
-                  <>
-                    हस्तकला की सच्ची कीमत। <br />
-                    <span className="text-[#B4461F]">बिना किसी बिचौलिए के।</span>
-                  </>
-                ) : (
-                  <>
-                    Dignity, Direct Gigs & <br />
-                    <span className="text-[#B4461F]">Fair Value for Grassroots Masters.</span>
-                  </>
-                )}
-              </h1>
-
-              <p className="mt-4 text-sm sm:text-base text-[#635C53] leading-relaxed max-w-xl font-normal">
-                {isHindi
-                  ? "भारत के लोक चित्रकारों, कुम्हारों और पारंपरिक शिल्पकारों के लिए एक डिजिटल मंच।"
-                  : "The direct platform for India's folk painters, muralists, studio potters, and traditional creators."}
-              </p>
-
-              {/* Hero CTAs */}
-              <div className="mt-8 flex flex-wrap items-center gap-3.5">
-                <Link
-                  href="/dashboard/customer"
-                  className="px-6 py-3 rounded-sm bg-[#1E2229] hover:bg-[#111418] text-[#FAF7F2] font-medium text-xs sm:text-sm shadow-sm transition-colors duration-150 flex items-center gap-2 group"
-                >
-                  <Compass className="w-4 h-4 text-[#E5A93B]" />
-                  <span>{isHindi ? "शिल्प बाज़ार देखें" : "Explore Bazaar"}</span>
-                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-                </Link>
-
-                <Link
-                  href="/onboarding"
-                  className="px-5 py-3 rounded-sm border border-[#D9D0C3] bg-[#FAF7F2] hover:bg-[#EFEAE1] text-[#1E2229] font-medium text-xs sm:text-sm transition-colors duration-150 flex items-center gap-2 shadow-xs"
-                >
-                  <Sparkles className="w-4 h-4 text-[#B4461F]" />
-                  <span>{isHindi ? "कारीगर के रूप में जुड़ें" : "Join as Creator"}</span>
-                </Link>
-              </div>
-
-              {/* Trust Indicators */}
-              <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-[#635C53]">
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle className="w-3.5 h-3.5 text-[#2E7D32]" />
-                  <span>{isHindi ? "100% सत्यापित शिल्पकार" : "100% Verified Artisans"}</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <Shield className="w-3.5 h-3.5 text-[#B4461F]" />
-                  <span>{isHindi ? "सीधा खाता भुगतान (0% कट)" : "Direct Bank Payouts (0% Cut)"}</span>
-                </div>
-              </div>
-
-              {/* Live stats summary */}
-              <div className="mt-10 pt-8 border-t border-[#E8E2D7] grid grid-cols-2 sm:grid-cols-4 gap-6">
-                <div>
-                  <p className="text-2xl sm:text-3xl font-serif font-bold text-[#1E2229]">450+</p>
-                  <p className="text-xs text-gray-500 font-medium mt-0.5">
-                    {isHindi ? "सत्यापित कलाकार" : "Verified Artisans"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-2xl sm:text-3xl font-serif font-bold text-[#B4461F]">0%</p>
-                  <p className="text-xs text-gray-500 font-medium mt-0.5">
-                    {isHindi ? "बिचौलिया कमीशन" : "Commission Taken"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-2xl sm:text-3xl font-serif font-bold text-[#1E2229]">₹1.4 Cr+</p>
-                  <p className="text-xs text-gray-500 font-medium mt-0.5">
-                    {isHindi ? "सीधी कमाई कराई" : "Direct Gig Payouts"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-2xl sm:text-3xl font-serif font-bold text-[#1E2229]">4.94★</p>
-                  <p className="text-xs text-gray-500 font-medium mt-0.5">
-                    {isHindi ? "क्लाइंट संतुष्टि दर" : "Client Satisfaction"}
-                  </p>
-                </div>
+      {/* 3-Card Discovery Showcase Section */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-8 pb-14">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+          {/* Card 1 */}
+          <div className="group flex flex-col">
+            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-sm border border-[#E7E0D6] bg-[#F4EFE6]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=1000&q=80"
+                alt="Discover Original Art"
+                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-102 select-none pointer-events-none"
+                draggable={false}
+              />
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-5 pt-10 text-white">
+                <h3 className="font-serif text-xl font-semibold leading-snug">
+                  {isHindi ? "मौलिक कलाकृतियों की खोज" : "Discover Original Art"}
+                </h3>
+                <p className="mt-1 text-xs sm:text-sm text-white/90">
+                  {isHindi ? "स्वतंत्र कलाकारों द्वारा मौलिक पेंटिंग्स" : "Original paintings by independent artists"}
+                </p>
               </div>
             </div>
-
-            {/* Right Column (lg:col-span-5): Authentic Artisan Showcase */}
-            <div className="lg:col-span-5 relative">
-              <div className="relative w-full max-w-md mx-auto lg:max-w-none">
-                {/* Tactile border frame */}
-                <div className="relative overflow-hidden rounded-sm border border-[#E7E0D6] bg-[#FFFFFF] p-3 shadow-[0_4px_20px_rgba(0,0,0,0.06)]">
-                  <div className="relative aspect-[4/5] w-full overflow-hidden rounded-sm bg-[#F4EFE6]">
-                    <img
-                      src="https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?auto=format&fit=crop&w=1000&q=80"
-                      alt="Master artisan handcrafting raw terracotta clay on a potter's wheel"
-                      className="h-full w-full object-cover select-none pointer-events-none"
-                      draggable={false}
-                    />
-                  </div>
-
-                  {/* Authentic Caption Plate */}
-                  <div className="mt-3.5 px-2 pb-1.5 flex items-center justify-between text-xs">
-                    <div>
-                      <p className="font-serif font-semibold text-[#1E2229] text-sm">Rohit Sharma</p>
-                      <p className="text-[#635C53]">Master Potter & Terracotta Sculptor • Khurja, UP</p>
-                    </div>
-                    <span className="inline-flex items-center rounded-sm bg-[#F0EAE1] px-2 py-1 text-[11px] font-medium text-[#1E2229] border border-[#D9D0C3]">
-                      Verified Artisan
-                    </span>
-                  </div>
-                </div>
-
-                {/* Subtle, physical offset accent card (non-AI, non-floating) */}
-                <div className="hidden sm:block absolute -bottom-5 -left-6 rounded-sm border border-[#E7E0D6] bg-[#FAF7F2] p-4 shadow-md max-w-[210px]">
-                  <p className="text-[11px] font-medium uppercase tracking-wider text-[#8A7561]">Direct Monetization</p>
-                  <p className="mt-1 text-sm font-semibold text-[#1E2229]">100% earnings to creator bank accounts</p>
-                </div>
-              </div>
-            </div>
+            <Link
+              className="mt-3.5 inline-flex items-center text-sm font-medium text-[#1E2229] hover:text-[#C85A32] transition-colors"
+              href="/dashboard/customer"
+            >
+              {isHindi ? "खोजना शुरू करें" : "Start Discovering"} <span className="ml-1">→</span>
+            </Link>
           </div>
-        </div>
 
-        {/* Decorative artisanal motif watermark */}
-        <div className="absolute right-[-60px] top-[-40px] w-80 h-80 opacity-10 pointer-events-none select-none">
-          <Image
-            src="/assets/logo.png"
-            alt=""
-            fill
-            className="object-contain"
-          />
+          {/* Card 2 */}
+          <div className="group flex flex-col">
+            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-sm border border-[#E7E0D6] bg-[#F4EFE6]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=1000&q=80"
+                alt="Meet the Artists"
+                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-102 select-none pointer-events-none"
+                draggable={false}
+              />
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-5 pt-10 text-white">
+                <h3 className="font-serif text-xl font-semibold leading-snug">
+                  {isHindi ? "कलाकारों से मिलें" : "Meet the Artists"}
+                </h3>
+                <p className="mt-1 text-xs sm:text-sm text-white/90">
+                  {isHindi ? "कहानियां, विचार और रचनात्मक यात्राएं जानें" : "Discover stories, ideas and creative journeys"}
+                </p>
+              </div>
+            </div>
+            <Link
+              className="mt-3.5 inline-flex items-center text-sm font-medium text-[#1E2229] hover:text-[#C85A32] transition-colors"
+              href="/dashboard/customer/artisans"
+            >
+              {isHindi ? "सभी कलाकार देखें" : "Explore All Artists"} <span className="ml-1">→</span>
+            </Link>
+          </div>
+
+          {/* Card 3 */}
+          <div className="group flex flex-col">
+            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-sm border border-[#E7E0D6] bg-[#F4EFE6]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="https://images.unsplash.com/photo-1582561424760-0321d75e81fa?auto=format&fit=crop&w=1000&q=80"
+                alt="Verified Craft Certificates"
+                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-102 select-none pointer-events-none"
+                draggable={false}
+              />
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-5 pt-10 text-white">
+                <h3 className="font-serif text-xl font-semibold leading-snug">
+                  {isHindi ? "सत्यापित शिल्प प्रमाणपत्र" : "Verified Craft Certificates"}
+                </h3>
+                <p className="mt-1 text-xs sm:text-sm text-white/90">
+                  {isHindi ? "प्रमाणित कलाकृतियां और पारदर्शी प्रमाणिकता" : "Verified artworks and transparent provenance"}
+                </p>
+              </div>
+            </div>
+            <Link
+              className="mt-3.5 inline-flex items-center text-sm font-medium text-[#1E2229] hover:text-[#C85A32] transition-colors"
+              href="/dashboard/customer"
+            >
+              {isHindi ? "संग्रह देखें" : "View Collections"} <span className="ml-1">→</span>
+            </Link>
+          </div>
         </div>
       </section>
 

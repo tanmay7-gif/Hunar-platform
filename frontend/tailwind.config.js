@@ -26,6 +26,9 @@ module.exports = {
       fontFamily: {
         serif: ["var(--font-cinzel)", "Georgia", "serif"],
         sans: ["var(--font-dm-sans)", "var(--font-plus-jakarta)", "sans-serif"]
+      },
+      scale: {
+        102: "1.02"
       }
     },
   },
