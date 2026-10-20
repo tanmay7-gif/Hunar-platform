@@ -85,8 +85,19 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
   const customerOrdersCount = inquiries.filter((i) => i.customerId === currentUser.id).length;
   const customerSavedCount = savedProductIds.length + savedCreatorIds.length;
 
+  interface NavItem {
+    title: string;
+    href: string;
+    icon: React.ComponentType<{ className?: string }>;
+    badge: string | null;
+    badgeColor?: string;
+    hasLiveDot?: boolean;
+    sublabel: string;
+    exact: boolean;
+  }
+
   // Cleaned Seller Navigation Items
-  const sellerNav = [
+  const sellerNav: NavItem[] = [
     {
       title: t("nav.studioHub"),
       href: "/dashboard/seller",
@@ -158,7 +169,7 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
   ];
 
   // Customer Navigation Items
-  const customerNav = [
+  const customerNav: NavItem[] = [
     {
       title: t("nav.bazaar"),
       href: "/dashboard/customer",
