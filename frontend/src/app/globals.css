@@ -7,29 +7,14 @@
     --terracotta-light: #FBF0EB;
     --terracotta-glow: rgba(200, 90, 50, 0.12);
     
-    --wine-primary: #6E1F2E;
-    --wine-hover: #581723;
-    --wine-deep: #7A2828;
-    --wine-button: #7A2828;
-    --wine-button-hover: #631F1F;
-
-    --kohl: #1E2229;
-    --kohl-plum: #2B1219;
     --indigo-kohl: #1E2229;
     --kohl-deep: #14171C;
-    --kohl-muted: #5E4B4E;
-    --kohl-light: #8A8986;
+    --kohl-muted: #535A66;
+    --kohl-light: #8E96A4;
 
-    --canvas-linen: #F7F5EF;
-    --canvas-ochre: #F0E3C8;
-    --canvas-terracotta: #EBD3CC;
-    --warm-linen: #FAF8F5;
-    --parchment: #FAF8F5;
+    --parchment: #FDFBF7;
     --parchment-deep: #F5EFE6;
-    --parchment-border: #E7E0D6;
-    --hairline-sand: #E7E0D6;
-    --sand-border: #D4CDC3;
-    --surface-card: #FFFDF8;
+    --parchment-border: #E8DEC8;
     --parchment-subtle: #FAF6ED;
 
     --turmeric: #E5A93B;
@@ -39,13 +24,13 @@
     --sage: #4E6E58;
     --sage-light: #EBF2ED;
 
-    --font-serif: "Newsreader", "Cinzel", Georgia, Cambria, serif;
+    --font-serif: "Cinzel", Georgia, Cambria, serif;
     --font-sans: "DM Sans", "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
 
   body {
-    background-color: #FAF8F5;
-    color: #1E2229;
+    background-color: #F9F6F0;
+    color: #1A1816;
     font-family: var(--font-sans);
     min-height: 100vh;
   }
@@ -80,25 +65,13 @@
   background-color: #FAF7F2;
 }
 
-.bg-warm-linen {
-  background-color: #FAF8F5;
-}
-
-.border-hairline-sand {
-  border-color: #E7E0D6;
-}
-
-.bg-hairline-sand {
-  background-color: #E7E0D6;
-}
-
 .bg-parchment-card {
   background-color: #FFFFFF;
-  border: 1px solid #E7E0D6;
+  border: 1px solid #E8E2D7;
 }
 
 .border-artisan {
-  border-color: #E7E0D6;
+  border-color: #E8DFD0;
 }
 
 .text-terracotta {
@@ -107,19 +80,6 @@
 
 .bg-terracotta {
   background-color: #C85A32;
-}
-
-.btn-wine {
-  background-color: #7A2828;
-  color: #FAF8F5;
-  font-weight: 500;
-  border-radius: 4px;
-  padding: 0.625rem 1.25rem;
-  transition: background-color 0.15s ease-out;
-}
-
-.btn-wine:hover {
-  background-color: #631F1F;
 }
 
 .bg-terracotta-dark {
@@ -215,28 +175,6 @@
 
 .btn-craft-secondary:active {
   background-color: #E5DFD4;
-}
-
-/* Kohl Dark Accent Button */
-.btn-kohl {
-  background-color: #2B1219;
-  color: #FFFDF8;
-  font-weight: 500;
-  border-radius: 2px;
-  padding: 0.625rem 1.25rem;
-  transition: background-color 0.15s ease-out;
-}
-
-.btn-kohl:hover {
-  background-color: #14171C;
-}
-
-/* Craft Modal Card */
-.craft-modal {
-  background-color: #FFFDF8;
-  border: 1px solid #D4CDC3;
-  box-shadow: 0 16px 32px -8px rgba(43, 18, 25, 0.12), 0 4px 8px -2px rgba(43, 18, 25, 0.04);
-  border-radius: 4px;
 }
 
 /* Hunar Stamp / Wax Seal look */

@@ -12,11 +12,10 @@ import {
   ArrowRight,
   Sparkles,
   Smartphone,
-  RefreshCw,
-  AlertCircle
+  RefreshCw
 } from "lucide-react";
 
-export interface PaymentModalProps {
+interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
   orderId: string;
@@ -33,10 +32,10 @@ export function PaymentModal({
   onClose,
   orderId,
   amount,
-  productTitle = "The quiet courtyard",
-  productImage = "/artworks/the-quiet-courtyard.png",
+  productTitle = "Custom Artisan Commission",
+  productImage,
   sellerName,
-  sellerCity = "Jaipur",
+  sellerCity = "India",
   onConfirmPayment
 }: PaymentModalProps) {
   const [method, setMethod] = useState<"UPI_QR" | "NETBANKING_CARD">("UPI_QR");
@@ -71,7 +70,7 @@ export function PaymentModal({
   // One-click quick-fill test button
   const handleFillDemoCard = () => {
     setCardNumber("4532 8920 1144 8821");
-    setCardHolder("Aarav Mehta (Patron)");
+    setCardHolder("Priya Nair (Hunar Patron)");
     setExpiry("08/29");
     setCvv("892");
   };
@@ -85,13 +84,14 @@ export function PaymentModal({
   const handlePay = async () => {
     setIsProcessing(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      // Simulate realistic payment verification latency
+      await new Promise((resolve) => setTimeout(resolve, 900));
       const res = await onConfirmPayment(method, {
         cardNumber,
         cardHolder,
         orderId
       });
-      setCompletedTxnRef(res?.transactionRef || `HN-ORD6-1843`);
+      setCompletedTxnRef(res?.transactionRef || `HNR-TXN-${Math.floor(10000 + Math.random() * 90000)}`);
       setIsCompleted(true);
     } catch (err) {
       console.error("Payment submission error:", err);
@@ -101,70 +101,61 @@ export function PaymentModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1E2229]/50 animate-in fade-in duration-150">
-      <div className="relative w-full max-w-lg bg-[#FFFDF8] rounded-xs border border-[#D4CDC3] shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+      <div className="relative w-full max-w-lg bg-[#FDFCF9] rounded-sm border border-[#E8DEC8] shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
         {/* Modal Top Header */}
-        <div className="px-6 py-4 bg-[#FAF7F2] border-b border-[#E7E0D6] flex items-center justify-between">
+        <div className="px-6 py-4.5 bg-[#FAF7F2] border-b border-[#E8DEC8] flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xs bg-[#FAF0EB] border border-[#F3CFBF] flex items-center justify-center text-[#C85A32]">
+            <div className="w-8 h-8 rounded-full bg-[#FAF0EB] border border-[#F3CFBF] flex items-center justify-center text-[#B4461F]">
               <Lock className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-serif font-semibold text-base text-[#2B1219]">
-                Direct Artisan Checkout
+              <h3 className="font-serif font-bold text-base text-[#1E2229]">
+                Secure Direct Artisan Checkout
               </h3>
-              <p className="text-[11px] text-[#5E4B4E]">
-                100% Direct to Artisan Studio • Zero Hidden Commissions
+              <p className="text-[11px] text-[#635C53]">
+                0% Middleman • 100% Direct to Artisan Guild
               </p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-1 rounded-xs text-[#8A8986] hover:text-[#2B1219] hover:bg-[#F0E3C8] transition-colors"
+            className="p-1.5 rounded-sm text-[#8A7561] hover:text-[#1E2229] hover:bg-[#EFEAE1] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Caution notification banner matching Screenshot 5 */}
-        <div className="mx-6 mt-4 p-3 bg-[#FAF0EB] border border-[#F3CFBF] rounded-xs text-[11px] text-[#5E4B4E] flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#C85A32] shrink-0" />
-          <span>
-            Make payment with cautions. Please enter correct payment details. After payment
-            verification, Order is placed.
-          </span>
-        </div>
-
         {/* Order Summary Strip */}
-        <div className="px-6 py-3 bg-[#FAF7F2] border-y border-[#E7E0D6] mt-3 flex items-center justify-between gap-3">
+        <div className="px-6 py-3.5 bg-[#F6F1E8] border-b border-[#E8DEC8] flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
             {productImage && (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={productImage}
                 alt={productTitle}
-                className="w-10 h-10 rounded-xs object-cover border border-[#E7E0D6] shrink-0"
+                className="w-11 h-11 rounded-xs object-cover border border-[#D3CBBE] shrink-0"
               />
             )}
             <div className="min-w-0">
-              <span className="text-[10px] text-[#8A8986] block truncate">
+              <span className="text-[10px] font-mono text-[#8A7561] block truncate">
                 ORDER ID: {orderId}
               </span>
-              <h4 className="font-serif font-semibold text-xs text-[#2B1219] truncate">
+              <h4 className="font-serif font-bold text-xs text-[#1E2229] truncate">
                 {productTitle}
               </h4>
-              <p className="text-[11px] text-[#5E4B4E] truncate">
-                Artisan: <strong className="text-[#2B1219]">{sellerName}</strong> ({sellerCity})
+              <p className="text-[11px] text-[#635C53] truncate">
+                Artisan: <strong className="text-[#1E2229]">{sellerName}</strong> ({sellerCity})
               </p>
             </div>
           </div>
 
           <div className="text-right shrink-0">
-            <span className="text-[10px] text-[#8A8986] block uppercase tracking-wider font-semibold">
+            <span className="text-[10px] text-[#8A7561] block uppercase tracking-wider font-semibold">
               Total Amount
             </span>
-            <span className="font-serif font-bold text-lg text-[#2B1219]">
+            <span className="font-serif font-bold text-xl text-[#B4461F]">
               ₹{amount.toLocaleString("en-IN")}
             </span>
           </div>
@@ -174,53 +165,50 @@ export function PaymentModal({
         <div className="p-6 overflow-y-auto space-y-6">
           {isCompleted ? (
             /* ========================================================= */
-            /* SUCCESS CONFIRMATION RECEIPT SCREEN (Screenshot 5 Match)   */
+            /* SUCCESS CONFIRMATION RECEIPT SCREEN                      */
             /* ========================================================= */
-            <div className="py-4 text-center space-y-4 animate-in zoom-in-95 duration-150">
-              <div className="w-14 h-14 rounded-full bg-[#EEF4F0] border-2 border-[#4E6E58] flex items-center justify-center mx-auto text-[#4E6E58] shadow-2xs">
-                <CheckCircle2 className="w-8 h-8" />
+            <div className="py-6 text-center space-y-5 animate-in zoom-in-95 duration-150">
+              <div className="w-16 h-16 rounded-full bg-[#EEF4F0] border-2 border-[#2D583B] flex items-center justify-center mx-auto text-[#2D583B] shadow-sm">
+                <CheckCircle2 className="w-9 h-9" />
               </div>
 
               <div className="space-y-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#C85A32]">
-                  ORDER NO. : {completedTxnRef || "HN-ORD6-1843"}
+                <span className="px-2.5 py-0.5 rounded-xs text-[10px] font-bold uppercase tracking-wider bg-[#EEF4F0] text-[#2D583B] border border-[#C5DCCB]">
+                  Payment Confirmed • Crafting in Progress
                 </span>
-                <h4 className="font-serif font-medium text-2xl text-[#2B1219]">
-                  A little more art in your everyday.
+                <h4 className="font-serif font-bold text-2xl text-[#1E2229] pt-1">
+                  ₹{amount.toLocaleString("en-IN")} Paid Securely
                 </h4>
-                <p className="text-xs text-[#5E4B4E] max-w-sm mx-auto leading-relaxed">
-                  {productTitle} • Total ₹{amount.toLocaleString("en-IN")}. Payment was taken and
-                  the order is sent to {sellerName}&apos;s studio for packaging.
+                <p className="text-xs text-[#635C53] max-w-sm mx-auto">
+                  Transaction verified on the Hunar network. Receipt card has been posted to your direct chat thread with {sellerName}.
                 </p>
               </div>
 
               {/* Receipt Summary Card */}
-              <div className="bg-[#FAF7F2] p-4 rounded-xs border border-[#E7E0D6] text-left text-xs space-y-2 max-w-sm mx-auto">
+              <div className="bg-[#FAF7F2] p-4 rounded-sm border border-[#E8DEC8] text-left text-xs space-y-2 max-w-sm mx-auto">
                 <div className="flex items-center justify-between">
-                  <span className="text-[#5E4B4E]">Transaction Ref:</span>
-                  <span className="font-mono font-bold text-[#2B1219]">
-                    {completedTxnRef || "HN-ORD6-1843"}
-                  </span>
+                  <span className="text-[#8A7561]">Transaction ID:</span>
+                  <span className="font-mono font-bold text-[#1E2229]">{completedTxnRef}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[#5E4B4E]">Order ID:</span>
-                  <span className="font-mono text-[#2B1219]">{orderId}</span>
+                  <span className="text-[#8A7561]">Order ID:</span>
+                  <span className="font-mono text-[#1E2229]">{orderId}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[#5E4B4E]">Payment Method:</span>
-                  <span className="font-medium text-[#2B1219]">
+                  <span className="text-[#8A7561]">Payment Method:</span>
+                  <span className="font-medium text-[#1E2229]">
                     {method === "UPI_QR" ? "Dynamic UPI QR Code" : "Netbanking / RuPay Card"}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[#5E4B4E]">Status:</span>
-                  <span className="font-semibold text-[#4E6E58]">PAID &amp; CONFIRMED</span>
+                  <span className="text-[#8A7561]">Status:</span>
+                  <span className="font-bold text-[#2D583B]">PAID & DISPATCHED TO STUDIO</span>
                 </div>
               </div>
 
               <button
                 onClick={onClose}
-                className="px-5 py-2.5 rounded-xs bg-[#6E1F2E] hover:bg-[#581723] text-[#FFFDF8] text-xs font-medium transition-colors"
+                className="btn-terracotta px-6 py-2.5 rounded-sm text-xs font-semibold"
               >
                 Return to Chat Thread
               </button>
@@ -235,26 +223,26 @@ export function PaymentModal({
                 <button
                   type="button"
                   onClick={() => setMethod("UPI_QR")}
-                  className={`p-3.5 rounded-xs border text-left flex items-start gap-3 transition-colors ${
+                  className={`p-3.5 rounded-sm border text-left flex items-start gap-3 transition-all duration-150 ${
                     method === "UPI_QR"
-                      ? "border-[#6E1F2E] bg-[#FAF0EB] ring-1 ring-[#6E1F2E]"
-                      : "border-[#E7E0D6] bg-white hover:bg-[#FAF7F2]"
+                      ? "border-[#B4461F] bg-[#FBF0EB] ring-1 ring-[#B4461F]"
+                      : "border-[#E8DEC8] bg-white hover:bg-[#FAF7F2]"
                   }`}
                 >
                   <div
-                    className={`w-7 h-7 rounded-xs flex items-center justify-center shrink-0 ${
+                    className={`w-8 h-8 rounded-xs flex items-center justify-center shrink-0 ${
                       method === "UPI_QR"
-                        ? "bg-[#6E1F2E] text-white"
-                        : "bg-[#F0E3C8] text-[#2B1219]"
+                        ? "bg-[#B4461F] text-white"
+                        : "bg-[#F5F2EB] text-[#8A7561]"
                     }`}
                   >
-                    <QrCode className="w-3.5 h-3.5" />
+                    <QrCode className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="font-serif font-semibold text-xs text-[#2B1219] block">
-                      Option A: UPI QR
+                    <span className="font-serif font-bold text-xs text-[#1E2229] block">
+                      Option A: Dynamic UPI QR
                     </span>
-                    <span className="text-[10px] text-[#5E4B4E] block mt-0.5">
+                    <span className="text-[10px] text-[#635C53] block mt-0.5">
                       GPay, PhonePe, Paytm
                     </span>
                   </div>
@@ -263,27 +251,27 @@ export function PaymentModal({
                 <button
                   type="button"
                   onClick={() => setMethod("NETBANKING_CARD")}
-                  className={`p-3.5 rounded-xs border text-left flex items-start gap-3 transition-colors ${
+                  className={`p-3.5 rounded-sm border text-left flex items-start gap-3 transition-all duration-150 ${
                     method === "NETBANKING_CARD"
-                      ? "border-[#6E1F2E] bg-[#FAF0EB] ring-1 ring-[#6E1F2E]"
-                      : "border-[#E7E0D6] bg-white hover:bg-[#FAF7F2]"
+                      ? "border-[#B4461F] bg-[#FBF0EB] ring-1 ring-[#B4461F]"
+                      : "border-[#E8DEC8] bg-white hover:bg-[#FAF7F2]"
                   }`}
                 >
                   <div
-                    className={`w-7 h-7 rounded-xs flex items-center justify-center shrink-0 ${
+                    className={`w-8 h-8 rounded-xs flex items-center justify-center shrink-0 ${
                       method === "NETBANKING_CARD"
-                        ? "bg-[#6E1F2E] text-white"
-                        : "bg-[#F0E3C8] text-[#2B1219]"
+                        ? "bg-[#B4461F] text-white"
+                        : "bg-[#F5F2EB] text-[#8A7561]"
                     }`}
                   >
-                    <CreditCard className="w-3.5 h-3.5" />
+                    <CreditCard className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="font-serif font-semibold text-xs text-[#2B1219] block">
+                    <span className="font-serif font-bold text-xs text-[#1E2229] block">
                       Option B: Card / Netbanking
                     </span>
-                    <span className="text-[10px] text-[#5E4B4E] block mt-0.5">
-                      RuPay, Visa, Mastercard
+                    <span className="text-[10px] text-[#635C53] block mt-0.5">
+                      RuPay, Visa, Master, Netbanking
                     </span>
                   </div>
                 </button>
@@ -292,22 +280,21 @@ export function PaymentModal({
               {/* Method A: Dynamic UPI QR Code */}
               {method === "UPI_QR" && (
                 <div className="space-y-4 pt-1 animate-in fade-in duration-150 text-center">
-                  <div className="bg-[#F0E3C8] p-5 rounded-xs border border-[#D4CDC3] inline-block mx-auto shadow-2xs">
-                    <QRCodeDisplay value={upiUri} size={180} />
+                  <div className="bg-[#FAF7F2] p-5 rounded-sm border border-[#E8DEC8] inline-block mx-auto">
+                    <QRCodeDisplay value={upiUri} size={190} />
 
-                    <div className="mt-3 flex items-center justify-center gap-2 text-[11px] text-[#5E4B4E]">
-                      <Smartphone className="w-3.5 h-3.5 text-[#4E6E58]" />
+                    <div className="mt-3 flex items-center justify-center gap-2 text-[11px] text-[#635C53]">
+                      <Smartphone className="w-3.5 h-3.5 text-[#2D583B]" />
                       <span className="font-mono font-medium">seller.hunar@upi</span>
                     </div>
                   </div>
 
                   <div className="space-y-1 text-center">
-                    <p className="text-xs font-semibold text-[#2B1219]">
+                    <p className="text-xs font-semibold text-[#1E2229]">
                       Scan with GPay, PhonePe, or Paytm to complete transaction.
                     </p>
-                    <p className="text-[11px] text-[#5E4B4E]">
-                      Amount of ₹{amount.toLocaleString("en-IN")} will be held in escrow until
-                      crafting begins.
+                    <p className="text-[11px] text-[#8A7561]">
+                      Amount of ₹{amount.toLocaleString("en-IN")} will be held in escrow until crafting begins.
                     </p>
                   </div>
 
@@ -317,17 +304,17 @@ export function PaymentModal({
                       type="button"
                       disabled={isProcessing}
                       onClick={handlePay}
-                      className="w-full py-2.5 px-4 rounded-xs bg-[#6E1F2E] hover:bg-[#581723] text-[#FFFDF8] font-medium text-xs transition-colors duration-150 flex items-center justify-center gap-2 shadow-2xs disabled:opacity-75 cursor-pointer"
+                      className="w-full py-3 px-4 rounded-sm bg-[#2D583B] text-white font-medium text-xs hover:bg-[#23452E] transition-colors duration-150 flex items-center justify-center gap-2 shadow-sm disabled:opacity-75"
                     >
                       {isProcessing ? (
                         <>
-                          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                          <span>Verifying UPI Webhook &amp; Escrow...</span>
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          <span>Verifying UPI Webhook & Escrow...</span>
                         </>
                       ) : (
                         <>
                           <CheckCircle2 className="w-4 h-4" />
-                          <span>Pay ₹{amount.toLocaleString("en-IN")} via UPI</span>
+                          <span>Simulate Scan & Pay ₹{amount.toLocaleString("en-IN")}</span>
                         </>
                       )}
                     </button>
@@ -339,94 +326,104 @@ export function PaymentModal({
               {method === "NETBANKING_CARD" && (
                 <div className="space-y-4 pt-1 animate-in fade-in duration-150">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-[#2B1219]">
+                    <span className="text-xs font-semibold text-[#1E2229]">
                       Indian Banking Card Details
                     </span>
                     <button
                       type="button"
                       onClick={handleFillDemoCard}
-                      className="text-[11px] font-semibold text-[#C85A32] hover:underline flex items-center gap-1"
+                      className="text-[11px] font-semibold text-[#B4461F] hover:underline flex items-center gap-1"
                     >
                       <Sparkles className="w-3 h-3" />
-                      <span>Fill Demo Card</span>
+                      <span>Fill Demo Card Details</span>
                     </button>
                   </div>
 
                   <div className="space-y-3 text-xs">
+                    {/* Card Number */}
                     <div>
-                      <label className="block text-[11px] font-medium text-[#5E4B4E] mb-1">
-                        Card Number
+                      <label className="block text-[11px] font-semibold text-[#8A7561] mb-1 uppercase tracking-wider">
+                        Card / Account Number
                       </label>
                       <input
                         type="text"
                         placeholder="4532 •••• •••• 8821"
                         value={cardNumber}
                         onChange={handleCardNumberChange}
-                        className="w-full bg-[#FFFFFF] border border-[#D4CDC3] rounded-xs px-3 py-2 text-xs font-mono text-[#2B1219] focus:outline-hidden focus:border-[#6E1F2E]"
+                        className="w-full px-3.5 py-2.5 rounded-sm border border-[#D3CBBE] bg-white text-[#1E2229] font-mono tracking-wider focus:outline-none focus:border-[#B4461F]"
                       />
                     </div>
 
+                    {/* Cardholder Name */}
                     <div>
-                      <label className="block text-[11px] font-medium text-[#5E4B4E] mb-1">
+                      <label className="block text-[11px] font-semibold text-[#8A7561] mb-1 uppercase tracking-wider">
                         Cardholder Name
                       </label>
                       <input
                         type="text"
-                        placeholder="Aarav Mehta"
+                        placeholder="Priya Nair"
                         value={cardHolder}
                         onChange={(e) => setCardHolder(e.target.value)}
-                        className="w-full bg-[#FFFFFF] border border-[#D4CDC3] rounded-xs px-3 py-2 text-xs text-[#2B1219] focus:outline-hidden focus:border-[#6E1F2E]"
+                        className="w-full px-3.5 py-2.5 rounded-sm border border-[#D3CBBE] bg-white text-[#1E2229] focus:outline-none focus:border-[#B4461F]"
                       />
                     </div>
 
+                    {/* Expiry & CVV */}
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-[11px] font-medium text-[#5E4B4E] mb-1">
-                          Expiry (MM/YY)
+                        <label className="block text-[11px] font-semibold text-[#8A7561] mb-1 uppercase tracking-wider">
+                          Expiry Date
                         </label>
                         <input
                           type="text"
-                          placeholder="08/29"
+                          placeholder="MM/YY"
                           value={expiry}
                           onChange={handleExpiryChange}
-                          className="w-full bg-[#FFFFFF] border border-[#D4CDC3] rounded-xs px-3 py-2 text-xs font-mono text-[#2B1219] focus:outline-hidden focus:border-[#6E1F2E]"
+                          className="w-full px-3.5 py-2.5 rounded-sm border border-[#D3CBBE] bg-white text-[#1E2229] font-mono focus:outline-none focus:border-[#B4461F]"
                         />
                       </div>
+
                       <div>
-                        <label className="block text-[11px] font-medium text-[#5E4B4E] mb-1">
-                          CVV
+                        <label className="block text-[11px] font-semibold text-[#8A7561] mb-1 uppercase tracking-wider">
+                          CVV / Netbanking PIN
                         </label>
                         <input
                           type="password"
-                          maxLength={3}
+                          maxLength={4}
                           placeholder="•••"
                           value={cvv}
-                          onChange={(e) => setCvv(e.target.value)}
-                          className="w-full bg-[#FFFFFF] border border-[#D4CDC3] rounded-xs px-3 py-2 text-xs font-mono text-[#2B1219] focus:outline-hidden focus:border-[#6E1F2E]"
+                          onChange={(e) => setCvv(e.target.value.replace(/\D/g, ""))}
+                          className="w-full px-3.5 py-2.5 rounded-sm border border-[#D3CBBE] bg-white text-[#1E2229] font-mono tracking-widest focus:outline-none focus:border-[#B4461F]"
                         />
                       </div>
                     </div>
                   </div>
 
-                  <div className="pt-2">
+                  {/* Submit CTA */}
+                  <div className="pt-2 space-y-2">
                     <button
                       type="button"
-                      disabled={isProcessing}
+                      disabled={isProcessing || !cardNumber}
                       onClick={handlePay}
-                      className="w-full py-2.5 px-4 rounded-xs bg-[#6E1F2E] hover:bg-[#581723] text-[#FFFDF8] font-medium text-xs transition-colors duration-150 flex items-center justify-center gap-2 shadow-2xs disabled:opacity-75 cursor-pointer"
+                      className="w-full py-3 px-4 rounded-sm btn-terracotta text-white font-medium text-xs flex items-center justify-center gap-2 shadow-sm disabled:opacity-60"
                     >
                       {isProcessing ? (
                         <>
-                          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                          <span>Verifying Card Gateway...</span>
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          <span>Authorizing via Banking Gateway...</span>
                         </>
                       ) : (
                         <>
-                          <CheckCircle2 className="w-4 h-4" />
-                          <span>Pay ₹{amount.toLocaleString("en-IN")} via Card</span>
+                          <Lock className="w-4 h-4" />
+                          <span>Pay ₹{amount.toLocaleString("en-IN")} Securely</span>
                         </>
                       )}
                     </button>
+
+                    <div className="flex items-center justify-center gap-2 text-[10px] text-[#8A7561]">
+                      <ShieldCheck className="w-3.5 h-3.5 text-[#2D583B]" />
+                      <span>256-bit Encrypted • Direct Artisan Escrow</span>
+                    </div>
                   </div>
                 </div>
               )}

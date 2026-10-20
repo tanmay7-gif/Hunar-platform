@@ -4,637 +4,762 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useHunar } from "@/context/HunarContext";
-import { ProtectedImage } from "@/components/ui/ProtectedImage";
+import { Product, CustomerInquiry } from "@/lib/data";
 import {
   Package,
-  Plus,
-  ArrowUpRight,
+  PlusCircle,
+  TrendingUp,
+  Eye,
+  MessageCircle,
+  MessageSquare,
+  Phone,
   Trash2,
-  Edit,
-  Upload,
-  Image as ImageIcon,
+  Edit3,
   CheckCircle2,
-  Box,
-  IndianRupee,
-  Layers,
+  Clock,
   Sparkles,
-  ArrowRight
+  ToggleLeft,
+  ToggleRight,
+  ExternalLink,
+  DollarSign,
+  ArrowRight,
+  FolderOpen,
+  Filter,
+  Check,
+  X,
+  AlertCircle,
+  RefreshCw,
+  ShoppingBag,
+  Video
+} from "lucide-react";
+import { MentorshipManager } from "@/components/seller/MentorshipManager";
+import { MarketIntelligenceBar } from "@/components/tinyfish/MarketIntelligenceBar";
+import { ExternalProductImporterModal } from "@/components/tinyfish/ExternalProductImporterModal";
+import { AutonomousOpportunityAgentModal } from "@/components/tinyfish/AutonomousOpportunityAgentModal";
+import { CloudBrowserViewerModal } from "@/components/tinyfish/CloudBrowserViewerModal";
+import {
+  Globe,
+  Bot,
+  Monitor,
+  FileText
 } from "lucide-react";
 
 export default function SellerStudioDashboard() {
   const router = useRouter();
   const {
+    language,
     currentUser,
+    switchDemoRole,
     products,
-    addProduct,
+    inquiries,
+    mentorshipBookings,
     deleteProduct,
+    toggleProductStatus,
+    updateInquiryStatus,
+    sellerTotalEarnings,
+    startOrGetConversation,
     showToast
   } = useHunar();
 
-  // Tab filter: "works" | "orders" | "add"
-  const [activeTab, setActiveTab] = useState<"works" | "orders" | "add">("works");
+  const isHindi = language === "hi";
 
-  // Form state for "Add a new artwork"
-  const [artworkTitle, setArtworkTitle] = useState("");
-  const [price, setPrice] = useState("");
-  const [category, setCategory] = useState("Paintings");
-  const [size, setSize] = useState("");
-  const [medium, setMedium] = useState("");
-  const [gst, setGst] = useState("");
-  const [description, setDescription] = useState("");
-  const [uploadedPreview, setUploadedPreview] = useState<string | null>(null);
+  // Filter or tab state
+  const [activeTab, setActiveTab] = useState<"catalog" | "inbox" | "mentorship" | "intelligence">("catalog");
+  const [isImporterOpen, setIsImporterOpen] = useState(false);
+  const [isAgentOpen, setIsAgentOpen] = useState(false);
+  const [isCloudBrowserOpen, setIsCloudBrowserOpen] = useState(false);
+  const [editingInquiryId, setEditingInquiryId] = useState<string | null>(null);
+  const [newStatus, setNewStatus] = useState<CustomerInquiry["status"]>("Crafting in Progress");
+  const [statusNote, setStatusNote] = useState("");
 
-  // Available sample works (Screenshot 7: 6 works)
-  const defaultDashboardWorks = [
-    {
-      id: "prod-quiet-courtyard",
-      title: "The quiet courtyard",
-      medium: "Gouache on paper · 40 × 30 cm",
-      price: 8400,
-      status: "Available · 1 original",
-      image: "/artworks/the-quiet-courtyard.png"
-    },
-    {
-      id: "prod-monsoon-window",
-      title: "Monsoon window",
-      medium: "Acrylic on canvas · 30 × 30 cm",
-      price: 4800,
-      status: "Available · 1 original",
-      image: "/artworks/monsoon-window.png"
-    },
-    {
-      id: "prod-marigold-study",
-      title: "Marigold study",
-      medium: "Gouache on paper · 21 × 30 cm",
-      price: 3600,
-      status: "Available · 1 original",
-      image: "/artworks/marigold-study.png"
-    },
-    {
-      id: "prod-pink-city-morning",
-      title: "Pink city morning",
-      medium: "Acrylic on canvas · 40 × 50 cm",
-      price: 6200,
-      status: "Available · 1 original",
-      image: "/artworks/pink-city-morning.png"
-    },
-    {
-      id: "prod-amber-evening",
-      title: "Amber evening",
-      medium: "Acrylic on canvas · 30 × 40 cm",
-      price: 8600,
-      status: "Sold",
-      image: "/artworks/amber-evening.png"
-    },
-    {
-      id: "prod-after-rain",
-      title: "After rain",
-      medium: "Gouache on paper · 30 × 40 cm",
-      price: 5200,
-      status: "Sold",
-      image: "/artworks/after-rain.png"
-    }
-  ];
+  // Strict user isolation: Filter products strictly belonging to this authenticated artisan
+  const sellerProducts = products.filter((p) => p.sellerId === currentUser.id);
 
-  const [worksList, setWorksList] = useState(defaultDashboardWorks);
+  // Inquiries strictly addressed to this authenticated artisan
+  const sellerInquiries = inquiries.filter((inq) => inq.sellerId === currentUser.id);
 
-  // Sample orders (Screenshot 7: 2 orders)
-  const orders = [
-    {
-      id: "HN-1082",
-      date: "14 Oct 2024",
-      artwork: "Amber evening · 1 original",
-      buyer: "Nisha Kapoor · New Delhi",
-      total: 8600,
-      status: "Delivered"
-    },
-    {
-      id: "HN-1030",
-      date: "10 Oct 2024",
-      artwork: "After rain · 1 original",
-      buyer: "Dev Shah · Mumbai",
-      total: 5200,
-      status: "Delivered"
-    }
-  ];
+  // Mentorship Bookings addressed to this artisan
+  const sellerMentorshipBookings = mentorshipBookings.filter(
+    (b) =>
+      b.mentorId === currentUser.id ||
+      b.mentorId === "demo-seller-rohit" ||
+      (currentUser.username && b.mentorId === "creator-rohit")
+  );
 
-  const handleDeleteWork = (id: string, title: string) => {
-    setWorksList((prev) => prev.filter((w) => w.id !== id));
-    deleteProduct(id);
-    showToast("Artwork Removed", `"${title}" removed from your studio.`, "info");
-  };
+  // Studio Metrics Overview Calculation
+  const totalCatalogValue = sellerProducts.reduce((acc, p) => acc + p.price * p.stock, 0);
+  const activeListingsCount = sellerProducts.filter((p) => p.status === "Live").length;
+  const totalInquiriesCount = sellerInquiries.length;
+  const simulatedViewsCount = currentUser.id === "demo-seller-rohit" ? 1420 : 0;
 
-  const handleSimulateUpload = () => {
-    setUploadedPreview("/artworks/quiet-courtyard-detail.png");
-    showToast("Photo Selected", "Cover photo uploaded successfully.", "success");
-  };
-
-  const handlePublishArtwork = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!artworkTitle.trim()) {
-      showToast("Missing Title", "Please enter an artwork title.", "info");
-      return;
-    }
-
-    const newPiece = {
-      id: `prod-${Date.now()}`,
-      title: artworkTitle,
-      medium: `${medium || "Original Medium"} · ${size || "Standard Size"}`,
-      price: Number(price) || 4500,
-      status: "Available · 1 original",
-      image: uploadedPreview || "/artworks/quiet-courtyard-detail.png"
-    };
-
-    setWorksList((prev) => [newPiece, ...prev]);
-
-    addProduct({
-      id: newPiece.id,
-      title: artworkTitle,
-      price: Number(price) || 4500,
-      category: (category as any) || "Paintings",
-      dimensions: size,
-      material: medium,
-      description,
-      images: [newPiece.image]
-    });
-
-    showToast("Published!", `"${artworkTitle}" is now live on your storefront.`, "success");
-    setArtworkTitle("");
-    setPrice("");
-    setSize("");
-    setMedium("");
-    setGst("");
-    setDescription("");
-    setUploadedPreview(null);
-    setActiveTab("works");
+  const handleStatusUpdate = (inquiryId: string) => {
+    updateInquiryStatus(inquiryId, newStatus, statusNote || `Status updated to ${newStatus}`);
+    setEditingInquiryId(null);
+    setStatusNote("");
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F5EF] text-[#2B1219] py-8 sm:py-12 px-4 sm:px-8">
-      <div className="max-w-6xl mx-auto space-y-10">
-        {/* Page Header (Screenshot 7: YOUR STUDIO, AT A GLANCE / नमस्ते, Rhea.) */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-[#E7E0D6] pb-6">
+    <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-10 space-y-10">
+      {/* Studio Top Banner & Quick Actions */}
+      <div className="rounded-sm bg-[#1E2229] text-[#FAF7F2] p-6 sm:p-8 border border-[#2C323D] shadow-[0_2px_8px_rgba(0,0,0,0.04)] flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="flex items-center gap-5">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={currentUser.avatarUrl}
+            alt={currentUser.name}
+            className="w-20 h-20 rounded-sm object-cover aspect-square border border-[#3E4756] shadow-sm shrink-0"
+          />
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-[#C85A32] mb-1">
-              Your studio, at a glance
-            </p>
-            <h1 className="font-serif text-3xl sm:text-4xl text-[#2B1219] font-medium tracking-tight">
-              नमस्ते, {currentUser?.name ? currentUser.name.split(" ")[0] : "Rhea"}.
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="px-2.5 py-0.5 rounded-xs text-[10px] font-semibold uppercase tracking-wider bg-[#B4461F] text-white">
+                {isHindi ? "कारीगर स्टूडियो (SELLER WORKSPACE)" : "ARTISAN STUDIO WORKSPACE"}
+              </span>
+              <span className="text-xs text-[#E5A93B] font-mono">
+                {currentUser.city}
+              </span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#FAF7F2] tracking-tight">
+              {currentUser.name} {isHindi ? "का शिल्प स्टूडियो" : "'s Craft Studio"}
             </h1>
-            <p className="text-xs text-[#5E4B4E] mt-1">
-              Your work has a home here. Let&apos;s make room for what&apos;s next.
+            <p className="text-xs text-[#FAF7F2]/80 mt-1.5 leading-relaxed">
+              {currentUser.tagline || (isHindi ? "मास्टर सेरेमिक एवं टेराकोटा शिल्पकार" : "Master Ceramicist & Terracotta Sculptor")} • {currentUser.email}
             </p>
           </div>
-
-          <div className="flex flex-col sm:items-end gap-1.5 shrink-0">
-            <button
-              onClick={() => {
-                setActiveTab("add");
-                const el = document.getElementById("add-artwork-section");
-                el?.scrollIntoView({ behavior: "smooth" });
-              }}
-              className="px-4 py-2 rounded-xs bg-[#6E1F2E] hover:bg-[#581723] text-[#FFFDF8] text-xs font-medium transition-colors flex items-center gap-1.5 shadow-2xs cursor-pointer"
-            >
-              <span>Add artwork</span>
-              <Plus className="w-3.5 h-3.5" />
-            </button>
-            <Link
-              href="/artist/rhea-sharma"
-              className="text-xs text-[#5E4B4E] hover:text-[#2B1219] flex items-center gap-1 font-medium transition-colors"
-            >
-              <span>View my storefront</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
         </div>
 
-        {/* 3 Metric Stat KPI Cards (Screenshot 7: My works, Orders, Earnings) */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-          {/* Card 1: My works */}
-          <div className="bg-[#F0E3C8] border border-[#D4CDC3] rounded-xs p-5 relative shadow-2xs">
-            <div className="flex items-start justify-between">
-              <span className="text-xs text-[#5E4B4E] font-medium">My works</span>
-              <Layers className="w-4 h-4 text-[#C85A32]" />
-            </div>
-            <div className="font-serif text-3xl sm:text-4xl font-semibold text-[#2B1219] mt-2">
-              {worksList.length}
-            </div>
-            <p className="text-[11px] text-[#5E4B4E] mt-1">
-              {worksList.filter((w) => w.status.includes("Available")).length} available ·{" "}
-              {worksList.filter((w) => w.status === "Sold").length} sold
-            </p>
-          </div>
-
-          {/* Card 2: Orders */}
-          <div className="bg-[#F0E3C8] border border-[#D4CDC3] rounded-xs p-5 relative shadow-2xs">
-            <div className="flex items-start justify-between">
-              <span className="text-xs text-[#5E4B4E] font-medium">Orders</span>
-              <Box className="w-4 h-4 text-[#C85A32]" />
-            </div>
-            <div className="font-serif text-3xl sm:text-4xl font-semibold text-[#2B1219] mt-2">
-              2
-            </div>
-            <p className="text-[11px] text-[#5E4B4E] mt-1">2 delivered · all time</p>
-          </div>
-
-          {/* Card 3: Earnings */}
-          <div className="bg-[#F0E3C8] border border-[#D4CDC3] rounded-xs p-5 relative shadow-2xs">
-            <div className="flex items-start justify-between">
-              <span className="text-xs text-[#5E4B4E] font-medium">Earnings</span>
-              <IndianRupee className="w-4 h-4 text-[#C85A32]" />
-            </div>
-            <div className="font-serif text-3xl sm:text-4xl font-semibold text-[#2B1219] mt-2">
-              ₹12,000
-            </div>
-            <p className="text-[11px] text-[#5E4B4E] mt-1">Artwork sales · all time</p>
-          </div>
-        </div>
-
-        {/* Tab Filter Pills (Screenshot 7: My works, Orders (2), Add artwork) */}
-        <div className="flex items-center gap-2 text-xs border-b border-[#E7E0D6] pb-3">
-          <button
-            onClick={() => setActiveTab("works")}
-            className={`px-3.5 py-1 rounded-full text-xs font-medium transition-colors cursor-pointer ${
-              activeTab === "works"
-                ? "bg-[#2B1219] text-[#FFFDF8]"
-                : "bg-[#FAF5EC] hover:bg-[#EFE7DC] text-[#5E4B4E] border border-[#E7E0D6]"
-            }`}
+        <div className="flex flex-wrap items-center gap-3">
+          <Link
+            href="/dashboard/seller/products"
+            className="px-4 py-2.5 rounded-sm bg-[#2A313D] border border-[#3E4756] text-xs font-medium text-[#FAF7F2] hover:bg-[#343C4B] transition-colors duration-150 flex items-center gap-2"
           >
-            My works
-          </button>
-          <button
-            onClick={() => setActiveTab("orders")}
-            className={`px-3.5 py-1 rounded-full text-xs font-medium transition-colors cursor-pointer ${
-              activeTab === "orders"
-                ? "bg-[#2B1219] text-[#FFFDF8]"
-                : "bg-[#FAF5EC] hover:bg-[#EFE7DC] text-[#5E4B4E] border border-[#E7E0D6]"
-            }`}
+            <Package className="w-4 h-4 text-[#B4461F]" />
+            <span>Manage Inventory</span>
+          </Link>
+
+          <Link
+            href="/dashboard/seller/products/new"
+            className="btn-terracotta px-5 py-2.5 rounded-sm text-xs font-medium flex items-center gap-2 transition-colors duration-150"
           >
-            Orders (2)
-          </button>
-          <button
-            onClick={() => setActiveTab("add")}
-            className={`px-3.5 py-1 rounded-full text-xs font-medium transition-colors cursor-pointer ${
-              activeTab === "add"
-                ? "bg-[#2B1219] text-[#FFFDF8]"
-                : "bg-[#FAF5EC] hover:bg-[#EFE7DC] text-[#5E4B4E] border border-[#E7E0D6]"
-            }`}
-          >
-            Add artwork
-          </button>
-        </div>
-
-        {/* SECTION 1: MY WORKS TABLE */}
-        {(activeTab === "works" || activeTab === "add") && (
-          <div className="space-y-4">
-            <div className="flex items-baseline justify-between">
-              <h2 className="font-serif text-xl sm:text-2xl text-[#2B1219] font-medium">
-                My works
-              </h2>
-              <span className="text-xs text-[#8A8986]">
-                {worksList.length} works · Prices in INR
-              </span>
-            </div>
-
-            <div className="bg-[#FFFDF8] border border-[#E7E0D6] rounded-xs overflow-hidden shadow-2xs">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse text-xs">
-                  <thead>
-                    <tr className="bg-[#FAF0EB] text-[#6E1F2E] text-[10px] font-bold uppercase tracking-wider border-b border-[#F3CFBF]">
-                      <th className="py-2.5 px-4">Artwork</th>
-                      <th className="py-2.5 px-4">Price</th>
-                      <th className="py-2.5 px-4">Status</th>
-                      <th className="py-2.5 px-4 text-right">Edit / Delete</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#E7E0D6]">
-                    {worksList.map((work) => (
-                      <tr key={work.id} className="hover:bg-[#FAF8F5] transition-colors">
-                        {/* Artwork Info */}
-                        <td className="py-3 px-4 flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xs overflow-hidden bg-[#F0E3C8]/40 border border-[#E7E0D6] shrink-0">
-                            <ProtectedImage
-                              src={work.image}
-                              alt={work.title}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                          <div>
-                            <p className="font-medium text-[#2B1219]">{work.title}</p>
-                            <p className="text-[11px] text-[#8A8986]">{work.medium}</p>
-                          </div>
-                        </td>
-
-                        {/* Price */}
-                        <td className="py-3 px-4 font-semibold text-[#2B1219]">
-                          ₹{work.price.toLocaleString("en-IN")}
-                        </td>
-
-                        {/* Status */}
-                        <td className="py-3 px-4">
-                          <span
-                            className={`px-2.5 py-0.5 rounded-full text-[10px] font-medium border ${
-                              work.status === "Sold"
-                                ? "bg-[#FAF5EC] text-[#8A8986] border-[#E7E0D6]"
-                                : "bg-[#FAF0EB] text-[#C85A32] border-[#F3CFBF]"
-                            }`}
-                          >
-                            {work.status}
-                          </span>
-                        </td>
-
-                        {/* Edit / Delete */}
-                        <td className="py-3 px-4 text-right">
-                          <div className="flex items-center justify-end gap-3 text-xs">
-                            <Link
-                              href={`/artwork/${work.id}`}
-                              className="text-[#5E4B4E] hover:text-[#2B1219] flex items-center gap-0.5 font-medium"
-                            >
-                              <span>Edit</span>
-                              <ArrowUpRight className="w-3 h-3" />
-                            </Link>
-                            <button
-                              onClick={() => handleDeleteWork(work.id, work.title)}
-                              className="text-[#8A8986] hover:text-[#C85A32] transition-colors cursor-pointer"
-                              title="Delete listing"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* SECTION 2: ORDERS TABLE */}
-        {(activeTab === "orders" || activeTab === "works") && (
-          <div className="space-y-4 pt-6">
-            <div className="flex items-baseline justify-between">
-              <h2 className="font-serif text-xl sm:text-2xl text-[#2B1219] font-medium">
-                Orders
-              </h2>
-              <span className="text-xs text-[#8A8986]">
-                Sample order history · 2 orders
-              </span>
-            </div>
-
-            <div className="bg-[#FFFDF8] border border-[#E7E0D6] rounded-xs overflow-hidden shadow-2xs">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse text-xs">
-                  <thead>
-                    <tr className="bg-[#FAF0EB] text-[#6E1F2E] text-[10px] font-bold uppercase tracking-wider border-b border-[#F3CFBF]">
-                      <th className="py-2.5 px-4">Order / Date</th>
-                      <th className="py-2.5 px-4">Artwork / Buyer</th>
-                      <th className="py-2.5 px-4">Artwork Total</th>
-                      <th className="py-2.5 px-4">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#E7E0D6]">
-                    {orders.map((ord) => (
-                      <tr key={ord.id} className="hover:bg-[#FAF8F5] transition-colors">
-                        <td className="py-3.5 px-4">
-                          <p className="font-semibold text-[#2B1219]">{ord.id}</p>
-                          <p className="text-[11px] text-[#8A8986]">{ord.date}</p>
-                        </td>
-                        <td className="py-3.5 px-4">
-                          <p className="font-medium text-[#2B1219]">{ord.artwork}</p>
-                          <p className="text-[11px] text-[#5E4B4E]">{ord.buyer}</p>
-                        </td>
-                        <td className="py-3.5 px-4 font-semibold text-[#2B1219]">
-                          ₹{ord.total.toLocaleString("en-IN")}
-                        </td>
-                        <td className="py-3.5 px-4">
-                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-[#FAF5EC] text-[#5E4B4E] border border-[#E7E0D6]">
-                            {ord.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <p className="text-[11px] text-[#8A8986]">
-              Earnings reflect artwork totals for the two sample sales above. Shipping is excluded.
-            </p>
-          </div>
-        )}
-
-        {/* SECTION 3: ADD A NEW ARTWORK FORM (Screenshot 7) */}
-        <div id="add-artwork-section" className="space-y-4 pt-6">
-          <div className="flex items-baseline justify-between">
-            <div>
-              <h2 className="font-serif text-xl sm:text-2xl text-[#2B1219] font-medium">
-                Add a new artwork
-              </h2>
-              <p className="text-xs text-[#5E4B4E] mt-0.5">
-                Start with a good photo. The details help someone picture it at home.
-              </p>
-            </div>
-            <span className="px-2.5 py-0.5 rounded-full bg-[#FAF5EC] border border-[#E7E0D6] text-[10px] text-[#8A8986] font-medium">
-              New listing · not published
-            </span>
-          </div>
-
-          <form
-            onSubmit={handlePublishArtwork}
-            className="bg-[#FAF0EB] rounded-xs border border-[#F3CFBF] p-6 sm:p-8"
-          >
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-              {/* Left Column: 01 · ADD YOUR PHOTOS */}
-              <div className="lg:col-span-5 space-y-3">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[#C85A32]">
-                  01 · Add your photos
-                </p>
-
-                {/* Dropzone container */}
-                <div
-                  onClick={handleSimulateUpload}
-                  className="aspect-square rounded-xs border-2 border-dashed border-[#D9C4B7] bg-[#FFFFFF] hover:bg-[#FAF8F5] transition-colors p-6 flex flex-col items-center justify-center text-center cursor-pointer relative overflow-hidden"
-                >
-                  {uploadedPreview ? (
-                    <ProtectedImage
-                      src={uploadedPreview}
-                      alt="Uploaded artwork"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <>
-                      <ImageIcon className="w-8 h-8 text-[#C85A32] mb-2" />
-                      <p className="text-xs font-semibold text-[#2B1219]">
-                        Let your work do the talking.
-                      </p>
-                      <p className="text-[10px] text-[#8A8986] mt-1 max-w-[200px] leading-relaxed">
-                        Drag photos here or choose a file. JPG or PNG · up to 8 MB each
-                      </p>
-                      <button
-                        type="button"
-                        className="mt-3 px-3 py-1.5 rounded-xs border border-[#D4CDC3] bg-[#FFFFFF] text-xs font-medium text-[#2B1219] hover:bg-[#F0E3C8]"
-                      >
-                        Upload photos
-                      </button>
-                    </>
-                  )}
-                </div>
-
-                <p className="text-[10px] text-[#5E4B4E] leading-relaxed">
-                  Your first photo is the cover. Use natural light, show the full piece and add a
-                  close-up of the surface. Avoid filters that change the colours.
-                </p>
-              </div>
-
-              {/* Right Column: 02 · TELL US ABOUT THE PIECE */}
-              <div className="lg:col-span-7 space-y-3.5 text-xs">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[#C85A32]">
-                  02 · Tell us about the piece
-                </p>
-
-                <div>
-                  <label className="block text-[11px] font-medium text-[#5E4B4E] mb-1">
-                    Artwork title
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Sunday light"
-                    value={artworkTitle}
-                    onChange={(e) => setArtworkTitle(e.target.value)}
-                    required
-                    className="w-full bg-[#FFFFFF] border border-[#D4CDC3] rounded-xs px-3 py-2 text-xs text-[#2B1219] focus:outline-hidden focus:border-[#6E1F2E]"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[11px] font-medium text-[#5E4B4E] mb-1">
-                      Price (₹)
-                    </label>
-                    <input
-                      type="number"
-                      placeholder="e.g. 4,500"
-                      value={price}
-                      onChange={(e) => setPrice(e.target.value)}
-                      required
-                      className="w-full bg-[#FFFFFF] border border-[#D4CDC3] rounded-xs px-3 py-2 text-xs text-[#2B1219] focus:outline-hidden focus:border-[#6E1F2E]"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-medium text-[#5E4B4E] mb-1">
-                      Category
-                    </label>
-                    <select
-                      value={category}
-                      onChange={(e) => setCategory(e.target.value)}
-                      className="w-full bg-[#FFFFFF] border border-[#D4CDC3] rounded-xs px-3 py-2 text-xs text-[#2B1219] focus:outline-hidden focus:border-[#6E1F2E]"
-                    >
-                      <option value="Paintings">Paintings</option>
-                      <option value="Ceramics">Ceramics</option>
-                      <option value="Textiles">Textiles</option>
-                      <option value="Prints">Prints</option>
-                      <option value="Jewellery">Jewellery</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div>
-                    <label className="block text-[11px] font-medium text-[#5E4B4E] mb-1">
-                      Size (W × H, cm)
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g. 30 × 40 cm"
-                      value={size}
-                      onChange={(e) => setSize(e.target.value)}
-                      className="w-full bg-[#FFFFFF] border border-[#D4CDC3] rounded-xs px-3 py-2 text-xs text-[#2B1219] focus:outline-hidden focus:border-[#6E1F2E]"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-medium text-[#5E4B4E] mb-1">
-                      Medium
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Gouache on cotton paper"
-                      value={medium}
-                      onChange={(e) => setMedium(e.target.value)}
-                      className="w-full bg-[#FFFFFF] border border-[#D4CDC3] rounded-xs px-3 py-2 text-xs text-[#2B1219] focus:outline-hidden focus:border-[#6E1F2E]"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-medium text-[#5E4B4E] mb-1">
-                      GST (₹)
-                    </label>
-                    <input
-                      type="number"
-                      placeholder="e.g. 225"
-                      value={gst}
-                      onChange={(e) => setGst(e.target.value)}
-                      className="w-full bg-[#FFFFFF] border border-[#D4CDC3] rounded-xs px-3 py-2 text-xs text-[#2B1219] focus:outline-hidden focus:border-[#6E1F2E]"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-medium text-[#5E4B4E] mb-1">
-                    Description
-                  </label>
-                  <textarea
-                    rows={3}
-                    placeholder="What inspired this piece? Include the materials, whether it is framed, and any details a buyer should know."
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    className="w-full bg-[#FFFFFF] border border-[#D4CDC3] rounded-xs px-3 py-2 text-xs text-[#2B1219] focus:outline-hidden focus:border-[#6E1F2E]"
-                  />
-                </div>
-
-                {/* Inset Alert Callout (Screenshot 7) */}
-                <div className="p-3 bg-[#FAF5EC] border border-[#E7DEC8] rounded-xs text-[11px] text-[#5E4B4E] flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#C85A32] shrink-0" />
-                  <span>
-                    Listing an original? Availability starts at 1. Once sold, it is no longer
-                    available to buy.
-                  </span>
-                </div>
-
-                {/* Bottom Action Bar */}
-                <div className="pt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-[#F3CFBF]">
-                  <span className="text-[11px] text-[#5E4B4E]">
-                    Check your photos and details before publishing to your storefront.
-                  </span>
-                  <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
-                    <button
-                      type="button"
-                      onClick={() => showToast("GST Verified", "Harmonized tax code approved.", "info")}
-                      className="px-4 py-2 rounded-xs bg-[#6E1F2E] hover:bg-[#581723] text-[#FFFDF8] text-xs font-medium transition-colors cursor-pointer"
-                    >
-                      GST Approve &rarr;
-                    </button>
-                    <button
-                      type="submit"
-                      className="px-5 py-2 rounded-xs bg-[#6E1F2E] hover:bg-[#581723] text-[#FFFDF8] text-xs font-medium transition-colors flex items-center gap-1 shadow-2xs cursor-pointer"
-                    >
-                      <span>Publish artwork</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </form>
-        </div>
-
-        {/* Bottom footer credit (Screenshot 7) */}
-        <div className="pt-6 border-t border-[#E7E0D6] flex flex-col sm:flex-row items-center justify-between text-xs text-[#8A8986] gap-2">
-          <span>Your studio, your pace. Made for independent artists.</span>
-          <span>Design preview · Sample works and order history</span>
+            <PlusCircle className="w-4 h-4" />
+            <span>{isHindi ? "नई कलाकृति जोड़ें" : "Upload New Artwork"}</span>
+          </Link>
         </div>
       </div>
+
+      {/* Studio Metrics Overview (At A Glance) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="p-6 rounded-sm bg-white border border-[#E8E2D7] shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+          <div className="flex items-center justify-between text-xs text-[#8A7561] font-semibold uppercase tracking-wider mb-3">
+            <span>{isHindi ? "कुल कैटलॉग मूल्य" : "Total Catalog Value"}</span>
+            <DollarSign className="w-4 h-4 text-[#B4461F]" />
+          </div>
+          <p className="text-2xl sm:text-3xl font-serif font-bold text-[#1E2229]">
+            ₹{totalCatalogValue.toLocaleString("en-IN")}
+          </p>
+          <p className="text-[11px] text-[#2D583B] font-medium mt-2">
+            {sellerProducts.length} {isHindi ? "कुल कलाकृतियां" : "total inventory items"}
+          </p>
+        </div>
+
+        <div className="p-6 rounded-sm bg-white border border-[#E8E2D7] shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+          <div className="flex items-center justify-between text-xs text-[#8A7561] font-semibold uppercase tracking-wider mb-3">
+            <span>{isHindi ? "सक्रिय लाइव लिस्टिंग" : "Active Live Listings"}</span>
+            <Package className="w-4 h-4 text-[#2D583B]" />
+          </div>
+          <p className="text-2xl sm:text-3xl font-serif font-bold text-[#2D583B]">
+            {activeListingsCount}
+          </p>
+          <p className="text-[11px] text-[#635C53] mt-2">
+            {sellerProducts.filter((p) => p.status === "Draft").length} {isHindi ? "ड्राफ्ट में" : "in draft state"}
+          </p>
+        </div>
+
+        <div className="p-6 rounded-sm bg-white border border-[#E8E2D7] shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+          <div className="flex items-center justify-between text-xs text-[#8A7561] font-semibold uppercase tracking-wider mb-3">
+            <span>{isHindi ? "प्राप्त पूछताछ / कमीशन" : "Received Inquiries"}</span>
+            <MessageCircle className="w-4 h-4 text-[#B4461F]" />
+          </div>
+          <p className="text-2xl sm:text-3xl font-serif font-bold text-[#B4461F]">
+            {totalInquiriesCount}
+          </p>
+          <p className="text-[11px] text-[#635C53] mt-2">
+            {sellerInquiries.filter((inq) => inq.status === "Under Review").length} {isHindi ? "समीक्षा हेतु लंबित" : "pending review"}
+          </p>
+        </div>
+
+        <div className="p-6 rounded-sm bg-white border border-[#E8DEC8] shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+          <div className="flex items-center justify-between text-xs text-[#8A7561] font-semibold uppercase tracking-wider mb-3">
+            <span>{isHindi ? "पुष्टीकृत स्टूडियो आय" : "Studio Confirmed Earnings"}</span>
+            <DollarSign className="w-4 h-4 text-[#2D583B]" />
+          </div>
+          <p className="text-2xl sm:text-3xl font-serif font-bold text-[#2D583B]">
+            ₹{sellerTotalEarnings.toLocaleString("en-IN")}
+          </p>
+          <div className="flex items-center gap-1.5 mt-2">
+            <span className="w-2 h-2 rounded-full bg-[#2D583B]" />
+            <span className="text-[11px] text-[#2D583B] font-semibold">
+              Order Paid / In Production
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Dashboard Tabs Bar */}
+      <div className="flex items-center justify-between border-b border-[#E8E2D7] pb-1">
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+          <button
+            onClick={() => setActiveTab("catalog")}
+            className={`px-4 py-2 rounded-sm text-xs font-medium transition-colors duration-150 flex items-center gap-2 border-b-2 ${
+              activeTab === "catalog"
+                ? "border-[#B4461F] text-[#B4461F] bg-[#FAF7F2]"
+                : "border-transparent text-[#635C53] hover:text-[#1E2229]"
+            }`}
+          >
+            <Package className="w-4 h-4" />
+            <span>{isHindi ? "लाइव इन्वेंटरी एवं उत्पाद" : "Live Studio Inventory"}</span>
+            <span className="px-1.5 py-0.2 rounded-xs text-[10px] bg-[#E8E2D7] text-[#1E2229]">
+              {sellerProducts.length}
+            </span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("inbox")}
+            className={`px-4 py-2 rounded-sm text-xs font-medium transition-colors duration-150 flex items-center gap-2 border-b-2 ${
+              activeTab === "inbox"
+                ? "border-[#B4461F] text-[#B4461F] bg-[#FAF7F2]"
+                : "border-transparent text-[#635C53] hover:text-[#1E2229]"
+            }`}
+          >
+            <MessageCircle className="w-4 h-4" />
+            <span>{isHindi ? "कमीशन इनबॉक्स" : "Inquiry & Commission Inbox"}</span>
+            {sellerInquiries.length > 0 && (
+              <span className="px-1.5 py-0.2 rounded-xs text-[10px] bg-[#B4461F] text-white">
+                {sellerInquiries.length}
+              </span>
+            )}
+          </button>
+
+          <button
+            onClick={() => setActiveTab("mentorship")}
+            className={`px-4 py-2 rounded-sm text-xs font-medium transition-colors duration-150 flex items-center gap-2 border-b-2 ${
+              activeTab === "mentorship"
+                ? "border-[#B4461F] text-[#B4461F] bg-[#FAF7F2]"
+                : "border-transparent text-[#635C53] hover:text-[#1E2229]"
+            }`}
+          >
+            <Video className="w-4 h-4" />
+            <span>{isHindi ? "१-ऑन-१ मेंटरशिप" : "Mentorship & 1-on-1 Guidance"}</span>
+            {sellerMentorshipBookings.length > 0 && (
+              <span className="px-1.5 py-0.2 rounded-xs text-[10px] bg-[#2D583B] text-white">
+                {sellerMentorshipBookings.length}
+              </span>
+            )}
+          </button>
+
+          <button
+            onClick={() => setActiveTab("intelligence")}
+            className={`px-4 py-2 rounded-sm text-xs font-medium transition-colors duration-150 flex items-center gap-2 border-b-2 ${
+              activeTab === "intelligence"
+                ? "border-[#B4461F] text-[#B4461F] bg-[#FAF7F2]"
+                : "border-transparent text-[#635C53] hover:text-[#1E2229]"
+            }`}
+          >
+            <Globe className="w-4 h-4 text-[#E5A93B]" />
+            <span>{isHindi ? "वेब इंटेलिजेंस एवं एजेंट्स" : "TinyFish Web Intelligence"}</span>
+            <span className="px-1.5 py-0.2 rounded-xs text-[10px] bg-[#B4461F] text-white">
+              4 APIs
+            </span>
+          </button>
+        </div>
+
+        <Link
+          href="/dashboard/seller/products/new"
+          className="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium text-[#B4461F] hover:text-[#8E3211] transition-colors duration-150"
+        >
+          <PlusCircle className="w-4 h-4" />
+          <span>{isHindi ? "+ नया उत्पाद" : "+ Add Product"}</span>
+        </Link>
+      </div>
+
+      {/* ========================================================= */}
+      {/* TAB 1: LIVE INVENTORY TABLE & ACTIONS                     */}
+      {/* ========================================================= */}
+      {activeTab === "catalog" && (
+        <div className="space-y-6">
+          <div className="rounded-sm bg-white border border-[#E8E2D7] overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+            <div className="p-6 border-b border-[#E8E2D7] bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="font-serif font-bold text-lg text-[#1E2229] mb-1">
+                  {isHindi ? "स्टूडियो कैटलॉग तालिका" : "Artisan Studio Inventory Table"}
+                </h3>
+                <p className="text-xs text-[#635C53] leading-relaxed">
+                  {isHindi
+                    ? "कलाकृतियों की स्थिति ('लाइव' / 'ड्राफ्ट'), मूल्य और स्टॉक प्रबंधित करें।"
+                    : "Manage active pieces, toggle visibility, and update pricing."}
+                </p>
+              </div>
+
+              <Link
+                href="/dashboard/seller/products/new"
+                className="btn-terracotta px-4 py-2 rounded-sm text-xs font-medium self-start sm:self-auto flex items-center gap-2 transition-colors duration-150"
+              >
+                <PlusCircle className="w-3.5 h-3.5" />
+                <span>{isHindi ? "नया उत्पाद जोड़ें" : "Add Product"}</span>
+              </Link>
+            </div>
+
+              {sellerProducts.length === 0 ? (
+                <div className="p-12 text-center space-y-3">
+                  <FolderOpen className="w-10 h-10 text-gray-300 mx-auto" />
+                  <p className="font-bold text-sm text-[#1E2229]">
+                    {isHindi ? "कैटलॉग में कोई कलाकृति नहीं है" : "No Artworks Listed in Studio"}
+                  </p>
+                  <Link
+                    href="/dashboard/seller/products/new"
+                    className="inline-block px-4 py-2 rounded-xl bg-[#C85A32] text-white text-xs font-bold"
+                  >
+                    Upload First Artwork
+                  </Link>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-[#FAF6ED] text-gray-500 uppercase tracking-wider font-bold border-b border-[#E8DEC8] text-[10px]">
+                      <tr>
+                        <th className="py-3 px-4">Artwork Item</th>
+                        <th className="py-3 px-4">Craft Category</th>
+                        <th className="py-3 px-4">Price (₹)</th>
+                        <th className="py-3 px-4">Stock & Lead Time</th>
+                        <th className="py-3 px-4">Visibility</th>
+                        <th className="py-3 px-4 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#E8E2D7]">
+                      {sellerProducts.map((product) => {
+                        const isLive = product.status === "Live";
+
+                        return (
+                          <tr key={product.id} className="hover:bg-[#FAF7F2] transition-colors duration-150">
+                            {/* Artwork item info */}
+                            <td className="py-3.5 px-4">
+                              <div className="flex items-center gap-3">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                  src={product.images[0]}
+                                  alt={product.title}
+                                  className="w-12 h-12 rounded-sm object-cover border border-[#E8E2D7] shrink-0"
+                                />
+                                <div>
+                                  <h4 className="font-semibold text-[#1A1816] line-clamp-1">
+                                    {product.title}
+                                  </h4>
+                                  <p className="text-[11px] text-[#635C53] font-mono">
+                                    ID: {product.id}
+                                  </p>
+                                </div>
+                              </div>
+                            </td>
+
+                            {/* Category */}
+                            <td className="py-3.5 px-4">
+                              <span className="px-2.5 py-0.5 rounded-xs text-[10px] font-semibold bg-[#FAF0E6] text-[#B4461F] border border-[#F3CFBF] whitespace-nowrap">
+                                {product.category}
+                              </span>
+                            </td>
+
+                            {/* Price */}
+                            <td className="py-3.5 px-4 font-serif font-bold text-sm text-[#1E2229]">
+                              ₹{product.price.toLocaleString("en-IN")}
+                            </td>
+
+                            {/* Stock & Lead time */}
+                            <td className="py-3.5 px-4 space-y-0.5">
+                              <p className="font-medium text-[#2D583B]">
+                                {product.stock} units in stock
+                              </p>
+                              <p className="text-[11px] text-[#635C53]">{product.leadTime}</p>
+                            </td>
+
+                            {/* Visibility Badge */}
+                            <td className="py-3.5 px-4">
+                              <button
+                                onClick={() => toggleProductStatus(product.id)}
+                                className={`px-2.5 py-1 rounded-xs text-[10px] font-semibold uppercase tracking-wider transition-colors duration-150 flex items-center gap-1.5 ${
+                                  isLive
+                                    ? "bg-[#EEF4F0] text-[#2D583B] border border-[#C5DCCB]"
+                                    : "bg-gray-100 text-[#635C53] border border-gray-300"
+                                }`}
+                                title="Click to toggle status"
+                              >
+                                <span className={`w-1.5 h-1.5 rounded-xs ${isLive ? "bg-[#2D583B]" : "bg-gray-400"}`} />
+                                <span>{product.status}</span>
+                              </button>
+                            </td>
+
+                            {/* Actions */}
+                            <td className="py-3.5 px-4 text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                <button
+                                  onClick={() => toggleProductStatus(product.id)}
+                                  className="p-1.5 rounded-sm border border-[#E8E2D7] text-[#635C53] hover:text-[#1A1816] hover:bg-[#FAF7F2] transition-colors duration-150"
+                                  title={isLive ? "Set to Draft" : "Publish to Live"}
+                                >
+                                  {isLive ? <ToggleRight className="w-4 h-4 text-[#2D583B]" /> : <ToggleLeft className="w-4 h-4 text-gray-400" />}
+                                </button>
+
+                                <button
+                                  onClick={() => deleteProduct(product.id)}
+                                  className="p-1.5 rounded-sm border border-[#F3CFBF] text-[#B4461F] hover:bg-[#FAF0E6] transition-colors duration-150"
+                                  title="Delete product"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================= */}
+        {/* TAB 2: INQUIRY INBOX                                      */}
+        {/* ========================================================= */}
+        {activeTab === "inbox" && (
+          <div className="space-y-4">
+            <div className="border-b border-[#E8E2D7] pb-4 flex items-center justify-between">
+              <div>
+                <h3 className="font-serif font-bold text-lg text-[#1E2229]">
+                  {isHindi ? "सीधे ग्राहक कमीशन अनुरोध" : "Direct Customer Commission Requests"}
+                </h3>
+                <p className="text-xs text-[#635C53]">
+                  {isHindi
+                    ? "कला संरक्षकों से प्राप्त ऑर्डर की स्थिति को अपडेट करें और उनसे सीधे व्हाट्सएप/कॉल पर बात करें।"
+                    : "Review client briefs, proposed budgets, and advance order tracker."}
+                </p>
+              </div>
+
+              <span className="px-3 py-1 rounded-xs text-xs font-semibold bg-[#FAF0E6] text-[#B4461F] border border-[#F3CFBF]">
+                {sellerInquiries.length} {isHindi ? "प्राप्त अनुरोध" : "Requests Received"}
+              </span>
+            </div>
+
+            {sellerInquiries.length === 0 ? (
+              <div className="rounded-sm bg-white border border-[#E8E2D7] p-12 text-center space-y-2 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+                <MessageCircle className="w-10 h-10 text-[#D3CBBE] mx-auto" />
+                <h4 className="font-serif font-bold text-base text-[#1E2229]">
+                  {isHindi ? "कोई नई पूछताछ नहीं है" : "No Pending Inquiries"}
+                </h4>
+                <p className="text-xs text-[#635C53]">
+                  {isHindi
+                    ? "जब कला संरक्षक आपकी कलाकृतियों पर पूछताछ करेंगे, वे यहां दिखाई देंगी।"
+                    : "Client requests submitted from the Customer Dashboard will populate here."}
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {sellerInquiries.map((inq) => {
+                  const isEditing = editingInquiryId === inq.id;
+
+                  return (
+                    <div
+                      key={inq.id}
+                      className="rounded-sm bg-white border border-[#E8E2D7] p-6 space-y-5 shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E8E2D7] pb-5">
+                        <div className="flex items-center gap-4">
+                          {inq.productImage && (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={inq.productImage}
+                              alt={inq.productTitle || "Custom"}
+                              className="w-14 h-14 rounded-sm object-cover border border-[#E8E2D7]"
+                            />
+                          )}
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className="font-serif font-bold text-base text-[#1E2229]">
+                                {inq.productTitle || "Bespoke Custom Commission"}
+                              </h4>
+                              <span className="px-2 py-0.5 rounded-xs text-[10px] font-semibold uppercase tracking-wider bg-[#FAF0E6] text-[#B4461F] border border-[#F3CFBF]">
+                                {inq.status}
+                              </span>
+                            </div>
+                            <p className="text-xs text-[#635C53]">
+                              From: <span className="font-semibold text-[#1A1816]">{inq.customerName}</span> ({inq.customerEmail})
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2.5">
+                          {/* Direct Contact Buttons */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const conv = startOrGetConversation({
+                                sellerId: currentUser.id,
+                                productId: inq.productId,
+                                initialMessage: `Namaste ${inq.customerName}, this is ${currentUser.name}. I received your commission request for "${inq.productTitle || "Custom Art"}" (Proposed Budget: ₹${inq.proposedBudget}). Let's discuss details and timelines.`
+                              });
+                              router.push(`/dashboard/chat/${conv.id}`);
+                            }}
+                            className="btn-terracotta px-3.5 py-2 rounded-sm text-xs font-semibold flex items-center gap-1.5 shadow-xs"
+                          >
+                            <MessageSquare className="w-3.5 h-3.5" />
+                            <span>In-App Chat</span>
+                          </button>
+
+                          <a
+                            href={`tel:${inq.customerPhone}`}
+                            className="btn-craft-secondary px-3.5 py-2 rounded-sm text-xs font-medium flex items-center gap-1.5 transition-colors duration-150"
+                          >
+                            <Phone className="w-3.5 h-3.5 text-[#B4461F]" />
+                            <span>{inq.customerPhone}</span>
+                          </a>
+                        </div>
+                      </div>
+
+                      {/* Brief Details */}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 bg-[#FAF7F2] p-5 rounded-sm border border-[#E8E2D7] text-xs">
+                        <div className="sm:col-span-2 space-y-1">
+                          <p className="font-semibold uppercase tracking-wider text-[#8A7561] text-[10px]">
+                            Customer Specifications & Brief:
+                          </p>
+                          <p className="text-[#1A1816] leading-relaxed">{inq.requirements}</p>
+                          <p className="text-[#635C53] mt-1">Requested Delivery: {inq.timeline}</p>
+                        </div>
+
+                        <div>
+                          <p className="font-semibold uppercase tracking-wider text-[#8A7561] text-[10px]">
+                            Offered Budget:
+                          </p>
+                          <p className="font-serif font-bold text-xl text-[#B4461F] mt-0.5">
+                            ₹{inq.proposedBudget.toLocaleString("en-IN")}
+                          </p>
+                          <p className="text-[11px] text-[#2D583B] font-medium mt-1">
+                            100% Direct Payout
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Status Updater Row */}
+                      <div className="pt-2 border-t border-[#E8E2D7] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        {!isEditing ? (
+                          <div className="flex items-center gap-3">
+                            <span className="text-xs text-[#635C53]">Current Status:</span>
+                            <span className="font-semibold text-xs text-[#B4461F]">{inq.status}</span>
+                            <button
+                              onClick={() => {
+                                setEditingInquiryId(inq.id);
+                                setNewStatus(inq.status);
+                              }}
+                              className="px-3 py-1 rounded-sm border border-[#E8E2D7] text-xs font-medium text-[#1A1816] hover:bg-[#FAF7F2] transition-colors duration-150 flex items-center gap-1"
+                            >
+                              <Edit3 className="w-3 h-3 text-[#B4461F]" />
+                              <span>Update Status</span>
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex-1 flex flex-col sm:flex-row items-center gap-2">
+                            <select
+                              value={newStatus}
+                              onChange={(e) => setNewStatus(e.target.value as CustomerInquiry["status"])}
+                              className="px-3 py-1.5 rounded-sm bg-[#FDFCF9] border border-[#D3CBBE] text-xs font-semibold text-[#1A1816]"
+                            >
+                              <option value="Under Review">Under Review</option>
+                              <option value="Crafting in Progress">Crafting in Progress</option>
+                              <option value="Dispatched">Dispatched</option>
+                              <option value="Completed">Completed</option>
+                            </select>
+
+                            <input
+                              type="text"
+                              placeholder="Optional status note (e.g. 'Glaze fired; packaging today')..."
+                              value={statusNote}
+                              onChange={(e) => setStatusNote(e.target.value)}
+                              className="flex-1 px-3 py-1.5 rounded-sm bg-[#FDFCF9] border border-[#D3CBBE] text-xs text-[#1A1816]"
+                            />
+
+                            <button
+                              onClick={() => handleStatusUpdate(inq.id)}
+                              className="btn-terracotta px-3.5 py-1.5 rounded-sm text-xs font-medium"
+                            >
+                              Save
+                            </button>
+
+                            <button
+                              onClick={() => setEditingInquiryId(null)}
+                              className="px-2.5 py-1.5 text-xs text-[#635C53] hover:text-[#1A1816]"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        )}
+
+                        <span className="text-[11px] text-[#635C53] self-end sm:self-auto">
+                          Received {inq.createdAt}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+      {/* ========================================================= */}
+      {/* TAB 3: MENTORSHIP SETTINGS & BOOKINGS                     */}
+      {/* ========================================================= */}
+      {activeTab === "mentorship" && (
+        <MentorshipManager isHindi={isHindi} />
+      )}
+
+      {/* ========================================================= */}
+      {/* TAB 4: TINYFISH WEB INTELLIGENCE & AGENTS                 */}
+      {/* ========================================================= */}
+      {activeTab === "intelligence" && (
+        <div className="space-y-6">
+          {/* Header Card */}
+          <div className="p-6 rounded-sm bg-[#1E2229] border border-[#2C323D] text-[#FAF7F2] shadow-sm space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-0.5 rounded-xs text-[10px] font-semibold uppercase tracking-wider bg-[#B4461F] text-white">
+                Live AI Web Connectivity
+              </span>
+              <span className="text-xs text-[#E5A93B] font-mono">
+                Official TinyFish Infrastructure
+              </span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#FAF7F2]">
+              {isHindi ? "टाइनीफिश लाइव वेब इंटेलिजेंस एवं ऑटोमेशन" : "TinyFish Live Web Intelligence & Automation Engine"}
+            </h2>
+            <p className="text-xs sm:text-sm text-stone-300 max-w-3xl leading-relaxed">
+              Equips grassroots artisans with 4 enterprise web capabilities: live material spot pricing, automated product importing from external shops, autonomous grant scouting agents, and cloud browser execution.
+            </p>
+          </div>
+
+          {/* Capability 1: Search API (Live Market Intelligence) */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-xs font-semibold text-stone-300 uppercase tracking-wider">
+              <span className="w-2 h-2 rounded-full bg-[#E5A93B]" />
+              <span>1. Search API: Live Web Intelligence & Spot Rates</span>
+            </div>
+            <MarketIntelligenceBar />
+          </div>
+
+          {/* Capabilities 2, 3, 4: Action Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Capability 2: Fetch API */}
+            <div className="p-6 bg-white border border-[#E8E2D7] rounded-sm shadow-[0_2px_8px_rgba(0,0,0,0.04)] flex flex-col justify-between space-y-4">
+              <div className="space-y-2">
+                <div className="w-10 h-10 rounded-full bg-[#B4461F]/10 border border-[#B4461F]/30 flex items-center justify-center text-[#B4461F]">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#B4461F]">
+                    Fetch API
+                  </span>
+                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-stone-100 text-stone-600">
+                    JSON & Markdown
+                  </span>
+                </div>
+                <h3 className="font-serif font-bold text-base text-[#1E2229]">
+                  External Catalog Importer
+                </h3>
+                <p className="text-xs text-[#635C53] leading-relaxed">
+                  Extract clean markdown, craft techniques, pricing, and high-res imagery directly from Etsy, Instagram, or artisan portfolio blogs into your Hunar catalog.
+                </p>
+              </div>
+              <button
+                onClick={() => setIsImporterOpen(true)}
+                className="w-full py-2.5 bg-[#B4461F] hover:bg-[#963816] text-white text-xs font-semibold rounded-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[#E5A93B]" />
+                <span>Launch URL Importer</span>
+              </button>
+            </div>
+
+            {/* Capability 3: Web Agent */}
+            <div className="p-6 bg-white border border-[#E8E2D7] rounded-sm shadow-[0_2px_8px_rgba(0,0,0,0.04)] flex flex-col justify-between space-y-4">
+              <div className="space-y-2">
+                <div className="w-10 h-10 rounded-full bg-[#2D583B]/10 border border-[#2D583B]/30 flex items-center justify-center text-[#2D583B]">
+                  <Bot className="w-5 h-5" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#2D583B]">
+                    Web Agent
+                  </span>
+                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-stone-100 text-stone-600">
+                    Autonomous Multi-Step
+                  </span>
+                </div>
+                <h3 className="font-serif font-bold text-base text-[#1E2229]">
+                  Autonomous Grant & Fair Scout
+                </h3>
+                <p className="text-xs text-[#635C53] leading-relaxed">
+                  Autonomous AI agent navigates official directories (handicrafts.nic.in, Dastkar, TRIFED), evaluates eligibility requirements, and synthesizes bespoke application strategies.
+                </p>
+              </div>
+              <button
+                onClick={() => setIsAgentOpen(true)}
+                className="w-full py-2.5 bg-[#2D583B] hover:bg-[#23452e] text-white text-xs font-semibold rounded-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
+              >
+                <Bot className="w-3.5 h-3.5 text-[#81C784]" />
+                <span>Deploy Scout Agent</span>
+              </button>
+            </div>
+
+            {/* Capability 4: Browser Infrastructure */}
+            <div className="p-6 bg-white border border-[#E8E2D7] rounded-sm shadow-[0_2px_8px_rgba(0,0,0,0.04)] flex flex-col justify-between space-y-4">
+              <div className="space-y-2">
+                <div className="w-10 h-10 rounded-full bg-[#1E2229]/10 border border-[#1E2229]/30 flex items-center justify-center text-[#1E2229]">
+                  <Monitor className="w-5 h-5" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#1E2229]">
+                    Cloud Browser
+                  </span>
+                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-stone-100 text-stone-600">
+                    Playwright / CDP
+                  </span>
+                </div>
+                <h3 className="font-serif font-bold text-base text-[#1E2229]">
+                  Remote Verification Sandbox
+                </h3>
+                <p className="text-xs text-[#635C53] leading-relaxed">
+                  Connects to TinyFish cloud browser sessions to inspect live pages, verify GI tag licenses, and audit external sources without requiring local browser drivers.
+                </p>
+              </div>
+              <button
+                onClick={() => setIsCloudBrowserOpen(true)}
+                className="w-full py-2.5 bg-[#1E2229] hover:bg-[#2A313D] text-[#FAF7F2] text-xs font-semibold rounded-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
+              >
+                <Monitor className="w-3.5 h-3.5 text-[#E5A93B]" />
+                <span>Launch Cloud Sandbox</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TinyFish Modals */}
+      <ExternalProductImporterModal
+        isOpen={isImporterOpen}
+        onClose={() => setIsImporterOpen(false)}
+      />
+      <AutonomousOpportunityAgentModal
+        isOpen={isAgentOpen}
+        onClose={() => setIsAgentOpen(false)}
+      />
+      <CloudBrowserViewerModal
+        isOpen={isCloudBrowserOpen}
+        onClose={() => setIsCloudBrowserOpen(false)}
+      />
     </div>
   );
 }
