@@ -108,43 +108,51 @@ export default function SellerProductsPage() {
   return (
     <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-10 space-y-10">
       {/* Studio Workbench Header */}
-      <div className="rounded-sm p-6 sm:p-8 border border-[#2C323D] bg-[#1E2229] text-[#FAF7F2] shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+      <div className="rounded-sm p-6 sm:p-8 border border-[#E8DEC8] bg-[#FAF7F2] shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             <div className="flex items-center gap-2">
               <span className="px-2.5 py-0.5 rounded-xs text-[10px] font-semibold uppercase tracking-wider bg-[#B4461F] text-white">
                 Studio Workbench
               </span>
-              <span className="text-xs text-[#E5A93B] font-mono">
-                {currentUser.name} • {currentUser.city || "Craft Studio"}
+              <span className="text-xs text-[#8A7561] font-semibold uppercase tracking-wider">
+                {isHindi ? "शिल्प इन्वेंटरी" : "My Craft Inventory"}
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#FAF7F2]">
-              {isHindi ? "शिल्प इन्वेंटरी" : "My Craft Inventory"}
-            </h1>
+
+            {/* Single-Line Artisan Identity Header */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="font-serif text-2xl font-bold text-[#1E2229]">
+                {currentUser.name || "Rohit Sharma"}
+              </h1>
+              <span className="text-[#8A7561] text-lg font-light">•</span>
+              <span className="text-sm font-medium text-[#635C53] self-center">
+                {currentUser.city || "Khurja / Delhi NCR"}
+              </span>
+            </div>
           </div>
 
           <div className="flex items-center gap-2.5 flex-wrap md:flex-nowrap shrink-0">
             {/* TinyFish Offline Sync Status Indicator */}
-            <div className="flex items-center gap-2 px-3 py-2 rounded-sm text-xs font-mono border bg-[#252B35] border-[#374151]">
+            <div className="flex items-center gap-2 px-3 py-2 rounded-sm text-xs font-mono border bg-white border-[#E8E2D7] text-[#635C53]">
               {isSyncing ? (
                 <>
-                  <RefreshCw className="w-3.5 h-3.5 text-[#E5A93B] animate-spin" />
-                  <span className="text-[#E5A93B]">Syncing {pendingCount}...</span>
+                  <RefreshCw className="w-3.5 h-3.5 text-[#B4461F] animate-spin" />
+                  <span className="text-[#B4461F]">Syncing {pendingCount}...</span>
                 </>
               ) : !isOnline ? (
                 <>
-                  <WifiOff className="w-3.5 h-3.5 text-[#E5A93B]" />
-                  <span className="text-[#E5A93B]">Offline ({pendingCount} pending)</span>
+                  <WifiOff className="w-3.5 h-3.5 text-[#8A7561]" />
+                  <span className="text-[#8A7561]">Offline ({pendingCount} pending)</span>
                 </>
               ) : pendingCount > 0 ? (
                 <>
                   <Wifi className="w-3.5 h-3.5 text-[#2D583B]" />
-                  <span className="text-[#FAF7F2]">{pendingCount} local draft(s)</span>
+                  <span className="text-[#1E2229]">{pendingCount} local draft(s)</span>
                   <button
                     type="button"
                     onClick={() => flushQueue()}
-                    className="ml-1 text-[11px] underline text-[#E5A93B] hover:text-[#FAF7F2] cursor-pointer"
+                    className="ml-1 text-[11px] underline text-[#B4461F] hover:text-[#1E2229] cursor-pointer"
                   >
                     Sync
                   </button>
@@ -152,29 +160,31 @@ export default function SellerProductsPage() {
               ) : (
                 <>
                   <CheckCircle2 className="w-3.5 h-3.5 text-[#2D583B]" />
-                  <span className="text-[#FAF7F2]/80">Sync: Live</span>
+                  <span className="text-[#2D583B] font-semibold">Sync: Live</span>
                 </>
               )}
             </div>
 
             <button
               onClick={() => setIsImporterOpen(true)}
-              className="px-3.5 py-2.5 rounded-sm bg-[#B4461F]/20 hover:bg-[#B4461F]/30 text-[#FAF7F2] text-xs font-medium transition-colors duration-150 flex items-center gap-1.5 border border-[#B4461F]/50 cursor-pointer shadow-sm"
+              className="px-3.5 py-2.5 rounded-sm bg-white hover:bg-[#F4EFE6] text-[#1E2229] text-xs font-medium transition-colors duration-150 flex items-center gap-1.5 border border-[#D9D0C3] cursor-pointer shadow-xs"
               title="Extract craft listings from Etsy, Instagram, or external URLs via TinyFish Fetch API"
             >
-              <Sparkles className="w-3.5 h-3.5 text-[#E5A93B]" />
+              <Sparkles className="w-3.5 h-3.5 text-[#B4461F]" />
               <span>Import via TinyFish Fetch</span>
             </button>
+
             <button
               onClick={() => setIsAddDrawerOpen(true)}
-              className="px-4 py-2.5 rounded-sm bg-[#2A313D] hover:bg-[#343C4B] text-[#FAF7F2] text-xs font-medium transition-colors duration-150 flex items-center gap-1.5 border border-[#3E4756]"
+              className="px-4 py-2.5 rounded-sm bg-[#1E2229] hover:bg-[#111418] text-[#FAF7F2] text-xs font-medium transition-colors duration-150 flex items-center gap-1.5 shadow-xs"
             >
               <Plus className="w-3.5 h-3.5 text-[#E5A93B]" />
               <span>+ Quick Add Product</span>
             </button>
+
             <Link
               href="/dashboard/seller/products/new"
-              className="btn-terracotta px-4 py-2.5 rounded-sm text-xs font-medium flex items-center gap-2 transition-colors duration-150"
+              className="btn-terracotta px-4 py-2.5 rounded-sm text-xs font-medium flex items-center gap-2 transition-colors duration-150 shadow-xs"
             >
               <Plus className="w-4 h-4" />
               <span>Full Studio Upload</span>
@@ -183,18 +193,18 @@ export default function SellerProductsPage() {
         </div>
 
         {/* Quick Inventory Highlights Bar */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-5 border-t border-[#2C323D] text-xs">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-5 border-t border-[#E8E2D7] text-xs">
           <div>
             <span className="text-[#8A7561] text-[10px] uppercase font-semibold">Total Catalog Pieces:</span>
-            <p className="font-semibold text-base text-[#FAF7F2] mt-0.5">{totalStockCount} units</p>
+            <p className="font-semibold text-base text-[#1E2229] mt-0.5">{totalStockCount} units</p>
           </div>
           <div>
             <span className="text-[#8A7561] text-[10px] uppercase font-semibold">Catalog Value:</span>
-            <p className="font-semibold text-base text-[#E5A93B] mt-0.5">₹{totalCatalogValue.toLocaleString("en-IN")}</p>
+            <p className="font-semibold text-base text-[#B4461F] mt-0.5">₹{totalCatalogValue.toLocaleString("en-IN")}</p>
           </div>
           <div>
             <span className="text-[#8A7561] text-[10px] uppercase font-semibold">Active Listings:</span>
-            <p className="font-semibold text-base text-[#FAF7F2] mt-0.5">
+            <p className="font-semibold text-base text-[#1E2229] mt-0.5">
               {sellerProducts.filter((p) => p.status === "Live").length} Live
             </p>
           </div>
