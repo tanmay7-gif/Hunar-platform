@@ -13,7 +13,7 @@ export function Badge({
 }: BadgeProps) {
   const variantStyles = {
     terracotta: "bg-[#FBF0EB] text-[#B4461F] border-[#F3CFBF]",
-    forest: "bg-[#EEF4F0] text-[#2D583B] border-[#C5DCCB]",
+    forest: "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border-[#00E676]/40",
     sand: "bg-[#FAF5EC] text-[#1E2229] border-[#DACABA]",
     kohl: "bg-[#1E2229] text-[#FAF7F2] border-[#2A303A]",
     muted: "bg-[#F5F2EB] text-[#635C53] border-[#E8E2D7]",

@@ -167,7 +167,7 @@ export function MentorshipBookingModal({
             />
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="px-2 py-0.5 rounded-xs text-[10px] font-semibold uppercase tracking-wider bg-[#2D583B] text-white">
+                <span className="px-2 py-0.5 rounded-xs text-[10px] font-semibold uppercase tracking-wider bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40">
                   1-on-1 Paid Masterclass
                 </span>
                 <span className="text-xs text-[#E5A93B] font-mono">
@@ -211,7 +211,7 @@ export function MentorshipBookingModal({
                   <span className="text-xl font-serif font-bold text-[#1E2229]">
                     ₹{sessionFee.toLocaleString("en-IN")}
                   </span>
-                  <p className="text-[10px] text-[#2D583B] font-bold">100% Direct to Artisan</p>
+                  <p className="text-[10px] text-[#00C853] dark:text-[#00E676] font-bold">100% Direct to Artisan</p>
                 </div>
               </div>
 
@@ -275,8 +275,8 @@ export function MentorshipBookingModal({
                       onClick={() => setSelectedTime(time)}
                       className={`py-2 px-3 rounded-sm text-xs font-medium border text-center transition-colors duration-150 flex items-center justify-center gap-1.5 ${
                         selectedTime === time
-                          ? "bg-[#2D583B] text-white border-[#2D583B] font-semibold"
-                          : "bg-white text-[#635C53] border-[#E8DEC8] hover:border-[#2D583B]"
+                          ? "bg-[#00E676] text-[#121417] border-[#00E676] font-bold shadow-[0_0_8px_rgba(0,230,118,0.3)]"
+                          : "bg-white text-[#635C53] border-[#E8DEC8] hover:border-[#00E676]"
                       }`}
                     >
                       <Clock className="w-3.5 h-3.5" />
@@ -403,11 +403,11 @@ export function MentorshipBookingModal({
               </div>
 
               <div className="flex items-center justify-between text-xs pb-2 border-b border-[#E8DEC8]">
-                <span className="text-[#2D583B] flex items-center gap-1 font-semibold">
-                  <ShieldCheck className="w-3.5 h-3.5" />
+                <span className="text-[#00C853] dark:text-[#00E676] flex items-center gap-1 font-semibold">
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#00E676]" />
                   <span>Hunar Platform Support Fee:</span>
                 </span>
-                <span className="font-mono font-semibold text-[#2D583B]">₹0 (100% Artisan Direct)</span>
+                <span className="font-mono font-semibold text-[#00C853] dark:text-[#00E676]">₹0 (100% Artisan Direct)</span>
               </div>
 
               <div className="flex items-center justify-between text-sm pt-2">
@@ -450,7 +450,7 @@ export function MentorshipBookingModal({
                       : "bg-white border-[#E8DEC8] text-[#635C53]"
                   }`}
                 >
-                  <CreditCard className="w-5 h-5 text-[#2D583B] shrink-0" />
+                  <CreditCard className="w-5 h-5 text-[#00C853] dark:text-[#00E676] shrink-0" />
                   <div>
                     <p className="text-xs font-bold text-[#1E2229]">Card / NetBanking</p>
                     <p className="text-[10px] text-[#635C53]">Debit, Credit & RuPay</p>
@@ -458,8 +458,8 @@ export function MentorshipBookingModal({
                 </button>
               </div>
 
-              <div className="p-3 rounded-xs bg-[#EEF4F0] border border-[#C5DCCB] text-[11px] text-[#2D583B] flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 shrink-0" />
+              <div className="p-3 rounded-xs bg-[#00E676]/10 border border-[#00E676]/30 text-[11px] text-[#00C853] dark:text-[#00E676] flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-[#00E676] shrink-0" />
                 <span>
                   Mock simulated checkout for Hunar development. No actual bank charge will occur.
                 </span>
@@ -503,12 +503,12 @@ export function MentorshipBookingModal({
         {/* ========================================================= */}
         {step === "SUCCESS" && createdBooking && (
           <div className="p-6 sm:p-8 space-y-6 text-center">
-            <div className="w-16 h-16 rounded-full bg-[#EEF4F0] border-2 border-[#2D583B] flex items-center justify-center mx-auto text-[#2D583B]">
+            <div className="w-16 h-16 rounded-full bg-[#00E676]/15 border-2 border-[#00E676] flex items-center justify-center mx-auto text-[#00C853] dark:text-[#00E676] shadow-[0_0_15px_rgba(0,230,118,0.3)]">
               <CheckCircle2 className="w-8 h-8" />
             </div>
 
             <div>
-              <span className="px-2.5 py-0.5 rounded-xs text-[10px] font-bold uppercase tracking-wider bg-[#2D583B] text-white">
+              <span className="bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40 font-semibold px-2.5 py-1 rounded-sm text-xs inline-block">
                 Payment Confirmed • ₹{createdBooking.feePaid} Paid
               </span>
               <h4 className="font-serif text-2xl font-bold text-[#1E2229] mt-2">
@@ -527,7 +527,7 @@ export function MentorshipBookingModal({
               </div>
               <div className="flex items-center justify-between pb-1.5 border-b border-[#E8DEC8]">
                 <span className="text-[#8A7561] font-semibold">Scheduled Window:</span>
-                <span className="font-bold text-[#2D583B]">
+                <span className="font-bold text-[#00C853] dark:text-[#00E676]">
                   {createdBooking.scheduledDate} at {createdBooking.scheduledTime} ({createdBooking.duration} Mins)
                 </span>
               </div>
@@ -544,7 +544,7 @@ export function MentorshipBookingModal({
                     title="Copy Google Meet link"
                   >
                     {copiedMeetLink ? (
-                      <Check className="w-3.5 h-3.5 text-[#2D583B]" />
+                      <Check className="w-3.5 h-3.5 text-[#00E676]" />
                     ) : (
                       <Copy className="w-3.5 h-3.5" />
                     )}
@@ -570,7 +570,7 @@ export function MentorshipBookingModal({
                 href={whatsappPreviewUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2.5 rounded-sm bg-[#2D583B] text-white text-xs font-semibold hover:bg-[#23452E] transition-colors duration-150 flex items-center justify-center gap-2"
+                className="px-4 py-2.5 rounded-sm bg-[#00C853] hover:bg-[#00E676] text-[#121417] text-xs font-bold transition-colors duration-150 flex items-center justify-center gap-2 shadow-[0_0_12px_rgba(0,230,118,0.25)]"
               >
                 <MessageCircle className="w-4 h-4" />
                 <span>Open WhatsApp Preview</span>

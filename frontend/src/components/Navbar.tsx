@@ -282,7 +282,7 @@ export function Navbar() {
                 className={`text-[9px] tracking-widest uppercase font-bold px-1.5 py-0.5 rounded-xs ${
                   isSeller
                     ? "bg-[#1E2229]/10 text-[#1E2229]"
-                    : "bg-[#2D583B]/10 text-[#2D583B]"
+                    : "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/30 font-bold"
                 }`}
               >
                 {isSeller ? "STUDIO" : "PATRON"}
@@ -310,7 +310,7 @@ export function Navbar() {
                   isActive
                     ? isSeller
                       ? "bg-[#EFEAE1] text-[#1E2229] border border-[#D9D0C3]"
-                      : "bg-[#EEF4F0] text-[#2D583B] border border-[#C5DCCB]"
+                      : "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40"
                     : "text-[#1A1816] hover:bg-[#EFEAE1]"
                 }`}
               >
@@ -319,7 +319,7 @@ export function Navbar() {
                     isActive
                       ? isSeller
                         ? "text-[#B4461F]"
-                        : "text-[#2D583B]"
+                        : "text-[#00C853] dark:text-[#00E676]"
                       : "text-gray-500"
                   }`}
                 />
@@ -330,7 +330,7 @@ export function Navbar() {
                       isActive
                         ? isSeller
                           ? "bg-[#1E2229] text-white"
-                          : "bg-[#2D583B] text-white"
+                          : "bg-[#00E676] text-slate-950 font-bold shadow-[0_0_6px_#00E676]"
                         : "bg-gray-200 text-gray-700"
                     }`}
                   >
@@ -372,7 +372,7 @@ export function Navbar() {
                 className="px-3 py-2 rounded-sm border border-[#D9D0C3] text-xs font-medium text-[#1A1816] hover:bg-[#EFEAE1] transition-colors duration-150 flex items-center gap-1"
                 title="Saved Shortlists & Artworks"
               >
-                <Bookmark className="w-3.5 h-3.5 text-[#2D583B]" />
+                <Bookmark className="w-3.5 h-3.5 text-[#00C853] dark:text-[#00E676]" />
                 {totalSavedCount > 0 && (
                   <span className="px-1.5 py-0.2 rounded-xs bg-[#E5A93B] text-[#1E2229] text-[10px] font-bold">
                     {totalSavedCount}
@@ -439,7 +439,7 @@ export function Navbar() {
                     isActive
                       ? isSeller
                         ? "bg-[#1E2229] text-white"
-                        : "bg-[#2D583B] text-white"
+                        : "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40 font-bold"
                       : "text-[#1A1816] hover:bg-[#EFEAE1]"
                   }`}
                 >

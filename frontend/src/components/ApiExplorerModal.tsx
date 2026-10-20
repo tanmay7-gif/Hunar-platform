@@ -213,7 +213,7 @@ export function ApiExplorerModal() {
                         <span
                           className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
                             ep.method === "GET"
-                              ? "bg-[#2D583B]/60 text-[#86D49D]"
+                              ? "bg-[#00E676]/20 text-[#00E676] border border-[#00E676]/40"
                               : "bg-[#C85A32]/40 text-[#FFA07A]"
                           }`}
                         >
@@ -237,7 +237,7 @@ export function ApiExplorerModal() {
                       <span
                         className={`px-2 py-0.5 rounded text-xs font-bold ${
                           endpoints[activeEndpoint].method === "GET"
-                            ? "bg-[#2D583B] text-white"
+                            ? "bg-[#00E676] text-[#121417] shadow-[0_0_8px_rgba(0,230,118,0.3)]"
                             : "bg-[#C85A32] text-white"
                         }`}
                       >
@@ -265,7 +265,7 @@ export function ApiExplorerModal() {
                           title="Copy JSON response"
                         >
                           {copied ? (
-                            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                            <CheckCircle2 className="w-4 h-4 text-[#00E676]" />
                           ) : (
                             <Copy className="w-4 h-4" />
                           )}
@@ -279,7 +279,7 @@ export function ApiExplorerModal() {
                       <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
                         Request Payload (JSON)
                       </p>
-                      <pre className="text-[11px] font-mono bg-[#14171C] p-2.5 rounded-lg border border-[#2C323D] text-[#86D49D] overflow-x-auto">
+                      <pre className="text-[11px] font-mono bg-[#14171C] p-2.5 rounded-lg border border-[#2C323D] text-[#00E676] overflow-x-auto">
                         {JSON.stringify(endpoints[activeEndpoint].payload, null, 2)}
                       </pre>
                     </div>
@@ -303,10 +303,13 @@ export function ApiExplorerModal() {
                   </div>
                 </div>
 
-                <div className="pt-3 text-[11px] text-gray-400 flex items-center justify-between border-t border-[#2C323D] mt-3">
-                  <span>Prisma Schema & SQLite / PostgreSQL compatible</span>
-                  <span className="text-[#86D49D]">● Server Active</span>
-                </div>
+                  <div className="pt-3 text-[11px] text-gray-400 flex items-center justify-between border-t border-[#2C323D] mt-3">
+                    <span>Prisma Schema & SQLite / PostgreSQL compatible</span>
+                    <span className="inline-flex items-center gap-1.5 text-[#00E676] font-semibold text-xs">
+                      <span className="w-2 h-2 rounded-full bg-[#00E676] shadow-[0_0_6px_#00E676] animate-pulse"></span>
+                      Server Active
+                    </span>
+                  </div>
               </div>
             </div>
           </div>

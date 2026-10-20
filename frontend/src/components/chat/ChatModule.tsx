@@ -204,7 +204,7 @@ export function ChatModule({ initialConversationId, defaultRoleView }: ChatModul
                   />
                   {conv.sellerVerified && (
                     <div
-                      className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-[#2D583B] text-white flex items-center justify-center ring-2 ring-white"
+                      className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-[#00E676] text-[#121417] flex items-center justify-center ring-2 ring-white shadow-[0_0_6px_#00E676]"
                       title="Verified Master Guild"
                     >
                       <CheckCircle2 className="w-3 h-3" />
@@ -233,7 +233,7 @@ export function ChatModule({ initialConversationId, defaultRoleView }: ChatModul
                       <span className="font-semibold text-[#B4461F]">Ref:</span>
                       <span className="truncate">{conv.productTitle}</span>
                       {conv.productPrice && (
-                        <span className="font-bold text-[#2D583B]">₹{conv.productPrice}</span>
+                        <span className="font-bold text-[#00C853] dark:text-[#00E676]">₹{conv.productPrice}</span>
                       )}
                     </div>
                   )}
@@ -290,8 +290,8 @@ export function ChatModule({ initialConversationId, defaultRoleView }: ChatModul
                       : activeConv.customerName}
                   </h3>
                   {activeConv.sellerVerified && (
-                    <span className="px-1.5 py-0.2 rounded-xs bg-[#EEF4F0] text-[#2D583B] text-[10px] font-semibold border border-[#C5DCCB] shrink-0 flex items-center gap-0.5">
-                      <CheckCircle2 className="w-2.5 h-2.5" />
+                    <span className="px-1.5 py-0.2 rounded-xs bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] text-[10px] font-semibold border border-[#00E676]/40 shrink-0 flex items-center gap-0.5">
+                      <CheckCircle2 className="w-2.5 h-2.5 text-[#00C853] dark:text-[#00E676]" />
                       <span>Verified Artisan</span>
                     </span>
                   )}
@@ -304,7 +304,10 @@ export function ChatModule({ initialConversationId, defaultRoleView }: ChatModul
                       : activeConv.customerCity || "Patron Member"}
                   </span>
                   <span>•</span>
-                  <span className="text-[#2D583B] font-medium">Active in Session</span>
+                  <span className="text-[#00C853] dark:text-[#00E676] font-semibold flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#00E676] animate-pulse shadow-[0_0_6px_#00E676]"></span>
+                    Active in Session
+                  </span>
                 </p>
               </div>
             </div>
@@ -395,7 +398,7 @@ export function ChatModule({ initialConversationId, defaultRoleView }: ChatModul
                         <div className="p-5 space-y-3 bg-[#FAF7F2]">
                           <div className="flex items-center justify-between border-b border-[#E8DEC8] pb-3">
                             <div className="flex items-center gap-2">
-                              <div className="w-7 h-7 rounded-full bg-[#EEF4F0] border border-[#2D583B] text-[#2D583B] flex items-center justify-center">
+                              <div className="w-7 h-7 rounded-full bg-[#00E676]/15 border border-[#00E676] text-[#00C853] dark:text-[#00E676] flex items-center justify-center shadow-[0_0_8px_rgba(0,230,118,0.25)]">
                                 <CheckCircle2 className="w-4 h-4" />
                               </div>
                               <div>
@@ -408,14 +411,14 @@ export function ChatModule({ initialConversationId, defaultRoleView }: ChatModul
                               </div>
                             </div>
 
-                            <span className="px-2 py-0.5 rounded-xs text-[10px] font-bold uppercase tracking-wider bg-[#2D583B] text-white">
+                            <span className="bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40 font-semibold px-2.5 py-1 rounded-sm text-[10px] uppercase tracking-wider">
                               Crafting in Progress
                             </span>
                           </div>
 
                           <div className="flex items-baseline justify-between pt-1">
                             <span className="text-xs text-[#635C53]">Amount Paid:</span>
-                            <span className="font-serif font-bold text-xl text-[#2D583B]">
+                            <span className="font-serif font-bold text-xl text-[#00C853] dark:text-[#00E676]">
                               ₹{msg.paymentDetails.amount.toLocaleString("en-IN")}
                             </span>
                           </div>

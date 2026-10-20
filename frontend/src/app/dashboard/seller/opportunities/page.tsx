@@ -124,12 +124,12 @@ export default function SellerOpportunitiesPage() {
               className="px-3.5 py-2.5 rounded-sm bg-[#2A313D] hover:bg-[#343C4B] text-[#FAF7F2] text-xs font-medium flex items-center gap-2 border border-[#3E4756] transition-colors cursor-pointer"
               title="Remote Playwright/CDP cloud browser inspection for official craft portals"
             >
-              <Monitor className="w-3.5 h-3.5 text-[#4E9B6E]" />
+              <Monitor className="w-3.5 h-3.5 text-[#00E676]" />
               <span>Cloud Browser (CDP Sandbox)</span>
             </button>
-            <div className="px-3 py-2 rounded-sm bg-[#223528] border border-[#2D583B] text-xs">
+            <div className="px-3 py-2 rounded-sm bg-[#121417] border border-[#00E676]/40 text-xs">
               <span className="text-[#86A890] block text-[10px] uppercase font-semibold">Top Studio Fits:</span>
-              <span className="text-sm font-bold text-[#81C784]">{radarStats.topPicks} Priority Matches</span>
+              <span className="text-sm font-bold text-[#00E676]">{radarStats.topPicks} Priority Matches</span>
             </div>
           </div>
         </div>
@@ -158,7 +158,7 @@ export default function SellerOpportunitiesPage() {
               onClick={() => setOnlyTopMatches(!onlyTopMatches)}
               className={`px-3 py-2 rounded-sm text-xs font-semibold transition-colors duration-150 flex items-center gap-1.5 border ${
                 onlyTopMatches
-                  ? "bg-[#2D583B] text-white border-[#23452E]"
+                  ? "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border-[#00E676]/40 font-semibold"
                   : "bg-[#FAF7F2] text-[#635C53] border-[#E8DEC8] hover:border-sky-500 hover:text-sky-600"
               }`}
             >
@@ -190,14 +190,14 @@ export default function SellerOpportunitiesPage() {
               {filteredOpportunities.length} {isHindi ? "अवसर रडार पर सक्रिय" : "opportunities indexed on radar"}
             </span>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-xs bg-[#FAF7F2] border border-[#E8DEC8] text-[10px] text-[#8A7561]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#2D583B]"></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#00E676] shadow-[0_0_6px_#00E676] animate-pulse"></span>
               <span className="font-mono text-sky-600 font-semibold">{executionTimeMs}ms</span>
               <span>{isHindi ? "• टाइनीफिश एज रडार स्कोरिंग" : "• TinyFish zero-latency match scored"}</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 text-[11px] text-[#2D583B] font-medium">
-            <CheckCircle2 className="w-3.5 h-3.5" />
+          <div className="flex items-center gap-2 text-[11px] text-[#00C853] dark:text-[#00E676] font-semibold">
+            <CheckCircle2 className="w-3.5 h-3.5 text-[#00C853] dark:text-[#00E676]" />
             <span>{isHindi ? "शून्य बिचौलिया शुल्क • सीधी क्लाइंट बोली" : "0% platform commission on direct bids"}</span>
           </div>
         </div>
@@ -215,7 +215,7 @@ export default function SellerOpportunitiesPage() {
               key={opp.id}
               className={`bg-white rounded-sm border p-6 sm:p-7 shadow-[0_2px_8px_rgba(0,0,0,0.04)] flex flex-col justify-between space-y-5 transition-all duration-150 ${
                 isTop
-                  ? "border-[#2D583B]/60 ring-1 ring-[#2D583B]/20 bg-[#FDFAF5]"
+                  ? "border-[#00E676]/50 ring-1 ring-[#00E676]/30 bg-[#FDFAF5]"
                   : isRec
                   ? "border-sky-300 dark:border-sky-800 ring-1 ring-sky-300/30 bg-sky-50/30"
                   : "border-[#E8E2D7]"
@@ -229,14 +229,14 @@ export default function SellerOpportunitiesPage() {
                     <div
                       className={`px-2.5 py-1 rounded-sm text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 shadow-2xs ${
                         isTop
-                          ? "bg-[#2D583B] text-white"
+                          ? "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40 font-semibold"
                           : isRec
                           ? "bg-sky-50 text-sky-700 border border-sky-200"
                           : "bg-[#FAF7F2] text-[#8A7561] border border-[#E8DEC8]"
                       }`}
                       title="TinyFish Deterministic Craft Alignment Score"
                     >
-                      <Sparkles className={`w-3 h-3 ${isRec ? "text-sky-600" : isTop ? "text-[#E5A93B]" : "text-[#8A7561]"}`} />
+                      <Sparkles className={`w-3 h-3 ${isRec ? "text-sky-600" : isTop ? "text-[#00C853] dark:text-[#00E676]" : "text-[#8A7561]"}`} />
                       <span>{opp.match.overallScore}% {isHindi ? "स्टूडियो मिलान" : "Studio Match"}</span>
                     </div>
 
@@ -281,10 +281,10 @@ export default function SellerOpportunitiesPage() {
 
                   <div className="flex items-center justify-between text-[#8A7561] pt-1.5 border-t border-[#E8DEC8]/50">
                     <span className="font-semibold text-[#1E2229] flex items-center gap-1">
-                      <MapPin className="w-3 h-3 text-[#2D583B]" />
+                      <MapPin className="w-3 h-3 text-[#00C853] dark:text-[#00E676]" />
                       <span>{isHindi ? "क्षेत्रीय निकटता:" : "Regional Proximity:"}</span>
                     </span>
-                    <span className="text-[#2D583B] font-bold font-mono">{opp.match.factors.proximityScore}%</span>
+                    <span className="text-[#00C853] dark:text-[#00E676] font-bold font-mono">{opp.match.factors.proximityScore}%</span>
                   </div>
                   <p className="text-[#635C53] text-[10.5px] leading-tight">
                     {isHindi ? opp.match.proximityRationaleHindi : opp.match.proximityRationale}
@@ -303,7 +303,7 @@ export default function SellerOpportunitiesPage() {
                     <p className="text-[10px] text-[#635C53] truncate">{opp.postedByOrg}</p>
                   </div>
                   {opp.postedByVerified && (
-                    <span className="flex items-center gap-1 text-[10px] font-semibold text-[#2D583B] shrink-0">
+                    <span className="flex items-center gap-1 text-[10px] font-semibold text-[#00C853] dark:text-[#00E676] shrink-0">
                       <ShieldCheck className="w-3.5 h-3.5" />
                       Verified Patron
                     </span>
@@ -343,8 +343,8 @@ export default function SellerOpportunitiesPage() {
                 </div>
 
                 {hasApplied ? (
-                  <span className="px-3 py-1.5 rounded-sm bg-[#EEF4F0] text-[#2D583B] border border-[#C5DCCB] text-xs font-semibold flex items-center gap-1.5 shrink-0">
-                    <CheckCircle2 className="w-4 h-4" />
+                  <span className="px-3 py-1.5 rounded-sm bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40 text-xs font-semibold flex items-center gap-1.5 shrink-0">
+                    <CheckCircle2 className="w-4 h-4 text-[#00C853] dark:text-[#00E676]" />
                     <span>Quote Submitted</span>
                   </span>
                 ) : (

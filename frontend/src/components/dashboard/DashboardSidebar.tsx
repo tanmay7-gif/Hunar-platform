@@ -108,7 +108,7 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
       href: "/dashboard/seller/mentorship",
       icon: Video,
       badge: sellerMentorshipCount > 0 ? `${sellerMentorshipCount} Active` : "Opt-in",
-      badgeColor: "bg-[#2D583B] text-white",
+      badgeColor: "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40 font-semibold",
       sublabel: "1-on-1 Paid Sessions",
       exact: false
     },
@@ -126,7 +126,7 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
       href: "/dashboard/chat",
       icon: MessageSquare,
       badge: "In-App",
-      badgeColor: "bg-[#2D583B] text-white",
+      badgeColor: "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40 font-semibold",
       sublabel: "Buyer & Patron Chat",
       exact: false
     },
@@ -189,7 +189,7 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
       href: "/dashboard/customer/post-gig",
       icon: Sparkles,
       badge: "Custom",
-      badgeColor: "bg-[#2D583B] text-white",
+      badgeColor: "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40 font-semibold",
       sublabel: t("nav.postGigSub"),
       exact: false
     },
@@ -264,7 +264,7 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
                   className={`text-[9px] uppercase font-bold tracking-wider px-1 py-0.2 rounded-xs ${
                     isSeller
                       ? "bg-[#1E2229]/10 text-[#1E2229]"
-                      : "bg-[#2D583B]/10 text-[#1D3E29]"
+                      : "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/30 font-bold"
                   }`}
                 >
                   {isSeller ? "STUDIO" : "PATRON"}
@@ -304,7 +304,7 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
               <p className="text-xs font-bold text-[#1A1816] truncate">{activeProfile.name}</p>
               <CheckCircle2
                 className={`w-3.5 h-3.5 shrink-0 ${
-                  isSeller ? "text-[#B4461F]" : "text-[#2D583B]"
+                  isSeller ? "text-[#B4461F]" : "text-[#00C853] dark:text-[#00E676]"
                 }`}
               />
             </div>
@@ -336,7 +336,7 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
                 isActive
                   ? isSeller
                     ? "bg-[#1E2229] text-white shadow-xs"
-                    : "bg-[#2D583B] text-white shadow-xs"
+                    : "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40 font-bold shadow-xs"
                   : isSeller
                   ? "text-[#2A313D] hover:bg-[#EFEAE1] hover:text-[#1A1816]"
                   : "text-[#2A313D] hover:bg-[#E9F0EA] hover:text-[#1A1816]"
@@ -349,7 +349,7 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
                       ? "text-[#E5A93B]"
                       : isSeller
                       ? "text-[#8A7561]"
-                      : "text-[#2D583B]"
+                      : "text-[#00C853] dark:text-[#00E676]"
                   }`}
                 />
                 <div className="truncate">
@@ -372,7 +372,7 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
                       : item.badgeColor ||
                         (isSeller
                           ? "bg-[#FAF5EC] text-[#8B3B18] border border-[#E8DEC8]"
-                          : "bg-[#EEF4F0] text-[#23452E] border border-[#D5E2D9]")
+                          : "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40")
                   }`}
                 >
                   {item.badge}
@@ -420,9 +420,9 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
           </div>
         ) : (
           <div>
-            <div className="flex items-center justify-between text-[11px] font-bold text-[#23452E] mb-1">
+            <div className="flex items-center justify-between text-[11px] font-bold text-[#00C853] dark:text-[#00E676] mb-1">
               <span className="flex items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#2D583B]" />
+                <ShieldCheck className="w-3.5 h-3.5 text-[#00C853] dark:text-[#00E676]" />
                 {t("dashboard.directArtisanEquity")}
               </span>
               <span className="text-[10px] text-gray-500 font-mono">0% Cut</span>
@@ -432,7 +432,7 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
             </p>
             <Link
               href="/dashboard/customer/post-gig"
-              className="w-full text-center px-2 py-1.5 rounded-sm bg-[#2D583B] text-white text-[11px] font-medium hover:bg-[#23452E] transition-colors duration-150 flex items-center justify-center gap-1 shadow-xs"
+              className="w-full text-center px-2 py-1.5 rounded-sm bg-[#1E2229] text-white text-[11px] font-medium hover:bg-[#111418] transition-colors duration-150 flex items-center justify-center gap-1 shadow-xs"
             >
               <span>{t("cta.commissionWork")}</span>
             </Link>

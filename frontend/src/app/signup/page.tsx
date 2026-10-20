@@ -180,14 +180,14 @@ export default function SignupPage() {
                 onClick={() => setRole("CUSTOMER")}
                 className={`p-4 rounded-sm border cursor-pointer transition-colors duration-150 relative ${
                   role === "CUSTOMER"
-                    ? "border-[#2D583B] bg-[#EEF4F0] ring-1 ring-[#2D583B]"
-                    : "border-[#E8E2D7] bg-white hover:border-[#2D583B]/50"
+                    ? "border-[#00E676] bg-[#00E676]/10 ring-1 ring-[#00E676]"
+                    : "border-[#E8E2D7] bg-white hover:border-[#00E676]/50"
                 }`}
               >
                 <div className="flex items-start gap-3">
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                      role === "CUSTOMER" ? "bg-[#2D583B] text-white" : "bg-gray-100 text-gray-600"
+                      role === "CUSTOMER" ? "bg-[#00E676] text-slate-950 shadow-[0_0_8px_#00E676]" : "bg-gray-100 text-gray-600"
                     }`}
                   >
                     <Heart className="w-4 h-4" />
@@ -197,7 +197,7 @@ export default function SignupPage() {
                       <span className="font-serif font-bold text-sm text-[#1E2229]">
                         {isHindi ? "कला संरक्षक (Customer)" : "Patron / Collector (Customer)"}
                       </span>
-                      {role === "CUSTOMER" && <CheckCircle2 className="w-3.5 h-3.5 text-[#2D583B]" />}
+                      {role === "CUSTOMER" && <CheckCircle2 className="w-3.5 h-3.5 text-[#00C853] dark:text-[#00E676]" />}
                     </div>
                     <p className="text-[11px] text-[#635C53] mt-0.5 leading-snug">
                       {isHindi
@@ -343,7 +343,7 @@ export default function SignupPage() {
         {/* Security & Guarantee Strip */}
         <div className="mt-8 p-4 rounded-sm bg-[#FAF7F2] border border-[#E8E2D7] flex items-center justify-between text-xs text-gray-600">
           <span className="flex items-center gap-1.5">
-            <ShieldCheck className="w-4 h-4 text-[#2D583B]" />
+            <ShieldCheck className="w-4 h-4 text-[#00C853] dark:text-[#00E676]" />
             <span>
               {isHindi
                 ? "प्रत्यक्ष कारीगर इक्विटी • कोई मध्यस्थ शुल्क नहीं • सुरक्षित स्थानीय सत्र"

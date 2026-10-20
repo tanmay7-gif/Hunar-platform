@@ -123,7 +123,7 @@ export default function SellerRoadmapPage() {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <span className="text-xs font-medium text-[#2D583B] bg-[#EEF4F0] px-3 py-1 rounded-xs border border-[#C5DCCB]">
+                  <span className="text-xs font-semibold text-[#00C853] dark:text-[#00E676] bg-[#00E676]/15 px-3 py-1 rounded-xs border border-[#00E676]/40">
                     Benchmark: {step.incomeBenchmark}
                   </span>
                   <span className="text-xs text-[#635C53] font-medium">
@@ -160,13 +160,13 @@ export default function SellerRoadmapPage() {
                         onClick={() => toggleMilestone(milestone.id)}
                         className={`p-3.5 rounded-sm border cursor-pointer transition-colors duration-150 flex items-start gap-3 select-none ${
                           done
-                            ? "bg-[#EEF4F0] border-[#C5DCCB] text-[#1A1816]"
+                            ? "bg-[#00E676]/10 border-[#00E676]/40 text-[#1A1816]"
                             : "bg-[#FAF7F2] border-[#E8E2D7] hover:bg-[#F4EFE6] text-[#1A1816]"
                         }`}
                       >
                         <div className="mt-0.5 shrink-0">
                           {done ? (
-                            <CheckCircle2 className="w-4 h-4 text-[#2D583B]" />
+                            <CheckCircle2 className="w-4 h-4 text-[#00C853] dark:text-[#00E676]" />
                           ) : (
                             <Circle className="w-4 h-4 text-[#D3CBBE] hover:text-[#B4461F]" />
                           )}
@@ -176,7 +176,7 @@ export default function SellerRoadmapPage() {
                             <span className="text-[10px] font-semibold px-1.5 py-0.2 rounded-xs bg-white border border-[#E8E2D7] text-[#635C53]">
                               {milestone.actionTag}
                             </span>
-                            <p className={`text-xs font-semibold ${done ? "text-[#2D583B] line-through" : "text-[#1E2229]"}`}>
+                            <p className={`text-xs font-semibold ${done ? "text-[#00C853] dark:text-[#00E676] line-through" : "text-[#1E2229]"}`}>
                               {milestone.task}
                             </p>
                           </div>

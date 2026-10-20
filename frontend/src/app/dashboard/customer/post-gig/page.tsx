@@ -156,14 +156,14 @@ export default function PostRequirementPage() {
                 }}
                 className={`p-3.5 rounded-sm border text-left transition-colors duration-150 ${
                   projectType === item.id
-                    ? "bg-[#EEF4F0] border-[#2D583B] text-[#1D3E29]"
+                    ? "bg-[#00E676]/10 border-[#00E676] text-[#121417] shadow-[0_0_8px_rgba(0,230,118,0.2)]"
                     : "bg-[#FDFBF7] border-[#D3CBBE] hover:border-gray-400 text-[#1A1816]"
                 }`}
               >
                 <div className="flex items-center justify-between mb-1">
                   <span className="font-semibold text-xs">{item.label}</span>
                   {projectType === item.id && (
-                    <CheckCircle2 className="w-4 h-4 text-[#2D583B]" />
+                    <CheckCircle2 className="w-4 h-4 text-[#00C853] dark:text-[#00E676]" />
                   )}
                 </div>
                 <p className="text-[11px] text-[#635C53] leading-snug">{item.description}</p>
@@ -279,7 +279,7 @@ export default function PostRequirementPage() {
                     Artisan Pricing Benchmark: {pricingBenchmark.category}
                     {pricingBenchmark.city ? ` in ${pricingBenchmark.city}` : ""}
                   </span>
-                  <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-xs bg-[#2D583B]/10 text-[#2D583B]">
+                  <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-xs bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40">
                     {pricingBenchmark.marketTier}
                   </span>
                   <span className="text-[10px] text-[#635C53]">
@@ -324,7 +324,7 @@ export default function PostRequirementPage() {
 
         {/* Protection Guarantee Banner */}
         <div className="p-4 rounded-sm bg-[#FAF8F5] border border-[#E8DEC8] flex items-start gap-3 text-xs text-[#635C53]">
-          <ShieldCheck className="w-5 h-5 text-[#2D583B] shrink-0 mt-0.5" />
+          <ShieldCheck className="w-5 h-5 text-[#00E676] shrink-0 mt-0.5" />
           <div className="space-y-0.5">
             <p className="font-semibold text-[#1E2229]">Hunar Direct Patron Equity</p>
             <p>

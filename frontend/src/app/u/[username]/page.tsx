@@ -178,8 +178,8 @@ function HunarCardContent() {
                       {isHindi ? creator.nameHindi : creator.name}
                     </h1>
                     {creator.isVerified && (
-                      <span className="p-1 rounded-xs bg-[#2D583B] text-white" title="Verified Artisan">
-                        <CheckCircle className="w-3.5 h-3.5 text-[#E5A93B]" />
+                      <span className="p-1 rounded-xs bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40 flex items-center justify-center" title="Verified Artisan">
+                        <CheckCircle className="w-3.5 h-3.5 text-[#00C853] dark:text-[#00E676]" />
                       </span>
                     )}
                   </div>
@@ -245,7 +245,7 @@ function HunarCardContent() {
                 <p className="text-[11px] font-bold text-[#8A7561] uppercase tracking-wider">
                   {isHindi ? "पूर्ण किए गए प्रोजेक्ट्स" : "Completed Commissions"}
                 </p>
-                <p className="text-lg font-serif font-bold text-[#2D583B] mt-0.5">
+                <p className="text-lg font-serif font-bold text-[#00C853] dark:text-[#00E676] mt-0.5">
                   {creator.completedGigsCount}+
                 </p>
                 <p className="text-[11px] text-[#635C53]">
@@ -295,8 +295,8 @@ function HunarCardContent() {
                 <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 pb-6 border-b border-[#E8DEC8]">
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
-                      <span className="px-2.5 py-0.5 rounded-xs text-[10px] font-semibold uppercase tracking-wider bg-[#2D583B] text-white flex items-center gap-1.5">
-                        <Video className="w-3 h-3" />
+                      <span className="px-2.5 py-0.5 rounded-xs text-[10px] font-semibold uppercase tracking-wider bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40 flex items-center gap-1.5">
+                        <Video className="w-3 h-3 text-[#00C853] dark:text-[#00E676]" />
                         <span>{isHindi ? "१-ऑन-१ मेंटरशिप" : "1-on-1 Paid Masterclass"}</span>
                       </span>
                       <span className="px-2 py-0.5 rounded-xs text-[10px] font-semibold bg-white text-[#B4461F] border border-[#E8DEC8]">
@@ -432,10 +432,10 @@ function HunarCardContent() {
             </div>
 
             {/* Direct WhatsApp Callout Banner */}
-            <div className="mt-10 p-6 rounded-sm bg-[#EEF4F0] border border-[#C5DCCB] flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="mt-10 p-6 rounded-sm bg-[#00E676]/10 border border-[#00E676]/30 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-sm bg-[#2D583B] text-white flex items-center justify-center shrink-0">
-                  <MessageCircle className="w-5 h-5" />
+                <div className="w-10 h-10 rounded-sm bg-[#00E676] text-slate-950 shadow-[0_0_8px_#00E676] flex items-center justify-center shrink-0">
+                  <MessageCircle className="w-5 h-5 text-slate-950" />
                 </div>
                 <div>
                   <h4 className="font-serif font-bold text-base text-[#1E2229]">

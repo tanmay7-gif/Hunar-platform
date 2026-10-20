@@ -179,8 +179,8 @@ export function MentorshipManager({ isHindi = false }: MentorshipManagerProps) {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-[#E8DEC8]">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-xs text-[10px] font-semibold uppercase tracking-wider bg-[#2D583B] text-white flex items-center gap-1.5">
-                <Video className="w-3 h-3" />
+              <span className="px-2.5 py-0.5 rounded-xs text-[10px] font-semibold uppercase tracking-wider bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40 flex items-center gap-1.5">
+                <Video className="w-3 h-3 text-[#00C853] dark:text-[#00E676]" />
                 <span>{isHindi ? "१-ऑन-१ शिल्प परामर्श" : "1-on-1 Artisan Mentorship"}</span>
               </span>
               <span className="px-2 py-0.5 rounded-xs text-[10px] font-semibold uppercase tracking-wider bg-[#FAF0E6] text-[#B4461F] border border-[#F3CFBF]">
@@ -199,8 +199,8 @@ export function MentorshipManager({ isHindi = false }: MentorshipManagerProps) {
             >
               {copiedLink ? (
                 <>
-                  <Check className="w-3.5 h-3.5 text-[#2D583B]" />
-                  <span className="text-[#2D583B]">Copied!</span>
+                  <Check className="w-3.5 h-3.5 text-[#00C853] dark:text-[#00E676]" />
+                  <span className="text-[#00C853] dark:text-[#00E676]">Copied!</span>
                 </>
               ) : (
                 <>
@@ -230,8 +230,8 @@ export function MentorshipManager({ isHindi = false }: MentorshipManagerProps) {
             <p className="text-2xl font-serif font-bold text-[#1E2229] mt-0.5">
               ₹{totalRevenue.toLocaleString("en-IN")}
             </p>
-            <p className="text-[11px] text-[#2D583B] font-medium mt-0.5 flex items-center gap-1">
-              <CheckCircle2 className="w-3 h-3" />
+            <p className="text-[11px] text-[#00C853] dark:text-[#00E676] font-semibold mt-0.5 flex items-center gap-1">
+              <CheckCircle2 className="w-3 h-3 text-[#00C853] dark:text-[#00E676]" />
               <span>100% Retained Equity</span>
             </p>
           </div>
@@ -267,7 +267,7 @@ export function MentorshipManager({ isHindi = false }: MentorshipManagerProps) {
             <div className="mt-1 flex items-center gap-2">
               <span
                 className={`w-2.5 h-2.5 rounded-full ${
-                  enabled ? "bg-[#2D583B] animate-pulse" : "bg-[#8A7561]"
+                  enabled ? "bg-[#00E676] animate-pulse shadow-[0_0_8px_#00E676]" : "bg-[#8A7561]"
                 }`}
               />
               <span className="text-sm font-semibold text-[#1E2229]">
@@ -313,7 +313,7 @@ export function MentorshipManager({ isHindi = false }: MentorshipManagerProps) {
                   type="button"
                   onClick={() => setEnabled(!enabled)}
                   className={`w-11 h-6 rounded-full transition-colors duration-200 relative focus:outline-hidden ${
-                    enabled ? "bg-[#2D583B]" : "bg-[#D5CEBF]"
+                    enabled ? "bg-[#00E676] shadow-[0_0_8px_rgba(0,230,118,0.5)]" : "bg-[#D5CEBF]"
                   }`}
                   aria-label="Toggle mentorship availability"
                 >
@@ -505,7 +505,7 @@ export function MentorshipManager({ isHindi = false }: MentorshipManagerProps) {
             {/* Save Action Strip */}
             <div className="pt-4 border-t border-[#E8DEC8] flex items-center justify-between">
               <div className="flex items-center gap-2 text-xs text-[#635C53]">
-                <ShieldCheck className="w-4 h-4 text-[#2D583B]" />
+                <ShieldCheck className="w-4 h-4 text-[#00C853] dark:text-[#00E676]" />
                 <span>Instant update across all Hunar profile lookbooks</span>
               </div>
 
@@ -531,7 +531,7 @@ export function MentorshipManager({ isHindi = false }: MentorshipManagerProps) {
                 <Sparkles className="w-3 h-3 text-[#B4461F]" />
                 <span>Public Hunar Card Preview</span>
               </span>
-              <span className="px-2 py-0.5 rounded-xs text-[10px] font-semibold bg-[#2D583B] text-white">
+              <span className="px-2 py-0.5 rounded-xs text-[10px] font-semibold bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40">
                 Patron View
               </span>
             </div>
@@ -554,7 +554,7 @@ export function MentorshipManager({ isHindi = false }: MentorshipManagerProps) {
                   <span className="text-lg font-serif font-bold text-[#1E2229]">
                     ₹{fee.toLocaleString("en-IN")}
                   </span>
-                  <p className="text-[10px] text-[#2D583B] font-semibold">100% to Master</p>
+                  <p className="text-[10px] text-[#00C853] dark:text-[#00E676] font-semibold">100% to Master</p>
                 </div>
               </div>
 
@@ -673,9 +673,9 @@ export function MentorshipManager({ isHindi = false }: MentorshipManagerProps) {
                               {booking.learnerName}
                             </h4>
                             <span
-                              className={`px-2 py-0.5 rounded-xs text-[10px] font-bold uppercase tracking-wider ${
+                              className={`px-2.5 py-1 rounded-sm text-[10px] font-semibold uppercase tracking-wider ${
                                 isConfirmed
-                                  ? "bg-[#2D583B] text-white"
+                                  ? "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40"
                                   : isCompleted
                                   ? "bg-[#FAF7F2] text-[#635C53] border border-[#E8DEC8]"
                                   : "bg-[#B4461F] text-white"
@@ -728,7 +728,7 @@ export function MentorshipManager({ isHindi = false }: MentorshipManagerProps) {
                           href={booking.meetingLink}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="px-4 py-2 rounded-sm bg-[#2D583B] text-white text-xs font-semibold hover:bg-[#23452E] transition-colors duration-150 flex items-center justify-center gap-2 shadow-xs"
+                          className="px-4 py-2 rounded-sm bg-[#00C853] hover:bg-[#00E676] text-[#121417] text-xs font-bold transition-colors duration-150 flex items-center justify-center gap-2 shadow-[0_0_12px_rgba(0,230,118,0.25)]"
                         >
                           <Video className="w-3.5 h-3.5" />
                           <span>Join Video Meeting</span>
@@ -742,7 +742,7 @@ export function MentorshipManager({ isHindi = false }: MentorshipManagerProps) {
                         )}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-4 py-2 rounded-sm bg-white border border-[#2D583B] text-[#2D583B] text-xs font-semibold hover:bg-[#EEF4F0] transition-colors duration-150 flex items-center justify-center gap-1.5"
+                        className="px-4 py-2 rounded-sm bg-[#00E676]/10 border border-[#00E676]/40 text-[#00C853] dark:text-[#00E676] text-xs font-semibold hover:bg-[#00E676]/20 transition-colors duration-150 flex items-center justify-center gap-1.5"
                       >
                         <MessageCircle className="w-3.5 h-3.5" />
                         <span>WhatsApp Learner</span>
@@ -754,7 +754,7 @@ export function MentorshipManager({ isHindi = false }: MentorshipManagerProps) {
                           onClick={() => updateMentorshipBookingStatus(booking.id, "COMPLETED")}
                           className="px-3 py-1.5 rounded-sm bg-[#FAF7F2] text-[#635C53] hover:text-[#1E2229] border border-[#E8DEC8] text-xs font-medium transition-colors duration-150 flex items-center justify-center gap-1"
                         >
-                          <CheckCircle2 className="w-3.5 h-3.5 text-[#2D583B]" />
+                          <CheckCircle2 className="w-3.5 h-3.5 text-[#00C853] dark:text-[#00E676]" />
                           <span>Mark as Completed</span>
                         </button>
                       )}

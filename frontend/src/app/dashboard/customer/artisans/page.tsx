@@ -174,7 +174,7 @@ export default function DiscoverArtisansPage() {
               onClick={() => setVerifiedOnly(!verifiedOnly)}
               className={`px-3 py-2.5 rounded-sm border text-xs font-medium transition-colors duration-150 shrink-0 flex items-center gap-1.5 ${
                 verifiedOnly
-                  ? "bg-[#2D583B] text-white border-[#2D583B]"
+                  ? "bg-[#00E676] text-[#121417] border-[#00E676] font-bold shadow-[0_0_8px_rgba(0,230,118,0.3)]"
                   : "bg-white text-[#635C53] border-[#D3CBBE] hover:bg-[#FAF7F2]"
               }`}
             >
@@ -234,7 +234,7 @@ export default function DiscoverArtisansPage() {
                       </h3>
                       {creator.isVerified && (
                         <span title="Verified Master Artisan">
-                          <CheckCircle2 className="w-4 h-4 text-[#2D583B] shrink-0" />
+                          <CheckCircle2 className="w-4 h-4 text-[#00C853] dark:text-[#00E676] shrink-0" />
                         </span>
                       )}
                     </div>
@@ -446,7 +446,7 @@ export default function DiscoverArtisansPage() {
               </div>
 
               <div className="p-3 rounded-sm bg-[#FAF6ED] border border-[#E8DEC8] text-xs text-[#635C53] flex items-start gap-2">
-                <ShieldCheck className="w-4 h-4 text-[#2D583B] shrink-0 mt-0.5" />
+                <ShieldCheck className="w-4 h-4 text-[#00E676] shrink-0 mt-0.5" />
                 <span>
                   Hunar protects patrons and artisans with zero middleman deductions. This brief appears directly in {selectedCreatorForCommission.name}&apos;s studio inbox.
                 </span>

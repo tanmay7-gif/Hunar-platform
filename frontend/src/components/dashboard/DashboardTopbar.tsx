@@ -199,7 +199,7 @@ export function DashboardTopbar({
                 className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-xs ${
                   isSeller
                     ? "bg-[#1E2229]/10 text-[#1E2229]"
-                    : "bg-[#2D583B]/10 text-[#2D583B]"
+                    : "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/30 font-bold"
                 }`}
               >
                 {contextInfo.badge}
@@ -248,7 +248,7 @@ export function DashboardTopbar({
                 className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-[#D5E2D9] bg-white text-gray-700 text-xs font-medium hover:bg-[#EDF3EF] transition-colors duration-150"
                 title="View Saved Artworks & Collections"
               >
-                <Bookmark className="w-3.5 h-3.5 text-[#2D583B]" />
+                <Bookmark className="w-3.5 h-3.5 text-[#00C853] dark:text-[#00E676]" />
                 <span className="hidden sm:inline">{t("nav.wishlist")}</span>
                 {totalSavedCount > 0 && (
                   <span className="ml-0.5 px-1.5 py-0.2 rounded-xs bg-[#E5A93B] text-[#1E2229] text-[10px] font-bold">
@@ -263,10 +263,10 @@ export function DashboardTopbar({
                 className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-[#D5E2D9] bg-white text-gray-700 text-xs font-medium hover:bg-[#EDF3EF] transition-colors duration-150"
                 title="My Orders & Active Inquiries"
               >
-                <ShoppingBag className="w-3.5 h-3.5 text-[#2D583B]" />
+                <ShoppingBag className="w-3.5 h-3.5 text-[#00C853] dark:text-[#00E676]" />
                 <span className="hidden sm:inline">{t("nav.orders")}</span>
                 {activeOrdersCount > 0 && (
-                  <span className="ml-0.5 px-1.5 py-0.2 rounded-xs bg-[#2D583B] text-white text-[10px] font-bold">
+                  <span className="ml-0.5 px-1.5 py-0.2 rounded-xs bg-[#00E676] text-slate-950 text-[10px] font-bold shadow-[0_0_6px_#00E676]">
                     {activeOrdersCount}
                   </span>
                 )}
@@ -275,7 +275,7 @@ export function DashboardTopbar({
               {/* Post a Custom Request (₹) Quick-Action */}
               <Link
                 href="/dashboard/customer/post-gig"
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-sm bg-[#2D583B] text-white text-xs font-medium hover:bg-[#23452E] transition-colors duration-150 shadow-xs"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-sm bg-[#1E2229] text-white text-xs font-medium hover:bg-[#111418] transition-colors duration-150 shadow-xs"
               >
                 <span className="hidden xs:inline">{t("nav.postGig")} (₹)</span>
               </Link>

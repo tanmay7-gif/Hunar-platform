@@ -180,9 +180,9 @@ export default function CustomerDashboardPage() {
       case "Crafting in Progress":
         return "bg-[#FBF0EB] text-[#B4461F] border-[#F3CFBF]";
       case "Dispatched":
-        return "bg-[#EEF4F0] text-[#2D583B] border-[#C5DCCB]";
+        return "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border-[#00E676]/40 font-semibold";
       case "Completed":
-        return "bg-[#FAF5EC] text-[#1E2229] border-[#DACABA]";
+        return "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border-[#00E676]/40 font-semibold";
       default:
         return "bg-[#F5F2EB] text-[#635C53] border-[#E8E2D7]";
     }
@@ -210,7 +210,7 @@ export default function CustomerDashboardPage() {
           <div className="flex flex-wrap items-center gap-2.5 shrink-0">
             <Link
               href="/dashboard/customer/post-gig"
-              className="px-4 py-2.5 rounded-sm bg-[#2D583B] text-white text-xs font-medium hover:bg-[#23452E] transition-colors duration-150 flex items-center gap-1.5"
+              className="px-4 py-2.5 rounded-sm bg-[#1E2229] text-white text-xs font-medium hover:bg-[#111418] transition-colors duration-150 flex items-center gap-1.5"
             >
               <span>{isHindi ? "ज़रूरत पोस्ट करें" : "Post a Requirement"}</span>
             </Link>
@@ -384,7 +384,7 @@ export default function CustomerDashboardPage() {
 
               {/* TinyFish Edge Indexing Benchmark Badge */}
               <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-xs bg-[#FAF7F2] border border-[#E8DEC8] text-[10px] text-[#8A7561]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#2D583B]"></span>
+                <span className="w-1.5 h-1.5 rounded-full bg-[#00E676] shadow-[0_0_6px_#00E676]"></span>
                 <span className="font-mono text-[#B4461F] font-semibold">{executionTimeMs}ms</span>
                 <span>{isHindi ? "• टाइनीफिश एज अनुक्रमित" : "• TinyFish zero-latency indexed"}</span>
               </div>
@@ -405,8 +405,8 @@ export default function CustomerDashboardPage() {
                 </select>
               </div>
 
-              <span className="text-[11px] text-[#2D583B] font-semibold hidden sm:flex items-center gap-1">
-                <CheckCircle2 className="w-3.5 h-3.5 text-[#2D583B]" />
+              <span className="text-[11px] text-[#00C853] dark:text-[#00E676] font-semibold hidden sm:flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#00E676]" />
                 {isHindi ? "100% बिचौलिया-मुक्त • सीधा कारीगर भुगतान" : "Zero Middleman Cut • Direct Studio Settlement"}
               </span>
             </div>
@@ -482,7 +482,7 @@ export default function CustomerDashboardPage() {
                           <span className="text-xs font-semibold text-[#1E2229] hover:text-[#B4461F] transition-colors duration-150 flex items-center gap-1">
                             {product.sellerName}
                             {product.sellerVerified && (
-                              <CheckCircle2 className="w-3.5 h-3.5 text-[#2D583B]" />
+                              <CheckCircle2 className="w-3.5 h-3.5 text-[#00C853] dark:text-[#00E676]" />
                             )}
                           </span>
                         </div>
@@ -639,12 +639,12 @@ export default function CustomerDashboardPage() {
                             <div key={step} className="space-y-1.5">
                               <div
                                 className={`h-2 rounded-xs transition-colors duration-150 ${
-                                  isPastOrCurrent ? (isCurrent ? "bg-[#B4461F]" : "bg-[#2D583B]") : "bg-[#E8DEC8]"
+                                  isPastOrCurrent ? (isCurrent ? "bg-[#B4461F]" : "bg-[#00E676] shadow-[0_0_6px_#00E676]") : "bg-[#E8DEC8]"
                                 }`}
                               />
                               <p
                                 className={`text-[10px] sm:text-xs font-semibold truncate ${
-                                  isCurrent ? "text-[#B4461F]" : isPastOrCurrent ? "text-[#2D583B]" : "text-gray-400"
+                                  isCurrent ? "text-[#B4461F]" : isPastOrCurrent ? "text-[#00C853] dark:text-[#00E676]" : "text-gray-400"
                                 }`}
                               >
                                 {step}
@@ -863,7 +863,7 @@ export default function CustomerDashboardPage() {
                       <div>
                         <p className="font-medium text-xs text-[#1E2229] flex items-center gap-1">
                           {quickViewProduct.sellerName}
-                          <CheckCircle2 className="w-3.5 h-3.5 text-[#2D583B]" />
+                          <CheckCircle2 className="w-3.5 h-3.5 text-[#00C853] dark:text-[#00E676]" />
                         </p>
                         <p className="text-[11px] text-[#635C53]">{quickViewProduct.sellerCity}</p>
                       </div>
