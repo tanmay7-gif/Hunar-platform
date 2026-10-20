@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <radialGradient id="terracottaSplash" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#C85A32" stop-opacity="0.85" />
+      <stop offset="55%" stop-color="#E58B64" stop-opacity="0.55" />
+      <stop offset="85%" stop-color="#F2C4A2" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#FAF8F5" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="brushStroke" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#C85A32" />
+      <stop offset="50%" stop-color="#9E3B1B" />
+      <stop offset="100%" stop-color="#6E1F2E" />
+    </linearGradient>
+    <linearGradient id="goldBangle" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#E5A93B" />
+      <stop offset="50%" stop-color="#F3CFBF" />
+      <stop offset="100%" stop-color="#C85A32" />
+    </linearGradient>
+  </defs>
+
+  <!-- Watercolor organic splash background -->
+  <path d="M50 8 C68 6 88 18 92 36 C96 54 88 78 72 88 C56 98 34 94 20 84 C6 74 4 52 10 34 C16 16 32 10 50 8 Z" fill="url(#terracottaSplash)" />
+  
+  <!-- Calligraphic Letter 'H' -->
+  <path d="M38 28 C38 28 35 45 35 56 C35 64 39 70 42 70 M62 28 C62 36 60 52 60 68 M36 48 C44 46 54 46 61 47" 
+        stroke="url(#brushStroke)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+  
+  <!-- Fluid Brush flourish ribbon wrapping the H -->
+  <path d="M26 68 C34 58 48 38 68 32 C78 28 84 34 80 42 C76 50 64 56 52 58 C42 60 30 64 26 68 Z" 
+        fill="url(#brushStroke)" fill-opacity="0.9" />
+
+  <!-- Artisan Hand holding paintbrush -->
+  <g id="hand-and-brush">
+    <!-- Brush handle -->
+    <path d="M22 74 L52 46" stroke="#4A2511" stroke-width="3" stroke-linecap="round" />
+    <!-- Ferrule (metal band) -->
+    <path d="M52 46 L55 43" stroke="#D4CDC3" stroke-width="3.5" stroke-linecap="round" />
+    <!-- Brush bristles with wet paint tip -->
+    <path d="M55 43 Q60 38 64 36 Q61 43 56 45 Z" fill="#9E3B1B" />
+    
+    <!-- Stylized hand & fingers gripping the brush -->
+    <path d="M28 72 C30 68 36 64 42 63 C46 62 48 65 46 68 C44 71 38 74 34 76 Z" fill="#E8B896" stroke="#5A2E16" stroke-width="1.2" />
+    <path d="M36 65 C40 60 45 56 49 57 C51 58 50 62 47 64 C43 67 39 68 36 65 Z" fill="#DFAC88" stroke="#5A2E16" stroke-width="1.2" />
+    
+    <!-- Traditional bangles on wrist -->
+    <ellipse cx="25" cy="77" rx="6" ry="3" fill="none" stroke="url(#goldBangle)" stroke-width="2" transform="rotate(-35 25 77)" />
+    <ellipse cx="27" cy="80" rx="6" ry="3" fill="none" stroke="#C85A32" stroke-width="1.8" transform="rotate(-35 27 80)" />
+  </g>
+</svg>

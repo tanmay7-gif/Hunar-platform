@@ -2,6 +2,7 @@
 
 import React, { useState, Suspense } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useHunar } from "@/context/HunarContext";
 import {
@@ -128,9 +129,23 @@ function HunarCardContent() {
             )}
 
             {/* Official Hunar Verified Tag */}
-            <div className="absolute top-4 left-4 flex items-center gap-2 px-2.5 py-1 rounded-xs bg-[#FAF7F2] text-[#1E2229] text-xs font-semibold uppercase tracking-wider border border-[#E8E2D7]">
-              <span className="w-2 h-2 rounded-xs bg-[#B4461F]" />
-              <span>{isHindi ? "हुनर सत्यापित कार्ड" : "Verified Hunar Card"}</span>
+            <div className="absolute top-4 left-4 flex items-center gap-2.5 px-3 py-1.5 rounded-sm bg-[#FAF7F2]/95 backdrop-blur-sm text-[#1E2229] border border-[#E8E2D7] shadow-xs">
+              <div className="relative w-5 h-5 flex-shrink-0">
+                <Image
+                  src="/assets/logo-compact.png"
+                  alt="Hunar Mark"
+                  fill
+                  className="object-contain"
+                />
+              </div>
+              <div className="flex flex-col select-none">
+                <span className="text-[11px] font-bold text-[#C85A32] leading-none">
+                  {isHindi ? "सत्यापित हुनर कार्ड" : "Verified Hunar Card"}
+                </span>
+                <span className="text-[8px] font-medium tracking-wider uppercase text-[#635C53]">
+                  By Flytech
+                </span>
+              </div>
             </div>
 
             {/* Direct In-App Chat button in top right */}

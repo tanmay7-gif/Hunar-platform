@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useHunar } from "@/context/HunarContext";
 import {
@@ -56,9 +57,20 @@ export default function HomePage() {
             {/* Left Column (lg:col-span-7) */}
             <div className="lg:col-span-7">
               {/* Grounded Editorial Section Label */}
-              <p className="text-xs font-semibold uppercase tracking-wider text-[#8A7561] mb-3">
-                {isHindi ? "जमीनी भारतीय कलाकारों का स्वावलंबी मंच" : "Grassroots Creator & Artisan Guild"}
-              </p>
+              <div className="flex items-center gap-2.5 mb-3">
+                <div className="relative h-7 w-7 flex-shrink-0">
+                  <Image
+                    src="/assets/logo-compact.png"
+                    alt="Hunar Logo"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+                <div className="flex items-center gap-1.5 select-none">
+                  <span className="font-serif font-bold text-sm tracking-tight text-[#C85A32]">Hunar</span>
+                  <span className="text-[10px] font-medium tracking-wide uppercase text-[#8A7561]">• A home for art. By Flytech</span>
+                </div>
+              </div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-[#1E2229] leading-[1.15] tracking-tight">
                 {isHindi ? (
@@ -178,8 +190,13 @@ export default function HomePage() {
         </div>
 
         {/* Decorative artisanal motif watermark */}
-        <div className="absolute right-[-60px] top-[-40px] opacity-10 pointer-events-none select-none text-[280px] font-serif text-[#B4461F]">
-          हु
+        <div className="absolute right-[-60px] top-[-40px] w-80 h-80 opacity-10 pointer-events-none select-none">
+          <Image
+            src="/assets/logo.png"
+            alt=""
+            fill
+            className="object-contain"
+          />
         </div>
       </section>
 

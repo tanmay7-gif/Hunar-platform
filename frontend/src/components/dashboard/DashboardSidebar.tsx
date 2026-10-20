@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useHunar } from "@/context/HunarContext";
 import { useLanguage } from "@/context/LanguageContext";
@@ -247,31 +248,31 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
         }`}
       >
         <div className="flex items-center justify-between gap-2 mb-3">
-          <div className="flex items-center gap-2">
-            <div
-              className={`w-8 h-8 rounded-sm flex items-center justify-center font-bold text-white shadow-xs ${
-                isSeller ? "bg-[#1E2229]" : "bg-[#2D583B]"
-              }`}
-            >
-              {isSeller ? (
-                <Store className="w-4 h-4 text-[#FAF7F2]" />
-              ) : (
-                <Compass className="w-4 h-4 text-[#F7F9F6]" />
-              )}
+          <div className="flex items-center gap-2.5">
+            <div className="relative w-8 h-8 rounded-sm overflow-hidden flex-shrink-0 bg-white border border-[#E8E2D7] p-0.5 shadow-xs">
+              <Image
+                src="/assets/logo-compact.png"
+                alt="Hunar Logo"
+                fill
+                className="object-contain"
+              />
             </div>
             <div>
-              <span
-                className={`text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-xs ${
-                  isSeller
-                    ? "bg-[#1E2229]/10 text-[#1E2229]"
-                    : "bg-[#2D583B]/10 text-[#1D3E29]"
-                }`}
-              >
-                {isSeller ? t("auth.artisanStudio") : t("auth.patronGuild")}
-              </span>
-              <h2 className="font-serif font-bold text-sm tracking-tight text-[#1A1816] leading-tight">
-                {isSeller ? t("dashboard.sellerOverview") : t("dashboard.customerOverview")}
-              </h2>
+              <div className="flex items-center gap-1.5">
+                <span className="font-serif font-bold text-sm text-[#C85A32] leading-tight">Hunar</span>
+                <span
+                  className={`text-[9px] uppercase font-bold tracking-wider px-1 py-0.2 rounded-xs ${
+                    isSeller
+                      ? "bg-[#1E2229]/10 text-[#1E2229]"
+                      : "bg-[#2D583B]/10 text-[#1D3E29]"
+                  }`}
+                >
+                  {isSeller ? "STUDIO" : "PATRON"}
+                </span>
+              </div>
+              <p className="text-[9px] font-medium tracking-wide uppercase text-[#635C53]">
+                By Flytech
+              </p>
             </div>
           </div>
 

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useHunar } from "@/context/HunarContext";
 import confetti from "canvas-confetti";
@@ -158,9 +159,31 @@ export default function OnboardingPage() {
   return (
     <div className="min-h-screen py-10 px-4 sm:px-6">
       <div className="max-w-4xl mx-auto">
-        {/* Onboarding Header */}
+        {/* Onboarding Header & Brand */}
         <div className="text-center max-w-xl mx-auto mb-8">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[#8A7561] mb-2">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-3 mb-4 focus:outline-none focus:ring-2 focus:ring-[#C85A32] focus:ring-offset-2 rounded-sm group"
+          >
+            <div className="relative h-11 w-11 flex-shrink-0">
+              <Image
+                alt="Hunar logo showing hand-held paintbrush shaping the letter H"
+                className="object-contain"
+                fill
+                priority
+                src="/assets/logo-compact.png"
+              />
+            </div>
+            <div className="flex flex-col text-left select-none">
+              <span className="font-serif text-xl font-bold tracking-tight text-[#C85A32]">
+                Hunar
+              </span>
+              <span className="text-[9px] font-medium tracking-wide uppercase text-[#635C53] -mt-0.5">
+                A home for art. By Flytech
+              </span>
+            </div>
+          </Link>
+          <p className="text-xs font-semibold uppercase tracking-wider text-[#8A7561] mb-1">
             {isHindi ? "कारीगर ऑनबोर्डिंग विज़ार्ड" : "Artisan Onboarding Process"}
           </p>
           <h1 className="text-3xl sm:text-4xl font-serif font-bold text-[#1E2229]">
@@ -520,6 +543,21 @@ export default function OnboardingPage() {
                     </p>
 
                     <div className="p-5 rounded-2xl bg-[#FFFDF9] border-2 border-dashed border-[#C85A32]/40 shadow-sm relative">
+                      {/* Hunar watermark / branding header in preview */}
+                      <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#F0E8D9]">
+                        <div className="flex items-center gap-1.5">
+                          <div className="relative w-4 h-4 flex-shrink-0">
+                            <Image
+                              src="/assets/logo-compact.png"
+                              alt="Hunar"
+                              fill
+                              className="object-contain"
+                            />
+                          </div>
+                          <span className="text-[10px] font-bold text-[#C85A32]">Official Hunar Card</span>
+                        </div>
+                        <span className="text-[8px] font-medium uppercase text-[#635C53]">By Flytech</span>
+                      </div>
                       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-[#F0E8D9]">
                         <div className="flex items-center gap-3">
                           <div className="w-12 h-12 rounded-full bg-[#C85A32] text-white flex items-center justify-center font-serif text-lg font-bold shadow-xs">

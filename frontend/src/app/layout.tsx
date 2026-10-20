@@ -8,7 +8,7 @@ import { Footer } from "@/components/Footer";
 import { ToastNotification } from "@/components/ToastNotification";
 
 export const metadata: Metadata = {
-  title: "Hunar (हुनर) | Authentic Grassroots Artisans & Creators Platform",
+  title: "Hunar — A home for art. By Flytech | Authentic Grassroots Artisans & Creators Platform",
   description:
     "An authentic, hyper-local career and monetization platform for grassroots visual artists, Madhubani/folk artisans, mehndi artists, studio potters, sculptors, and performers.",
   keywords: [

@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useHunar } from "@/context/HunarContext";
 import { ShieldCheck, HeartHandshake, PhoneCall, Sparkles } from "lucide-react";
 import { ApiExplorerModal } from "@/components/ApiExplorerModal";
@@ -63,13 +64,23 @@ export function Footer() {
         {/* Links & Brand Description */}
         <div className="pt-10 grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-1 space-y-3">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-[#C85A32] flex items-center justify-center text-[#FDFBF7] font-serif font-bold text-lg">
-                हु
+            <div className="flex items-center gap-3">
+              <div className="relative h-12 w-12 flex-shrink-0 bg-white/10 rounded-sm p-1">
+                <Image
+                  src="/assets/logo-compact.png"
+                  alt="Hunar Logo"
+                  fill
+                  className="object-contain"
+                />
               </div>
-              <span className="font-serif text-xl font-bold tracking-tight text-[#FDFBF7]">
-                हुनर • HUNAR
-              </span>
+              <div className="flex flex-col select-none">
+                <span className="font-serif text-xl font-bold tracking-tight text-[#FAF7F2]">
+                  Hunar
+                </span>
+                <span className="text-[10px] font-medium tracking-wide uppercase text-[#E8DEC8]/80">
+                  A home for art. By Flytech
+                </span>
+              </div>
             </div>
             <p className="text-xs text-[#E8DEC8]/80 leading-relaxed">
               {t("footer.tagline")}
@@ -152,7 +163,7 @@ export function Footer() {
 
         {/* Bottom copyright bar & developer explorer */}
         <div className="pt-8 mt-8 border-t border-[#2C323D] flex flex-col sm:flex-row items-center justify-between text-xs text-gray-400 gap-4">
-          <p>© 2026 Hunar (हुनर) • Crafted with pride for Indian Grassroots Creators.</p>
+          <p>© 2026 Hunar — A home for art. By Flytech • Crafted with pride for Indian Grassroots Creators.</p>
           <div className="flex items-center gap-4">
             <span className="text-gray-500 hidden md:inline">Rooted in Jaipur, Varanasi, Madhubani & Delhi</span>
             <ApiExplorerModal />

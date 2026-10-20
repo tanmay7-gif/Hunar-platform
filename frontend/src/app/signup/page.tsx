@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { useHunar } from "@/context/HunarContext";
 import {
   Store,
@@ -96,8 +97,30 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen py-10 px-4 sm:px-6">
       <div className="max-w-2xl mx-auto">
-        {/* Header Tagline */}
+        {/* Header Tagline & Brand */}
         <div className="text-center max-w-xl mx-auto mb-8">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-3 mb-5 focus:outline-none focus:ring-2 focus:ring-[#C85A32] focus:ring-offset-2 rounded-sm group"
+          >
+            <div className="relative h-12 w-12 flex-shrink-0">
+              <Image
+                alt="Hunar logo showing hand-held paintbrush shaping the letter H"
+                className="object-contain"
+                fill
+                priority
+                src="/assets/logo-compact.png"
+              />
+            </div>
+            <div className="flex flex-col text-left select-none">
+              <span className="font-serif text-2xl font-bold tracking-tight text-[#C85A32]">
+                Hunar
+              </span>
+              <span className="text-[10px] font-medium tracking-wide uppercase text-[#635C53] -mt-0.5">
+                A home for art. By Flytech
+              </span>
+            </div>
+          </Link>
           <p className="text-xs font-semibold uppercase tracking-wider text-[#8A7561] mb-2">
             {isHindi ? "नया खाता पंजीकरण" : "Grassroots Artisans & Patrons Guild"}
           </p>

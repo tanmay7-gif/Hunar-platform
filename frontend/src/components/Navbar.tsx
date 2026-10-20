@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useHunar } from "@/context/HunarContext";
 import { useLanguage } from "@/context/LanguageContext";
@@ -258,33 +259,38 @@ export function Navbar() {
 
       {/* Main Persona-Differentiated Navbar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between">
-        {/* Brand Logo */}
-        <Link href="/" className="flex items-center gap-3 group">
-          <div
-            className={`w-9 h-9 rounded-sm flex items-center justify-center text-[#FAF7F2] shadow-xs transition-colors duration-150 border ${
-              isSeller
-                ? "bg-[#1E2229] border-[#3E4756]"
-                : "bg-[#2D583B] border-[#1D3E29]"
-            }`}
-          >
-            <span className="font-serif text-lg font-bold">हु</span>
+        {/* Brand Link wrapping logo and text mark */}
+        <Link
+          href="/"
+          className="flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-[#C85A32] focus:ring-offset-2 rounded-sm group"
+        >
+          <div className="relative h-11 w-11 flex-shrink-0">
+            <Image
+              alt="Hunar logo showing hand-held paintbrush shaping the letter H"
+              className="object-contain"
+              fill
+              priority
+              src="/assets/logo-compact.png"
+            />
           </div>
-          <div>
-            <div className="flex items-baseline gap-1.5">
-              <span className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-[#1A1816]">
-                हुनर
+          <div className="flex flex-col select-none">
+            <div className="flex items-center gap-1.5">
+              <span className="font-serif text-lg sm:text-xl font-bold tracking-tight text-[#C85A32]">
+                Hunar
               </span>
               <span
-                className={`text-[10px] tracking-widest uppercase font-bold ${
-                  isSeller ? "text-[#B4461F]" : "text-[#2D583B]"
+                className={`text-[9px] tracking-widest uppercase font-bold px-1.5 py-0.5 rounded-xs ${
+                  isSeller
+                    ? "bg-[#1E2229]/10 text-[#1E2229]"
+                    : "bg-[#2D583B]/10 text-[#2D583B]"
                 }`}
               >
                 {isSeller ? "STUDIO" : "PATRON"}
               </span>
             </div>
-            <p className="text-[10px] text-gray-500 font-medium tracking-tight">
-              {isSeller ? "Artisan Workshop Workbench" : "Grassroots Artisans Guild"}
-            </p>
+            <span className="text-[9px] font-medium tracking-wide uppercase text-[#635C53] -mt-0.5">
+              By Flytech
+            </span>
           </div>
         </Link>
 
