@@ -55,12 +55,12 @@ export function MarketIntelligenceBar() {
       {/* Top Banner / Trigger */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-[#B4461F]/20 border border-[#B4461F]/40 flex items-center justify-center text-[#E5A93B]">
+          <div className="w-9 h-9 rounded-full bg-sky-500/20 border border-sky-400/40 flex items-center justify-center text-sky-400">
             <Globe className="w-4 h-4" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-[#E5A93B] uppercase tracking-wider">
+              <span className="text-xs font-semibold text-sky-400 uppercase tracking-wider">
                 TinyFish Search API
               </span>
               <span className="px-1.5 py-0.2 rounded text-[10px] bg-[#2D583B]/40 text-[#4E9B6E] border border-[#2D583B]">
@@ -83,13 +83,13 @@ export function MarketIntelligenceBar() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              className="w-full pl-8 pr-3 py-1.5 text-xs bg-[#16191F] border border-[#2C323D] rounded-xs text-[#FAF7F2] placeholder-stone-500 focus:outline-none focus:border-[#B4461F]"
+              className="w-full pl-8 pr-3 py-1.5 text-xs bg-[#16191F] border border-[#2C323D] rounded-xs text-[#FAF7F2] placeholder-stone-500 focus:outline-none focus:border-sky-500"
             />
           </div>
           <button
             onClick={() => handleSearch()}
             disabled={loading}
-            className="px-3 py-1.5 bg-[#B4461F] hover:bg-[#963816] text-white text-xs font-medium rounded-xs flex items-center gap-1.5 transition-colors disabled:opacity-50 whitespace-nowrap cursor-pointer"
+            className="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white text-xs font-medium rounded-xs flex items-center gap-1.5 transition-colors disabled:opacity-50 whitespace-nowrap cursor-pointer"
           >
             {loading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
             <span>Fetch Trends</span>
@@ -106,7 +106,7 @@ export function MarketIntelligenceBar() {
             onClick={() => handlePresetClick(preset)}
             className={`px-2.5 py-1 rounded-xs border transition-colors whitespace-nowrap cursor-pointer ${
               activePreset === preset.label
-                ? "bg-[#B4461F]/20 border-[#B4461F] text-[#FAF7F2]"
+                ? "bg-sky-500/20 border-sky-400 text-sky-200"
                 : "bg-[#16191F] border-[#2C323D] text-stone-300 hover:border-stone-500"
             }`}
           >

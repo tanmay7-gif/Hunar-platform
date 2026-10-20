@@ -100,7 +100,7 @@ export function AutonomousOpportunityAgentModal({
               required
               value={goal}
               onChange={(e) => setGoal(e.target.value)}
-              className="w-full p-3 text-xs bg-[#16191F] border border-[#2C323D] rounded-xs text-[#FAF7F2] placeholder-stone-500 focus:outline-none focus:border-[#B4461F] leading-relaxed"
+              className="w-full p-3 text-xs bg-[#16191F] border border-[#2C323D] rounded-xs text-[#FAF7F2] placeholder-stone-500 focus:outline-none focus:border-sky-500 leading-relaxed"
             />
           </div>
 
@@ -113,14 +113,14 @@ export function AutonomousOpportunityAgentModal({
                 type="url"
                 value={targetUrl}
                 onChange={(e) => setTargetUrl(e.target.value)}
-                className="w-full px-3 py-1.5 text-xs bg-[#16191F] border border-[#2C323D] rounded-xs text-[#FAF7F2] focus:outline-none focus:border-[#B4461F]"
+                className="w-full px-3 py-1.5 text-xs bg-[#16191F] border border-[#2C323D] rounded-xs text-[#FAF7F2] focus:outline-none focus:border-sky-500"
               />
             </div>
             <div className="flex items-end">
               <button
                 type="submit"
                 disabled={running}
-                className="w-full py-2 bg-[#B4461F] hover:bg-[#963816] text-white text-xs font-semibold rounded-xs flex items-center justify-center gap-2 transition-colors disabled:opacity-50 cursor-pointer"
+                className="w-full py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold rounded-xs flex items-center justify-center gap-2 transition-colors disabled:opacity-50 cursor-pointer"
               >
                 {running ? (
                   <>

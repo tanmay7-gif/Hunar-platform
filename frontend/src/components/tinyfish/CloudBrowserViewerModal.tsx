@@ -89,7 +89,7 @@ export function CloudBrowserViewerModal({
           <button
             type="submit"
             disabled={loading}
-            className="px-3 py-1.5 bg-[#B4461F] hover:bg-[#963816] text-white text-xs font-semibold rounded-xs flex items-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer"
+            className="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold rounded-xs flex items-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer"
           >
             {loading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Monitor className="w-3.5 h-3.5" />}
             <span>Launch Cloud Browser</span>
