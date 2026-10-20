@@ -289,14 +289,9 @@ export default function SellerStudioDashboard() {
           <div className="rounded-sm bg-white border border-[#E8E2D7] overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
             <div className="p-6 border-b border-[#E8E2D7] bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h3 className="font-serif font-bold text-lg text-[#1E2229] mb-1">
-                  {isHindi ? "स्टूडियो कैटलॉग तालिका" : "Artisan Studio Inventory Table"}
+                <h3 className="font-serif font-bold text-lg text-[#1E2229]">
+                  {isHindi ? "स्टूडियो कैटलॉग" : "Studio Inventory"}
                 </h3>
-                <p className="text-xs text-[#635C53] leading-relaxed">
-                  {isHindi
-                    ? "कलाकृतियों की स्थिति ('लाइव' / 'ड्राफ्ट'), मूल्य और स्टॉक प्रबंधित करें।"
-                    : "Manage active pieces, toggle visibility, and update pricing."}
-                </p>
               </div>
 
               <Link
@@ -435,13 +430,8 @@ export default function SellerStudioDashboard() {
             <div className="border-b border-[#E8E2D7] pb-4 flex items-center justify-between">
               <div>
                 <h3 className="font-serif font-bold text-lg text-[#1E2229]">
-                  {isHindi ? "सीधे ग्राहक कमीशन अनुरोध" : "Direct Customer Commission Requests"}
+                  {isHindi ? "ग्राहक कमीशन अनुरोध" : "Commission Requests"}
                 </h3>
-                <p className="text-xs text-[#635C53]">
-                  {isHindi
-                    ? "कला संरक्षकों से प्राप्त ऑर्डर की स्थिति को अपडेट करें और उनसे सीधे व्हाट्सएप/कॉल पर बात करें।"
-                    : "Review client briefs, proposed budgets, and advance order tracker."}
-                </p>
               </div>
 
               <span className="px-3 py-1 rounded-xs text-xs font-semibold bg-[#FAF0E6] text-[#B4461F] border border-[#F3CFBF]">
@@ -636,11 +626,8 @@ export default function SellerStudioDashboard() {
               </span>
             </div>
             <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#FAF7F2]">
-              {isHindi ? "टाइनीफिश लाइव वेब इंटेलिजेंस एवं ऑटोमेशन" : "TinyFish Live Web Intelligence & Automation Engine"}
+              {isHindi ? "वेब इंटेलिजेंस" : "Web Intelligence & Automation"}
             </h2>
-            <p className="text-xs sm:text-sm text-stone-300 max-w-3xl leading-relaxed">
-              Equips grassroots artisans with 4 enterprise web capabilities: live material spot pricing, automated product importing from external shops, autonomous grant scouting agents, and cloud browser execution.
-            </p>
           </div>
 
           {/* Capability 1: Search API (Live Market Intelligence) */}

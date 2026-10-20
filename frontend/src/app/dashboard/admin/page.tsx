@@ -82,11 +82,8 @@ export default function AdminLogisticsMonitorPage() {
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#FAF7F2]">
-              {isHindi ? "लॉजिस्टिक्स हब एवं टाइनीफिश लाइव मॉनिटर" : "Rural Hubs & TinyFish Live Monitor"}
+              {isHindi ? "लॉजिस्टिक्स हब मॉनिटर" : "Rural Hubs & Logistics Monitor"}
             </h1>
-            <p className="text-xs sm:text-sm text-[#FAF7F2]/80 max-w-2xl">
-              Real-time monitoring of rural artisan feeder hubs, autonomous courier rate benchmarks (India Post, Delhivery, BlueDart), and isolated TinyFish web agent microservice telemetry.
-            </p>
           </div>
 
           <div className="flex items-center gap-2.5 flex-wrap shrink-0">

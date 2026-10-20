@@ -92,13 +92,8 @@ export default function CustomerOrdersPage() {
               <span className="text-xs text-[#635C53] font-medium">• Real-Time Artisan Updates</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#1E2229]">
-              {isHindi ? "मेरे ऑर्डर एवं कस्टम कमीशन" : "My Orders & Custom Commission Bids"}
+              {isHindi ? "मेरे ऑर्डर" : "My Orders"}
             </h1>
-            <p className="text-xs sm:text-sm text-[#635C53] max-w-2xl">
-              {isHindi
-                ? "कारीगर से सीधे जुड़े रहें। मिट्टी की तैयारी से लेकर अंतिम पैकेजिंग और शिपिंग तक हर चरण पर नज़र रखें।"
-                : "Track every milestone of your bespoke handcrafted commissions. Transparent timeline from raw clay or pigment preparation to safe dispatch."}
-            </p>
           </div>
 
           <div className="flex items-center gap-3 shrink-0">

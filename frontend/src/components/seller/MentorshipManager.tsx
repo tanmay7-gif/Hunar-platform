@@ -188,15 +188,8 @@ export function MentorshipManager({ isHindi = false }: MentorshipManagerProps) {
               </span>
             </div>
             <h2 className="text-2xl font-serif font-bold text-[#1E2229]">
-              {isHindi
-                ? "कारीगर मेंटरशिप एवं शुल्क विन्यास"
-                : "Artisan Mentorship & Consultation Desk"}
+              {isHindi ? "कारीगर मेंटरशिप" : "Artisan Mentorship"}
             </h2>
-            <p className="text-xs text-[#635C53] max-w-2xl leading-relaxed">
-              {isHindi
-                ? "युवा कलाकारों, डिजाइनरों और छात्रों को सीधे १-ऑन-१ वीडियो परामर्श दें। अपना समय और शुल्क स्वयं तय करें। भुगतान सीधे आपके खाते में आता है।"
-                : "Offer dedicated video guidance on pigment preparation, pottery kiln firing, mural pricing, and business scaling. Learners book and prepay directly on your Hunar Card."}
-            </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">

@@ -120,11 +120,8 @@ export default function SellerProductsPage() {
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#FAF7F2]">
-              {isHindi ? "शिल्प इन्वेंटरी एवं उत्पाद प्रबंधन" : "My Craft Inventory"}
+              {isHindi ? "शिल्प इन्वेंटरी" : "My Craft Inventory"}
             </h1>
-            <p className="text-xs sm:text-sm text-[#FAF7F2]/80 max-w-2xl">
-              Manage your workshop listings and pricing. Update live stock counts, adjust wholesale/retail prices, and publish new handcrafted batches directly to patrons.
-            </p>
           </div>
 
           <div className="flex items-center gap-2.5 flex-wrap md:flex-nowrap shrink-0">

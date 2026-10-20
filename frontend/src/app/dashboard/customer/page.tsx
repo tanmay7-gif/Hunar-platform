@@ -203,15 +203,8 @@ export default function CustomerDashboardPage() {
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#1E2229] tracking-tight">
-              {isHindi
-                ? "भारत के जमीनी कारीगरों से सीधे प्रामाणिक हस्तशिल्प प्राप्त करें"
-                : "Source authentic handmade crafts directly from India's grassroots creators."}
+              {isHindi ? "शिल्प बाज़ार" : "Bazaar"}
             </h1>
-            <p className="text-xs sm:text-sm text-[#635C53] max-w-2xl">
-              {isHindi
-                ? "हस्तनिर्मित पारंपरिक कृतियों की खोज करें, सीधे कारीगर से जुड़ें और 100% कारीगर हिस्सेदारी सुनिश्चित करें।"
-                : "Browse verified studio ceramics, Mithila folk art scrolls, cafe wall murals, and organic bridal henna. 100% direct payment to artisan bank accounts with zero middleman deductions."}
-            </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5 shrink-0">

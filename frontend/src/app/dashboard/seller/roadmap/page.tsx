@@ -59,11 +59,8 @@ export default function SellerRoadmapPage() {
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#FAF7F2]">
-              {isHindi ? "कला रोडमैप एवं आय संवर्धन" : "Kala Career Roadmap"}
+              {isHindi ? "कला रोडमैप" : "Kala Career Roadmap"}
             </h1>
-            <p className="text-xs sm:text-sm text-[#FAF7F2]/80 max-w-2xl">
-              A step-by-step studio operational blueprint for grassroots creators. Learn direct client pricing, wholesale batch production, corporate GST compliance, and high-ticket commissions.
-            </p>
           </div>
 
           <div className="bg-[#2A313D] p-5 rounded-sm border border-[#3E4756] min-w-[200px] shrink-0 text-center">

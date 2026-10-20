@@ -74,10 +74,10 @@ export default function HomePage() {
                 )}
               </h1>
 
-              <p className="mt-5 text-base sm:text-lg text-[#635C53] leading-relaxed max-w-2xl font-normal">
+              <p className="mt-4 text-sm sm:text-base text-[#635C53] leading-relaxed max-w-xl font-normal">
                 {isHindi
-                  ? "मधुबनी चित्रकारों, भित्ति कलाकारों, कुम्हारों और मेंहदी शिल्पकारों के लिए एक प्रामाणिक डिजिटल मंच। शेयर करें अपना डिजिटल हुनर कार्ड, सीधे व्हाट्सएप पर पाएं क्लाइंट्स और बढ़ाएं अपनी आजीविका।"
-                  : "The hyper-local career and monetization platform for India's folk painters, muralists, studio potters, and henna artisans. Share your lookbook Hunar Card, match with regional gigs, and scale income with structured roadmaps."}
+                  ? "भारत के लोक चित्रकारों, कुम्हारों और पारंपरिक शिल्पकारों के लिए एक डिजिटल मंच।"
+                  : "The direct platform for India's folk painters, muralists, studio potters, and traditional creators."}
               </p>
 
               {/* Hero CTAs */}
@@ -229,13 +229,8 @@ export default function HomePage() {
               {isHindi ? "हस्तनिर्मित विरासत" : "Regional Directory & Lookbook"}
             </p>
             <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#1E2229]">
-              {isHindi ? "प्रमाणित भारतीय कलाकार एवं कारीगर" : "Featured Verified Artisans"}
+              {isHindi ? "प्रमाणित भारतीय कलाकार" : "Featured Verified Artisans"}
             </h2>
-            <p className="text-xs sm:text-sm text-[#635C53] mt-1">
-              {isHindi
-                ? "सीधे कलाकारों से जुड़ें, उनकी कार्यशैली देखें और बिना किसी मध्यस्थ के ऑर्डर दें।"
-                : "Browse verified craft profiles, transparent pricing, and connect directly on WhatsApp."}
-            </p>
           </div>
 
           {/* City Selector */}
@@ -507,14 +502,9 @@ export default function HomePage() {
             </p>
             <h3 className="text-2xl sm:text-3xl font-serif font-bold text-[#FAF7F2]">
               {isHindi
-                ? "सीधे भारत के प्रामाणिक कारीगरों से कलाकृतियां प्राप्त करें"
+                ? "प्रामाणिक कारीगरों से कलाकृतियां प्राप्त करें"
                 : "Source Bespoke Craft Directly from India's Master Artisans"}
             </h3>
-            <p className="mt-3 text-xs sm:text-sm text-[#D9D0C3] leading-relaxed font-normal">
-              {isHindi
-                ? "बिना किसी बिचौलिए के सीधे कलाकारों से हाथ से बनी टेराकोटा, मधुबनी चित्रकला और भित्ति म्यूरल्स का ऑर्डर दें। 100% भुगतान सीधे कारीगर को।"
-                : "From studio pottery to heritage Mithila folk paintings and architectural murals. Browse ready inventory or commission custom work with zero middleman commissions."}
-            </p>
 
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <Link

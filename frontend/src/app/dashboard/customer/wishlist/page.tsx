@@ -51,13 +51,8 @@ export default function SavedCollectionsPage() {
               <span className="text-xs text-[#635C53] font-medium">• Curated Regional Treasures</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#1E2229]">
-              {isHindi ? "सहेजे गए संग्रह एवं चयनित कारीगर" : "Saved Collections & Shortlisted Artisans"}
+              {isHindi ? "सहेजे गए संग्रह" : "Saved Collections"}
             </h1>
-            <p className="text-xs sm:text-sm text-[#635C53] max-w-2xl">
-              {isHindi
-                ? "आपकी व्यक्तिगत कला क्यूरेशन सूची। पसंदीदा कृतियों को सुरक्षित रखें और सीधे व्हाट्सएप पर कारीगरों से संपर्क करें।"
-                : "Your personal patron moodboard. Shortlisted handmade art pieces and verified regional craft masters saved for private collections and upcoming interior commissions."}
-            </p>
           </div>
 
           <div className="flex items-center gap-3 shrink-0">

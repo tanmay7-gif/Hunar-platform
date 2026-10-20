@@ -118,9 +118,6 @@ export default function LoginPage() {
           <h1 className="text-3xl sm:text-4xl font-serif font-bold text-[#1E2229]">
             {t("auth.loginTitle")}
           </h1>
-          <p className="text-xs sm:text-sm text-[#635C53] mt-2">
-            Access the Seller Studio Workspace or Customer Discovery Feed with instant vernacular localization.
-          </p>
         </div>
 
         {/* 1-Click Demo Profiles Showcase */}

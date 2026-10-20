@@ -109,11 +109,8 @@ export default function SellerInquiriesPage() {
               <span className="text-xs text-[#E5A93B] font-mono">Direct Patron Boli & Briefs</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#FAF7F2]">
-              {isHindi ? "ग्राहक लीड्स एवं बोलियां (CRM)" : "Client Leads & Boli Inbox"}
+              {isHindi ? "ग्राहक लीड्स" : "Client Leads"}
             </h1>
-            <p className="text-xs sm:text-sm text-[#FAF7F2]/80 max-w-2xl">
-              Respond directly to verified patrons, negotiate commission briefs over WhatsApp, and log craft progress milestones from wheel drying to dispatch.
-            </p>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">

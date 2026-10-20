@@ -133,13 +133,8 @@ export default function PostRequirementPage() {
             <span className="text-xs text-[#635C53] font-medium">• Direct Creator Commissioning</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#1E2229]">
-            {isHindi ? "कारीगरों के लिए कस्टम कार्य पोस्ट करें" : "Post a Custom Art / Craft Requirement"}
+            {isHindi ? "कस्टम कार्य पोस्ट करें" : "Post a Requirement"}
           </h1>
-          <p className="text-xs sm:text-sm text-[#635C53] max-w-2xl">
-            {isHindi
-              ? "कैफे की दीवार, शादी की प्राकृतिक मेहंदी, व्यक्तिगत कैनवास या थोक मिट्टी के बर्तनों के लिए अपनी आवश्यकताएं साझा करें।"
-              : "Commission authentic handcrafted creations directly from regional Indian masters. Your brief appears on the artisan Open Gigs Radar without agency markups."}
-          </p>
         </div>
       </div>
 

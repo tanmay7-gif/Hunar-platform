@@ -116,13 +116,8 @@ export default function OpportunitiesPage() {
               {isHindi ? "अवसर एवं बोलियां" : "Opportunity Radar & Matching Board"}
             </p>
             <h1 className="text-3xl sm:text-4xl font-serif font-bold text-[#1E2229]">
-              {isHindi ? "सत्यापित कमर्शियल अवसर व बोलियां" : "Real-World Gigs, Grants & Commissions"}
+              {isHindi ? "अवसर एवं बोलियां" : "Opportunities & Gigs"}
             </h1>
-            <p className="text-xs sm:text-sm text-[#635C53] mt-1 max-w-2xl">
-              {isHindi
-                ? "कैफे म्यूरल्स, पैकेजिंग चित्रकारी, बुटीक शादियां और सरकारी हस्तशिल्प अनुदान। सीधे बोली लगाएं।"
-                : "Explore cafe murals, commercial packaging, destination weddings, and artisan exhibition grants. Zero fee to bid."}
-            </p>
           </div>
 
           <div className="flex items-center gap-2.5">

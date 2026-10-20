@@ -371,11 +371,6 @@ function HunarCardContent() {
                   <h3 className="text-xl font-serif font-bold text-[#1E2229]">
                     {isHindi ? "प्रमाणित कार्य संग्रह" : "Verified Work Lookbook"}
                   </h3>
-                  <p className="text-xs text-[#635C53]">
-                    {isHindi
-                      ? "कलाकार के वास्तविक हस्तनिर्मित नमूने और क्लाइंट टिप्पणियां।"
-                      : "Direct photos of hand-crafted pieces with client feedback."}
-                  </p>
                 </div>
               </div>
 

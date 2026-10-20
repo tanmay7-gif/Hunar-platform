@@ -166,11 +166,6 @@ export default function OnboardingPage() {
           <h1 className="text-3xl sm:text-4xl font-serif font-bold text-[#1E2229]">
             {isHindi ? "अपना निःशुल्क हुनर कार्ड बनाएं" : "Create Your Free Hunar Card"}
           </h1>
-          <p className="text-xs sm:text-sm text-[#635C53] mt-2">
-            {isHindi
-              ? "3 आसान चरणों में अपनी कला, शहर और आय लक्ष्य चुनें। हम तुरंत आपका डिजिटल लुकबुक कार्ड तैयार करेंगे।"
-              : "3 simple steps to capture your craft, city, and 6-month income goal. Generate your shareable card instantly."}
-          </p>
 
           {/* Stepper Progress Bar */}
           <div className="flex items-center justify-center gap-2 mt-6">

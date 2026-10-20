@@ -1,13 +1,13 @@
 {
   "nav": {
-    "bazaar": "Bazaar (Explore Art)",
+    "bazaar": "Bazaar",
     "artisans": "Discover Artisans",
     "postGig": "Post a Requirement",
-    "orders": "My Orders & Bids",
+    "orders": "My Orders",
     "wishlist": "Saved Collections",
     "studioHub": "Studio Hub",
     "inventory": "My Craft Inventory",
-    "leads": "Client Leads & Boli",
+    "leads": "Client Leads",
     "gigsRadar": "Open Gigs Radar",
     "roadmap": "Kala Roadmap",
     "bazaarSub": "Ready-to-Ship Crafts",

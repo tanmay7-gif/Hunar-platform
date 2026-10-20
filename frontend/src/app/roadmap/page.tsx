@@ -54,13 +54,8 @@ export default function KalaRoadmapPage() {
               {isHindi ? "कला रोडमैप ढांचा" : "Artisan Career Trajectory"}
             </p>
             <h1 className="text-3xl sm:text-4xl font-serif font-bold text-[#1E2229]">
-              {isHindi ? "शिल्प से स्थायी आजीविका का रोडमैप" : "Grassroots Creator Career Trajectory"}
+              {isHindi ? "कला रोडमैप" : "Kala Roadmap"}
             </h1>
-            <p className="text-xs sm:text-sm text-[#635C53] mt-2 max-w-2xl">
-              {isHindi
-                ? "महीना 1, 3, और 6 का स्पष्ट व्यावहारिक खाका। वर्ग-फुट की दरें, अनुबंध सुरक्षा और कमर्शियल क्लाइंट्स हासिल करने की चरणबद्ध सूची।"
-                : "Field-tested playbooks for independent makers: unit economics, deposit contracts, and steady workshop commissions."}
-            </p>
           </div>
 
           {/* Overall Progress Tracker Badge */}

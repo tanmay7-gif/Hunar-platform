@@ -123,13 +123,8 @@ export default function DiscoverArtisansPage() {
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#1E2229]">
-              {isHindi ? "क्षेत्रीय पारंपरिक कारीगर व स्टूडियो खोजें" : "Discover Regional Artisans & Master Studios"}
+              {isHindi ? "कारीगर निर्देशिका" : "Discover Artisans"}
             </h1>
-            <p className="text-xs sm:text-sm text-[#635C53] max-w-2xl">
-              {isHindi
-                ? "मधुबनी चित्रकारों, खुर्जा के कुम्हारों, अवधी मेहंदी कलाकारों और म्यूरलिस्ट से सीधा संपर्क करें। शून्य बिचौलिया कटौती।"
-                : "Connect directly with authentic folk painters, master ceramicists, chemical-free henna artists, and large-scale muralists across regional heritage clusters."}
-            </p>
           </div>
 
           <div className="flex items-center gap-3 shrink-0">

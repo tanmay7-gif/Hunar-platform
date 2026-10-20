@@ -106,11 +106,8 @@ export default function SellerOpportunitiesPage() {
               <span className="text-xs text-[#E5A93B] font-mono">Grassroots Boli & Direct Bids</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#FAF7F2]">
-              {isHindi ? "खुले अवसर एवं गिग रडार" : "Open Gigs & Regional Boli Radar"}
+              {isHindi ? "अवसर एवं गिग रडार" : "Open Gigs Radar"}
             </h1>
-            <p className="text-xs sm:text-sm text-[#FAF7F2]/80 max-w-2xl">
-              Verified local commissioning opportunities: specialty cafe walls, wedding bridal mehndi packages, luxury boutique pottery orders, and government cultural grants.
-            </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5 shrink-0">
