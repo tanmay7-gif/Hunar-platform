@@ -195,7 +195,7 @@ export default function OpportunitiesPage() {
               {filteredOpportunities.length} {isHindi ? "अवसर रडार पर उपलब्ध" : "opportunities live on matching board"}
             </span>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-xs bg-[#FAF7F2] border border-[#E8DEC8] text-[10px] text-[#8A7561]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#00E676] shadow-[0_0_6px_#00E676] animate-pulse"></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#2D583B]"></span>
               <span className="font-mono text-sky-600 font-semibold">{executionTimeMs}ms</span>
               <span>{isHindi ? "• टाइनीफिश एज मैचिंग" : "• TinyFish zero-latency match scored"}</span>
             </div>
@@ -222,12 +222,12 @@ export default function OpportunitiesPage() {
                     <div className="flex flex-wrap items-center gap-2">
                       <span className={`px-2.5 py-1 rounded-sm text-xs font-semibold uppercase tracking-wider flex items-center gap-1 shadow-xs ${
                         opp.match.isTopPick 
-                          ? "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40 font-semibold" 
+                          ? "bg-[#2D583B] text-white" 
                           : opp.match.isRecommended 
                           ? "bg-sky-50 text-sky-700 border border-sky-200" 
                           : "bg-[#FAF7F2] text-[#8A7561] border border-[#E8DEC8]"
                       }`}>
-                        <Sparkles className={`w-3 h-3 ${opp.match.isRecommended ? "text-sky-600" : opp.match.isTopPick ? "text-[#00C853] dark:text-[#00E676]" : "text-[#8A7561]"}`} />
+                        <Sparkles className={`w-3 h-3 ${opp.match.isRecommended ? "text-sky-600" : opp.match.isTopPick ? "text-[#E5A93B]" : "text-[#8A7561]"}`} />
                         <span>{opp.match.overallScore}% {isHindi ? "शिल्प मिलान" : "Craft Match"}</span>
                       </span>
 
@@ -255,8 +255,8 @@ export default function OpportunitiesPage() {
                         <Building className="w-3.5 h-3.5 text-gray-400" />
                         <span>{opp.postedByOrg}</span>
                         {opp.postedByVerified && (
-                          <span className="text-[#00C853] dark:text-[#00E676] text-[11px] font-bold flex items-center gap-1">
-                            <CheckCircle className="w-3 h-3 text-[#00C853] dark:text-[#00E676]" />
+                          <span className="text-[#2D583B] text-[11px] font-bold flex items-center gap-0.5">
+                            <CheckCircle className="w-3 h-3" />
                             Verified Client
                           </span>
                         )}
@@ -438,7 +438,7 @@ export default function OpportunitiesPage() {
               </button>
 
               <div className="mb-4 pb-3 border-b border-[#F0E8D9]">
-                <span className="text-xs font-bold uppercase tracking-wider text-sky-700">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#2D583B]">
                   {isHindi ? "नया अवसर प्रकाशित करें" : "Post a New Opportunity for Local Artisans"}
                 </span>
                 <h3 className="font-serif text-xl font-bold text-[#1E2229] mt-0.5">
@@ -553,7 +553,7 @@ export default function OpportunitiesPage() {
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 rounded-xl bg-[#1E2229] hover:bg-[#111418] text-white text-xs font-bold shadow-md transition-all"
+                    className="px-5 py-2 rounded-xl bg-[#2D583B] text-white text-xs font-bold shadow-md hover:bg-[#23452E] transition-all"
                   >
                     {isHindi ? "अवसर प्रकाशित करें" : "Publish Opportunity"}
                   </button>

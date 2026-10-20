@@ -14,8 +14,8 @@ export function ToastNotification() {
       <div className="bg-[#1E2229] text-[#FAF7F2] p-4 rounded-sm shadow-lg border border-[#3E4756] flex items-start gap-3.5">
         <div className="mt-0.5 shrink-0">
           {toast.type === "success" && (
-            <div className="w-7 h-7 rounded-sm bg-[#00E676]/20 border border-[#00E676]/40 flex items-center justify-center text-[#00E676] shadow-[0_0_8px_rgba(0,230,118,0.3)]">
-              <CheckCircle2 className="w-4 h-4 text-[#00E676]" />
+            <div className="w-7 h-7 rounded-sm bg-[#B4461F]/20 flex items-center justify-center text-[#E5A93B]">
+              <CheckCircle2 className="w-4 h-4 text-[#E5A93B]" />
             </div>
           )}
           {toast.type === "info" && (
@@ -24,8 +24,8 @@ export function ToastNotification() {
             </div>
           )}
           {toast.type === "whatsapp" && (
-            <div className="w-7 h-7 rounded-sm bg-[#00E676]/20 border border-[#00E676]/40 flex items-center justify-center text-[#00E676] shadow-[0_0_8px_rgba(0,230,118,0.3)]">
-              <MessageSquare className="w-4 h-4 text-[#00E676]" />
+            <div className="w-7 h-7 rounded-sm bg-emerald-950/40 flex items-center justify-center text-emerald-400">
+              <MessageSquare className="w-4 h-4" />
             </div>
           )}
         </div>

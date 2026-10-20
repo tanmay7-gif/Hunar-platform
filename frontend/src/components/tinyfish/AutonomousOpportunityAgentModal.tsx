@@ -72,7 +72,7 @@ export function AutonomousOpportunityAgentModal({
         <div className="flex items-start justify-between">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-[#00E676] bg-[#00E676]/10 border border-[#00E676]/30 px-2 py-0.5 rounded-xs">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-[#4E9B6E] bg-[#2D583B]/20 border border-[#2D583B] px-2 py-0.5 rounded-xs">
                 TinyFish Web Agent
               </span>
               <span className="text-xs text-[#E5A93B]">Autonomous Multi-Step Browsing</span>
@@ -147,7 +147,7 @@ export function AutonomousOpportunityAgentModal({
                 <span>TinyFish Agent Execution Stream</span>
               </div>
               {agentRun && (
-                <span className="text-[11px] font-mono text-[#00E676]">
+                <span className="text-[11px] font-mono text-[#4E9B6E]">
                   Completed in {agentRun.executionTimeMs}ms
                 </span>
               )}
@@ -159,13 +159,13 @@ export function AutonomousOpportunityAgentModal({
                   <div className="text-stone-400">[Init] Booting cloud browser context (Playwright headless)...</div>
                   <div className="text-[#E5A93B]">[Agent] Navigating to {targetUrl}...</div>
                   <div className="text-stone-300">[Agent] Inspecting page schema and evaluating eligibility parameters...</div>
-                  <div className="text-[#00E676] flex items-center gap-2 animate-pulse">
+                  <div className="text-[#4E9B6E] flex items-center gap-2 animate-pulse">
                     <span>• Synthesizing recommendations...</span>
                   </div>
                 </>
               ) : agentRun?.logs ? (
                 agentRun.logs.map((log, idx) => (
-                  <div key={idx} className={idx === agentRun.logs.length - 1 ? "text-[#00E676]" : "text-stone-400"}>
+                  <div key={idx} className={idx === agentRun.logs.length - 1 ? "text-[#4E9B6E]" : "text-stone-400"}>
                     {log}
                   </div>
                 ))
@@ -193,7 +193,7 @@ export function AutonomousOpportunityAgentModal({
                 >
                   <div className="flex items-start justify-between gap-2">
                     <h5 className="text-xs font-bold text-[#FAF7F2]">{rec.title}</h5>
-                    <span className="px-1.5 py-0.5 rounded-xs bg-[#00E676]/15 text-[#00E676] text-[10px] font-bold border border-[#00E676]/40">
+                    <span className="px-1.5 py-0.5 rounded-xs bg-[#2D583B]/30 text-[#4E9B6E] text-[10px] font-bold border border-[#2D583B]">
                       {rec.matchRate || "95% Match"}
                     </span>
                   </div>

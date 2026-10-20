@@ -191,7 +191,7 @@ export function Navbar() {
                   )}
                   <span
                     className={`font-bold px-1.5 py-0.2 rounded-xs text-[10px] ${
-                      isSeller ? "bg-[#B4461F] text-white" : "bg-[#2D583B] text-white"
+                      isSeller ? "bg-[#B4461F] text-white" : "bg-[#1E2229] text-[#FAF7F2]"
                     }`}
                   >
                     {currentUser.role}
@@ -278,13 +278,7 @@ export function Navbar() {
               <span className="font-serif text-lg sm:text-xl font-bold tracking-tight text-[#C85A32]">
                 Hunar
               </span>
-              <span
-                className={`text-[9px] tracking-widest uppercase font-bold px-1.5 py-0.5 rounded-xs ${
-                  isSeller
-                    ? "bg-[#1E2229]/10 text-[#1E2229]"
-                    : "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/30 font-bold"
-                }`}
-              >
+              <span className="text-[9px] tracking-widest uppercase font-bold px-1.5 py-0.5 rounded-xs bg-[#1E2229]/10 text-[#1E2229]">
                 {isSeller ? "STUDIO" : "PATRON"}
               </span>
             </div>
@@ -308,18 +302,14 @@ export function Navbar() {
                 href={item.href}
                 className={`px-3 py-1.5 rounded-sm text-xs font-semibold transition-colors duration-150 flex items-center gap-1.5 ${
                   isActive
-                    ? isSeller
-                      ? "bg-[#EFEAE1] text-[#1E2229] border border-[#D9D0C3]"
-                      : "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40"
+                    ? "bg-[#EFEAE1] text-[#1E2229] border border-[#D9D0C3]"
                     : "text-[#1A1816] hover:bg-[#EFEAE1]"
                 }`}
               >
                 <Icon
                   className={`w-3.5 h-3.5 ${
                     isActive
-                      ? isSeller
-                        ? "text-[#B4461F]"
-                        : "text-[#00C853] dark:text-[#00E676]"
+                      ? "text-[#B4461F]"
                       : "text-gray-500"
                   }`}
                 />
@@ -328,9 +318,7 @@ export function Navbar() {
                   <span
                     className={`ml-1 px-1.5 py-0.2 rounded-xs text-[10px] font-bold ${
                       isActive
-                        ? isSeller
-                          ? "bg-[#1E2229] text-white"
-                          : "bg-[#00E676] text-slate-950 font-bold shadow-[0_0_6px_#00E676]"
+                        ? "bg-[#1E2229] text-white"
                         : "bg-gray-200 text-gray-700"
                     }`}
                   >
@@ -372,7 +360,7 @@ export function Navbar() {
                 className="px-3 py-2 rounded-sm border border-[#D9D0C3] text-xs font-medium text-[#1A1816] hover:bg-[#EFEAE1] transition-colors duration-150 flex items-center gap-1"
                 title="Saved Shortlists & Artworks"
               >
-                <Bookmark className="w-3.5 h-3.5 text-[#00C853] dark:text-[#00E676]" />
+                <Bookmark className="w-3.5 h-3.5 text-[#B4461F]" />
                 {totalSavedCount > 0 && (
                   <span className="px-1.5 py-0.2 rounded-xs bg-[#E5A93B] text-[#1E2229] text-[10px] font-bold">
                     {totalSavedCount}
@@ -437,9 +425,7 @@ export function Navbar() {
                   onClick={() => setMobileMenuOpen(false)}
                   className={`px-3 py-2.5 rounded-sm text-xs font-semibold flex items-center justify-between ${
                     isActive
-                      ? isSeller
-                        ? "bg-[#1E2229] text-white"
-                        : "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40 font-bold"
+                      ? "bg-[#1E2229] text-white"
                       : "text-[#1A1816] hover:bg-[#EFEAE1]"
                   }`}
                 >

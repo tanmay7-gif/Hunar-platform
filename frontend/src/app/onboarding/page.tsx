@@ -199,7 +199,7 @@ export default function OnboardingPage() {
                   s === step
                     ? "w-10 bg-[#1E2229]"
                     : s < step
-                    ? "w-6 bg-[#00E676] shadow-[0_0_6px_#00E676]"
+                    ? "w-6 bg-[#2D583B]"
                     : "w-6 bg-[#D9D0C3]"
                 }`}
               />
@@ -505,7 +505,7 @@ export default function OnboardingPage() {
 
                     <div>
                       <label className="block text-xs font-bold text-[#1E2229] mb-1 flex items-center gap-1">
-                        <Phone className="w-3.5 h-3.5 text-[#00C853] dark:text-[#00E676]" />
+                        <Phone className="w-3.5 h-3.5 text-[#2D583B]" />
                         <span>{isHindi ? "व्हाट्सएप नंबर (क्लाइंट संपर्क हेतु):" : "WhatsApp Number for Inquiries:"}</span>
                       </label>
                       <input
@@ -566,7 +566,7 @@ export default function OnboardingPage() {
                           <div>
                             <h3 className="font-serif text-lg font-bold text-[#1E2229] flex items-center gap-1.5">
                               {name || (isHindi ? "आपका नाम यहाँ दिखेगा" : "Your Name Here")}
-                              <span className="px-2 py-0.2 rounded-full bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40 text-[9px] font-bold">
+                              <span className="px-2 py-0.2 rounded-full bg-[#2D583B] text-white text-[9px] font-bold">
                                 Verified
                               </span>
                             </h3>
@@ -587,8 +587,8 @@ export default function OnboardingPage() {
                       </div>
 
                       <div className="mt-3 flex items-center justify-between text-xs text-gray-600">
-                        <span className="flex items-center gap-1 text-[#00C853] dark:text-[#00E676] font-semibold">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-[#00C853] dark:text-[#00E676]" />
+                        <span className="flex items-center gap-1 text-[#2D583B] font-semibold">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
                           <span>100% Direct UPI / WhatsApp Shareable</span>
                         </span>
                         <span className="text-gray-400">Target: ₹{incomeGoal.toLocaleString("en-IN")}/mo</span>
@@ -617,8 +617,8 @@ export default function OnboardingPage() {
               ) : (
                 /* Success Confirmation State */
                 <div className="text-center py-6 space-y-5 animate-in zoom-in-95 duration-200">
-                  <div className="w-16 h-16 rounded-full bg-[#00E676]/15 border-2 border-[#00E676] text-[#00C853] dark:text-[#00E676] shadow-[0_0_15px_rgba(0,230,118,0.3)] flex items-center justify-center mx-auto">
-                    <CheckCircle2 className="w-10 h-10 text-[#00C853] dark:text-[#00E676]" />
+                  <div className="w-16 h-16 rounded-full bg-[#EEF4F0] text-[#2D583B] flex items-center justify-center mx-auto shadow-sm">
+                    <CheckCircle2 className="w-10 h-10" />
                   </div>
 
                   <div>

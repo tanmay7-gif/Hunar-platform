@@ -17,9 +17,9 @@ export function OrderTracker({ inquiries, isHindi = false }: OrderTrackerProps) 
       case "Crafting in Progress":
         return "bg-[#FBF0EB] text-[#B4461F] border-[#F3CFBF]";
       case "Dispatched":
-        return "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40 font-semibold px-2.5 py-1 rounded-sm";
+        return "bg-[#EEF4F0] text-[#2D583B] border-[#C5DCCB]";
       case "Completed":
-        return "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40 font-semibold px-2.5 py-1 rounded-sm";
+        return "bg-[#FAF5EC] text-[#1E2229] border-[#DACABA]";
       default:
         return "bg-[#F5F2EB] text-[#635C53] border-[#E8E2D7]";
     }
@@ -98,7 +98,7 @@ export function OrderTracker({ inquiries, isHindi = false }: OrderTrackerProps) 
                           isPastOrCurrent
                             ? isCurrent
                               ? "bg-[#B4461F]"
-                              : "bg-[#00E676] shadow-[0_0_6px_#00E676]"
+                              : "bg-[#2D583B]"
                             : "bg-[#E8DEC8]"
                         }`}
                       />
@@ -107,7 +107,7 @@ export function OrderTracker({ inquiries, isHindi = false }: OrderTrackerProps) 
                           isCurrent
                             ? "text-[#B4461F]"
                             : isPastOrCurrent
-                            ? "text-[#00C853] dark:text-[#00E676]"
+                            ? "text-[#2D583B]"
                             : "text-gray-400"
                         }`}
                       >

@@ -168,12 +168,12 @@ export function PaymentModal({
             /* SUCCESS CONFIRMATION RECEIPT SCREEN                      */
             /* ========================================================= */
             <div className="py-6 text-center space-y-5 animate-in zoom-in-95 duration-150">
-              <div className="w-16 h-16 rounded-full bg-[#00E676]/15 border-2 border-[#00E676] flex items-center justify-center mx-auto text-[#00C853] dark:text-[#00E676] shadow-[0_0_15px_rgba(0,230,118,0.3)]">
+              <div className="w-16 h-16 rounded-full bg-[#EEF4F0] border-2 border-[#2D583B] flex items-center justify-center mx-auto text-[#2D583B] shadow-sm">
                 <CheckCircle2 className="w-9 h-9" />
               </div>
 
               <div className="space-y-1">
-                <span className="bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40 font-semibold px-2.5 py-1 rounded-sm text-xs inline-block">
+                <span className="px-2.5 py-0.5 rounded-xs text-[10px] font-bold uppercase tracking-wider bg-[#EEF4F0] text-[#2D583B] border border-[#C5DCCB]">
                   Payment Confirmed • Crafting in Progress
                 </span>
                 <h4 className="font-serif font-bold text-2xl text-[#1E2229] pt-1">
@@ -202,9 +202,7 @@ export function PaymentModal({
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-[#8A7561]">Status:</span>
-                  <span className="bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40 font-semibold px-2.5 py-1 rounded-sm text-[11px]">
-                    PAID & DISPATCHED TO STUDIO
-                  </span>
+                  <span className="font-bold text-[#2D583B]">PAID & DISPATCHED TO STUDIO</span>
                 </div>
               </div>
 
@@ -286,7 +284,7 @@ export function PaymentModal({
                     <QRCodeDisplay value={upiUri} size={190} />
 
                     <div className="mt-3 flex items-center justify-center gap-2 text-[11px] text-[#635C53]">
-                      <Smartphone className="w-3.5 h-3.5 text-[#00C853] dark:text-[#00E676]" />
+                      <Smartphone className="w-3.5 h-3.5 text-[#2D583B]" />
                       <span className="font-mono font-medium">seller.hunar@upi</span>
                     </div>
                   </div>
@@ -306,7 +304,7 @@ export function PaymentModal({
                       type="button"
                       disabled={isProcessing}
                       onClick={handlePay}
-                      className="w-full py-3 px-4 rounded-sm bg-[#00C853] hover:bg-[#00E676] text-[#121417] font-bold text-xs transition-colors duration-150 flex items-center justify-center gap-2 shadow-[0_0_12px_rgba(0,230,118,0.25)] disabled:opacity-75"
+                      className="w-full py-3 px-4 rounded-sm bg-[#2D583B] text-white font-medium text-xs hover:bg-[#23452E] transition-colors duration-150 flex items-center justify-center gap-2 shadow-sm disabled:opacity-75"
                     >
                       {isProcessing ? (
                         <>
@@ -423,7 +421,7 @@ export function PaymentModal({
                     </button>
 
                     <div className="flex items-center justify-center gap-2 text-[10px] text-[#8A7561]">
-                      <ShieldCheck className="w-3.5 h-3.5 text-[#00E676]" />
+                      <ShieldCheck className="w-3.5 h-3.5 text-[#2D583B]" />
                       <span>256-bit Encrypted • Direct Artisan Escrow</span>
                     </div>
                   </div>

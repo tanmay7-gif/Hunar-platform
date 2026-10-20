@@ -169,7 +169,7 @@ export default function LoginPage() {
                         <h3 className="font-serif font-bold text-base text-[#1E2229] group-hover:text-[#B4461F] transition-colors duration-150">
                           {demoSeller.name}
                         </h3>
-                        <CheckCircle2 className="w-3.5 h-3.5 text-[#00C853] dark:text-[#00E676]" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#2D583B]" />
                       </div>
                       <p className="text-[11px] text-gray-500 font-medium">{demoSeller.title}</p>
                     </div>
@@ -192,7 +192,7 @@ export default function LoginPage() {
                 </div>
 
                 <div className="flex items-center justify-between pt-1">
-                  <span className="text-[11px] text-[#00C853] dark:text-[#00E676] font-semibold">{demoSeller.stat}</span>
+                  <span className="text-[11px] text-[#2D583B] font-semibold">{demoSeller.stat}</span>
                   <div className="px-3.5 py-1.5 rounded-sm bg-[#1E2229] text-white text-xs font-medium flex items-center gap-1.5 group-hover:bg-[#111418] transition-colors duration-150 shadow-xs">
                     <span>{isHindi ? "स्टूडियो खोलें" : "Launch Studio"}</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -204,7 +204,7 @@ export default function LoginPage() {
             {/* CUSTOMER / PATRON DEMO CARD */}
             <div
               onClick={() => handle1ClickLogin("CUSTOMER")}
-              className="p-6 sm:p-7 rounded-sm bg-[#FFFFFF] border border-[#E8E2D7] hover:border-[#00E676] cursor-pointer transition-colors duration-150 shadow-[0_2px_8px_rgba(0,0,0,0.04)] group relative overflow-hidden"
+              className="p-6 sm:p-7 rounded-sm bg-[#FFFFFF] border border-[#E8E2D7] hover:border-[#2D583B] cursor-pointer transition-colors duration-150 shadow-[0_2px_8px_rgba(0,0,0,0.04)] group relative overflow-hidden"
             >
               <div className="relative z-10 space-y-4">
                 <div className="flex items-start justify-between">
@@ -217,16 +217,16 @@ export default function LoginPage() {
                     />
                     <div>
                       <div className="flex items-center gap-1.5">
-                        <h3 className="font-serif font-bold text-base text-[#1E2229] group-hover:text-[#00C853] transition-colors duration-150">
+                        <h3 className="font-serif font-bold text-base text-[#1E2229] group-hover:text-[#2D583B] transition-colors duration-150">
                           {demoCustomer.name}
                         </h3>
-                        <CheckCircle2 className="w-3.5 h-3.5 text-[#00C853] dark:text-[#00E676]" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#2D583B]" />
                       </div>
                       <p className="text-[11px] text-gray-500 font-medium">{demoCustomer.title}</p>
                     </div>
                   </div>
 
-                  <span className="px-2 py-0.5 rounded-xs text-[10px] font-bold uppercase tracking-wider bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40 shrink-0">
+                  <span className="px-2 py-0.5 rounded-xs text-[10px] font-bold uppercase tracking-wider bg-[#EEF4F0] text-[#2D583B] border border-[#C5DCCB] shrink-0">
                     CUSTOMER / PATRON
                   </span>
                 </div>
@@ -243,8 +243,8 @@ export default function LoginPage() {
                 </div>
 
                 <div className="flex items-center justify-between pt-1">
-                  <span className="text-[11px] text-[#00C853] dark:text-[#00E676] font-semibold">{demoCustomer.stat}</span>
-                  <div className="px-3.5 py-1.5 rounded-sm bg-[#1E2229] text-white text-xs font-medium flex items-center gap-1.5 group-hover:bg-[#111418] transition-colors duration-150 shadow-xs">
+                  <span className="text-[11px] text-[#2D583B] font-semibold">{demoCustomer.stat}</span>
+                  <div className="px-3.5 py-1.5 rounded-sm bg-[#2D583B] text-white text-xs font-medium flex items-center gap-1.5 group-hover:bg-[#23452E] transition-colors duration-150 shadow-xs">
                     <span>{isHindi ? "डिस्कवरी शुरू करें" : "Open Feed"}</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </div>
@@ -286,7 +286,7 @@ export default function LoginPage() {
                 onClick={() => setSelectedRole("CUSTOMER")}
                 className={`px-3 py-1.5 rounded-xs text-xs font-medium transition-colors duration-150 flex items-center gap-1.5 ${
                   selectedRole === "CUSTOMER"
-                    ? "bg-[#00C853] text-white shadow-xs"
+                    ? "bg-[#2D583B] text-white shadow-xs"
                     : "text-[#535A66] hover:text-[#1E2229]"
                 }`}
               >
@@ -372,7 +372,7 @@ export default function LoginPage() {
         {/* Informative Guarantee Strip */}
         <div className="mt-8 p-4 rounded-sm bg-[#FAF7F2] border border-[#E8E2D7] flex items-center justify-between text-xs text-gray-600">
           <span className="flex items-center gap-1.5">
-            <ShieldCheck className="w-4 h-4 text-[#00C853] dark:text-[#00E676]" />
+            <ShieldCheck className="w-4 h-4 text-[#2D583B]" />
             <span>{isHindi ? "प्रमाणीकरण सत्र कुकीज व स्थानीय स्टोरेज में सुरक्षित" : "Role-based simulated session synced via cookies and local storage."}</span>
           </span>
           <span className="font-mono text-[11px] text-gray-400 hidden sm:inline">Active: {currentUser.role}</span>

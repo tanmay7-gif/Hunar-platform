@@ -81,12 +81,12 @@ export default function SellerInquiriesPage() {
       case "Dispatched":
         return {
           label: "Dispatched & In Transit",
-          class: "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border-[#00E676]/40 font-semibold"
+          class: "bg-[#EEF4F0] text-[#2D583B] border-[#C5DCCB]"
         };
       case "Completed":
         return {
           label: "Completed",
-          class: "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border-[#00E676]/40 font-semibold"
+          class: "bg-gray-100 text-gray-700 border-gray-200"
         };
       default:
         return {
@@ -322,7 +322,7 @@ export default function SellerInquiriesPage() {
                   </span>
                   {lead.statusUpdates.map((update, idx) => (
                     <div key={idx} className="flex items-start gap-2 text-xs text-[#635C53]">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-[#00C853] dark:text-[#00E676] shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#2D583B] shrink-0 mt-0.5" />
                       <span>
                         <strong className="text-[#1A1816]">{update.timestamp}:</strong> {update.note}
                       </span>

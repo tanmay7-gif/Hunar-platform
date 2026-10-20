@@ -62,7 +62,7 @@ export default function CustomerOrdersPage() {
         return {
           step: 3,
           label: isHindi ? "सुरक्षित रूप से प्रेषित" : "Ready for Pickup / Dispatched",
-          color: "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40 font-semibold px-2.5 py-1 rounded-sm"
+          color: "text-[#2D583B] bg-[#EEF4F0] border-[#C5DCCB]"
         };
       case "Completed":
         return {
@@ -240,7 +240,7 @@ export default function CustomerOrdersPage() {
                   <span className={stageInfo.step >= 2 ? "text-[#B4461F]" : ""}>
                     2. Under Creation
                   </span>
-                  <span className={stageInfo.step >= 3 ? "text-[#00C853] dark:text-[#00E676] font-bold" : ""}>
+                  <span className={stageInfo.step >= 3 ? "text-[#2D583B]" : ""}>
                     3. Ready for Dispatch
                   </span>
                 </div>
@@ -251,7 +251,7 @@ export default function CustomerOrdersPage() {
                         ? "w-1/3 bg-[#8A7561]"
                         : stageInfo.step === 2
                         ? "w-2/3 bg-[#B4461F]"
-                        : "w-full bg-[#00E676] shadow-[0_0_8px_#00E676]"
+                        : "w-full bg-[#2D583B]"
                     }`}
                   />
                 </div>
@@ -266,7 +266,7 @@ export default function CustomerOrdersPage() {
                   <div className="space-y-1.5">
                     {order.statusUpdates.map((update, idx) => (
                       <div key={idx} className="flex items-start gap-2 text-xs text-[#635C53]">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-[#00E676] shrink-0 mt-0.5" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#2D583B] shrink-0 mt-0.5" />
                         <span>
                           <strong className="text-[#1E2229]">{update.timestamp}:</strong> {update.note}
                         </span>

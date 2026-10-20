@@ -75,8 +75,8 @@ export function CloudBrowserViewerModal({
         {/* Browser URL Bar */}
         <form onSubmit={handleExecute} className="flex items-center gap-2 bg-[#16191F] border border-[#2C323D] p-1.5 rounded-xs">
           <div className="flex items-center gap-1.5 text-stone-400 px-2 text-xs">
-            <Lock className="w-3.5 h-3.5 text-[#00E676]" />
-            <span className="font-mono text-[11px] text-[#00E676]">https://</span>
+            <Lock className="w-3.5 h-3.5 text-[#4E9B6E]" />
+            <span className="font-mono text-[11px] text-[#4E9B6E]">https://</span>
           </div>
           <input
             type="text"
@@ -107,7 +107,7 @@ export function CloudBrowserViewerModal({
             {/* Viewport Header Bar */}
             <div className="flex items-center justify-between text-xs bg-[#16191F] border border-[#2C323D] p-2 rounded-xs">
               <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#00E676] shadow-[0_0_6px_#00E676]"></span>
+                <span className="w-2.5 h-2.5 rounded-full bg-[#4E9B6E]"></span>
                 <span className="font-medium text-[#FAF7F2]">{browserResult.title}</span>
               </div>
               <div className="flex items-center gap-3 text-[11px] text-stone-400 font-mono">
@@ -127,8 +127,8 @@ export function CloudBrowserViewerModal({
                 <Camera className="w-3 h-3 text-[#E5A93B]" />
                 <span>TinyFish Cloud Viewport Snapshot</span>
               </div>
-              <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-xs bg-[#00E676]/20 text-[#00E676] border border-[#00E676]/40 text-[10px] font-semibold flex items-center gap-1 shadow-[0_0_8px_rgba(0,230,118,0.25)]">
-                <ShieldCheck className="w-3 h-3 text-[#00E676]" />
+              <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-xs bg-[#2D583B]/90 text-white text-[10px] font-semibold flex items-center gap-1">
+                <ShieldCheck className="w-3 h-3" />
                 <span>Verified SSL/TLS Origin</span>
               </div>
             </div>

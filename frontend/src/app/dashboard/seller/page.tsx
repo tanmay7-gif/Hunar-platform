@@ -156,7 +156,7 @@ export default function SellerStudioDashboard() {
           <p className="text-2xl sm:text-3xl font-serif font-bold text-[#1E2229]">
             ₹{totalCatalogValue.toLocaleString("en-IN")}
           </p>
-          <p className="text-[11px] text-[#00C853] dark:text-[#00E676] font-medium mt-2">
+          <p className="text-[11px] text-[#2D583B] font-medium mt-2">
             {sellerProducts.length} {isHindi ? "कुल कलाकृतियां" : "total inventory items"}
           </p>
         </div>
@@ -164,9 +164,9 @@ export default function SellerStudioDashboard() {
         <div className="p-6 rounded-sm bg-white border border-[#E8E2D7] shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
           <div className="flex items-center justify-between text-xs text-[#8A7561] font-semibold uppercase tracking-wider mb-3">
             <span>{isHindi ? "सक्रिय लाइव लिस्टिंग" : "Active Live Listings"}</span>
-            <Package className="w-4 h-4 text-[#00E676]" />
+            <Package className="w-4 h-4 text-[#2D583B]" />
           </div>
-          <p className="text-2xl sm:text-3xl font-serif font-bold text-[#00C853] dark:text-[#00E676]">
+          <p className="text-2xl sm:text-3xl font-serif font-bold text-[#2D583B]">
             {activeListingsCount}
           </p>
           <p className="text-[11px] text-[#635C53] mt-2">
@@ -190,14 +190,14 @@ export default function SellerStudioDashboard() {
         <div className="p-6 rounded-sm bg-white border border-[#E8DEC8] shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
           <div className="flex items-center justify-between text-xs text-[#8A7561] font-semibold uppercase tracking-wider mb-3">
             <span>{isHindi ? "पुष्टीकृत स्टूडियो आय" : "Studio Confirmed Earnings"}</span>
-            <DollarSign className="w-4 h-4 text-[#00E676]" />
+            <DollarSign className="w-4 h-4 text-[#2D583B]" />
           </div>
-          <p className="text-2xl sm:text-3xl font-serif font-bold text-[#00C853] dark:text-[#00E676]">
+          <p className="text-2xl sm:text-3xl font-serif font-bold text-[#2D583B]">
             ₹{sellerTotalEarnings.toLocaleString("en-IN")}
           </p>
           <div className="flex items-center gap-1.5 mt-2">
-            <span className="w-2 h-2 rounded-full bg-[#00E676] shadow-[0_0_6px_#00E676]" />
-            <span className="text-[11px] text-[#00C853] dark:text-[#00E676] font-semibold">
+            <span className="w-2 h-2 rounded-full bg-[#2D583B]" />
+            <span className="text-[11px] text-[#2D583B] font-semibold">
               Order Paid / In Production
             </span>
           </div>
@@ -250,7 +250,7 @@ export default function SellerStudioDashboard() {
             <Video className="w-4 h-4" />
             <span>{isHindi ? "१-ऑन-१ मेंटरशिप" : "Mentorship & 1-on-1 Guidance"}</span>
             {sellerMentorshipBookings.length > 0 && (
-              <span className="px-1.5 py-0.2 rounded-xs text-[10px] bg-[#00E676] text-[#121417] font-bold shadow-[0_0_6px_#00E676]">
+              <span className="px-1.5 py-0.2 rounded-xs text-[10px] bg-[#2D583B] text-white">
                 {sellerMentorshipBookings.length}
               </span>
             )}
@@ -369,7 +369,7 @@ export default function SellerStudioDashboard() {
 
                             {/* Stock & Lead time */}
                             <td className="py-3.5 px-4 space-y-0.5">
-                              <p className="font-medium text-[#00C853] dark:text-[#00E676]">
+                              <p className="font-medium text-[#2D583B]">
                                 {product.stock} units in stock
                               </p>
                               <p className="text-[11px] text-[#635C53]">{product.leadTime}</p>
@@ -379,14 +379,14 @@ export default function SellerStudioDashboard() {
                             <td className="py-3.5 px-4">
                               <button
                                 onClick={() => toggleProductStatus(product.id)}
-                                className={`px-2.5 py-1 rounded-sm text-[10px] font-semibold uppercase tracking-wider transition-colors duration-150 flex items-center gap-1.5 ${
+                                className={`px-2.5 py-1 rounded-xs text-[10px] font-semibold uppercase tracking-wider transition-colors duration-150 flex items-center gap-1.5 ${
                                   isLive
-                                    ? "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40 font-semibold"
+                                    ? "bg-[#EEF4F0] text-[#2D583B] border border-[#C5DCCB]"
                                     : "bg-gray-100 text-[#635C53] border border-gray-300"
                                 }`}
                                 title="Click to toggle status"
                               >
-                                <span className={`w-1.5 h-1.5 rounded-full ${isLive ? "bg-[#00E676] shadow-[0_0_6px_#00E676]" : "bg-gray-400"}`} />
+                                <span className={`w-1.5 h-1.5 rounded-xs ${isLive ? "bg-[#2D583B]" : "bg-gray-400"}`} />
                                 <span>{product.status}</span>
                               </button>
                             </td>
@@ -399,7 +399,7 @@ export default function SellerStudioDashboard() {
                                   className="p-1.5 rounded-sm border border-[#E8E2D7] text-[#635C53] hover:text-[#1A1816] hover:bg-[#FAF7F2] transition-colors duration-150"
                                   title={isLive ? "Set to Draft" : "Publish to Live"}
                                 >
-                                  {isLive ? <ToggleRight className="w-4 h-4 text-[#00E676]" /> : <ToggleLeft className="w-4 h-4 text-gray-400" />}
+                                  {isLive ? <ToggleRight className="w-4 h-4 text-[#2D583B]" /> : <ToggleLeft className="w-4 h-4 text-gray-400" />}
                                 </button>
 
                                 <button
@@ -531,7 +531,7 @@ export default function SellerStudioDashboard() {
                           <p className="font-serif font-bold text-xl text-[#B4461F] mt-0.5">
                             ₹{inq.proposedBudget.toLocaleString("en-IN")}
                           </p>
-                          <p className="text-[11px] text-[#00C853] dark:text-[#00E676] font-bold mt-1">
+                          <p className="text-[11px] text-[#2D583B] font-medium mt-1">
                             100% Direct Payout
                           </p>
                         </div>
@@ -674,11 +674,11 @@ export default function SellerStudioDashboard() {
             {/* Capability 3: Web Agent */}
             <div className="p-6 bg-white border border-[#E8E2D7] rounded-sm shadow-[0_2px_8px_rgba(0,0,0,0.04)] flex flex-col justify-between space-y-4">
               <div className="space-y-2">
-                <div className="w-10 h-10 rounded-full bg-[#00E676]/15 border border-[#00E676]/40 flex items-center justify-center text-[#00C853] dark:text-[#00E676]">
+                <div className="w-10 h-10 rounded-full bg-[#2D583B]/10 border border-[#2D583B]/30 flex items-center justify-center text-[#2D583B]">
                   <Bot className="w-5 h-5" />
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#00C853] dark:text-[#00E676]">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#2D583B]">
                     Web Agent
                   </span>
                   <span className="text-[10px] px-1.5 py-0.2 rounded bg-stone-100 text-stone-600">
@@ -696,7 +696,7 @@ export default function SellerStudioDashboard() {
                 onClick={() => setIsAgentOpen(true)}
                 className="w-full py-2.5 bg-[#2D583B] hover:bg-[#23452e] text-white text-xs font-semibold rounded-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
-                <Bot className="w-3.5 h-3.5 text-[#00E676]" />
+                <Bot className="w-3.5 h-3.5 text-[#81C784]" />
                 <span>Deploy Scout Agent</span>
               </button>
             </div>

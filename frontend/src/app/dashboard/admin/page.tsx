@@ -87,9 +87,9 @@ export default function AdminLogisticsMonitorPage() {
           </div>
 
           <div className="flex items-center gap-2.5 flex-wrap shrink-0">
-            <div className="px-3.5 py-2 rounded-sm bg-[#00E676]/15 border border-[#00E676]/40 text-xs">
-              <span className="text-[#00E676]/80 block text-[10px] uppercase font-semibold">Active Hubs:</span>
-              <span className="text-sm font-bold text-[#00E676]">{MOCK_RURAL_HUBS.length} Rural Clusters</span>
+            <div className="px-3.5 py-2 rounded-sm bg-[#223528] border border-[#2D583B] text-xs">
+              <span className="text-[#86A890] block text-[10px] uppercase font-semibold">Active Hubs:</span>
+              <span className="text-sm font-bold text-[#81C784]">{MOCK_RURAL_HUBS.length} Rural Clusters</span>
             </div>
             <div className="px-3.5 py-2 rounded-sm bg-[#252B35] border border-[#374151] text-xs font-mono">
               <span className="text-stone-400 block text-[10px] uppercase font-semibold">Agent Engine:</span>
@@ -102,13 +102,13 @@ export default function AdminLogisticsMonitorPage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-[#2C323D] text-xs">
           <div>
             <span className="text-stone-400 text-[10px] uppercase font-semibold">Search API:</span>
-            <p className="font-semibold text-sm text-[#00E676] mt-0.5 flex items-center gap-1">
+            <p className="font-semibold text-sm text-[#4E9B6E] mt-0.5 flex items-center gap-1">
               <CheckCircle2 className="w-3.5 h-3.5" /> 99.8% Online
             </p>
           </div>
           <div>
             <span className="text-stone-400 text-[10px] uppercase font-semibold">Fetch API:</span>
-            <p className="font-semibold text-sm text-[#00E676] mt-0.5 flex items-center gap-1">
+            <p className="font-semibold text-sm text-[#4E9B6E] mt-0.5 flex items-center gap-1">
               <CheckCircle2 className="w-3.5 h-3.5" /> 100% Scraping SOPs
             </p>
           </div>
@@ -244,8 +244,8 @@ export default function AdminLogisticsMonitorPage() {
                   <Terminal className="w-4 h-4 text-[#E5A93B]" />
                   <span>TinyFish Microservice Event Stream</span>
                 </div>
-                <div className="flex items-center gap-2 text-[11px] font-mono text-[#00E676]">
-                  <span className="w-2 h-2 rounded-full bg-[#00E676] animate-pulse shadow-[0_0_8px_#00E676]" />
+                <div className="flex items-center gap-2 text-[11px] font-mono text-[#4E9B6E]">
+                  <span className="w-2 h-2 rounded-full bg-[#4E9B6E] animate-pulse" />
                   <span>Live Stream Active</span>
                 </div>
               </div>
@@ -291,7 +291,7 @@ export default function AdminLogisticsMonitorPage() {
                       <span>{hub.state}, India</span>
                     </p>
                   </div>
-                  <span className="px-2.5 py-1 rounded-sm bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] text-[11px] font-semibold border border-[#00E676]/40">
+                  <span className="px-2 py-0.5 rounded-xs bg-[#2D583B]/10 text-[#2D583B] text-[11px] font-semibold border border-[#2D583B]/30">
                     {hub.status}
                   </span>
                 </div>
@@ -311,7 +311,7 @@ export default function AdminLogisticsMonitorPage() {
                   </div>
                   <div>
                     <span className="text-[10px] text-stone-400 uppercase font-semibold">Partner Couriers:</span>
-                    <p className="font-medium text-[#00C853] dark:text-[#00E676] mt-0.5">{hub.partnerCouriers.join(", ")}</p>
+                    <p className="font-medium text-[#2D583B] mt-0.5">{hub.partnerCouriers.join(", ")}</p>
                   </div>
                 </div>
               </div>
@@ -353,7 +353,7 @@ export default function AdminLogisticsMonitorPage() {
           {/* Fragile Packaging SOPs */}
           <div className="p-6 bg-[#FAF7F2] border border-[#E8DEC8] rounded-sm space-y-4">
             <div className="flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-[#00E676]" />
+              <ShieldCheck className="w-5 h-5 text-[#2D583B]" />
               <h3 className="font-serif font-bold text-base text-[#1E2229]">
                 Fragile Craft Shipping Standards (TinyFish Fetch SOPs)
               </h3>

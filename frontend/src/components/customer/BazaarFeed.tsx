@@ -96,7 +96,7 @@ export function BazaarFeed({
                     <span className="text-xs font-semibold text-[#1E2229] hover:text-[#B4461F] transition-colors duration-150 flex items-center gap-1">
                       {product.sellerName}
                       {product.sellerVerified && (
-                        <CheckCircle2 className="w-3.5 h-3.5 text-[#00C853] dark:text-[#00E676]" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#2D583B]" />
                       )}
                     </span>
                   </div>

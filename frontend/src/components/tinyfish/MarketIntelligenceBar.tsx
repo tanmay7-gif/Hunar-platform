@@ -63,7 +63,7 @@ export function MarketIntelligenceBar() {
               <span className="text-xs font-semibold text-sky-400 uppercase tracking-wider">
                 TinyFish Search API
               </span>
-              <span className="px-1.5 py-0.2 rounded text-[10px] text-[#00E676] bg-[#00E676]/10 border border-[#00E676]/30 font-medium">
+              <span className="px-1.5 py-0.2 rounded text-[10px] bg-[#2D583B]/40 text-[#4E9B6E] border border-[#2D583B]">
                 Live Web Intelligence
               </span>
             </div>
@@ -148,7 +148,7 @@ export function MarketIntelligenceBar() {
                   <div className="space-y-1">
                     <div className="flex items-center justify-between text-[10px] text-stone-400">
                       <span className="font-mono text-[#E5A93B]">{r.source || "TinyFish Live Web"}</span>
-                      <ShieldCheck className="w-3 h-3 text-[#00E676]" />
+                      <ShieldCheck className="w-3 h-3 text-[#4E9B6E]" />
                     </div>
                     <h4 className="text-xs font-semibold text-[#FAF7F2] line-clamp-2">{r.title}</h4>
                     <p className="text-[11px] text-stone-300 leading-relaxed line-clamp-3">{r.snippet}</p>

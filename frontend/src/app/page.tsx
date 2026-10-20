@@ -242,8 +242,8 @@ export default function HomePage() {
 
                   {/* Verified Seal Stamp */}
                   {creator.isVerified && (
-                    <div className="absolute top-3 right-3 z-20 flex items-center gap-1.5 px-2.5 py-0.5 rounded-xs bg-[#00E676]/20 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/50 backdrop-blur-xs text-[10px] font-bold shadow-[0_0_8px_rgba(0,230,118,0.25)]">
-                      <CheckCircle className="w-3 h-3 text-[#00C853] dark:text-[#00E676]" />
+                    <div className="absolute top-3 right-3 z-20 flex items-center gap-1 px-2.5 py-0.5 rounded-xs bg-[#2D583B] text-white text-[10px] font-bold shadow-xs">
+                      <CheckCircle className="w-3 h-3 text-[#E5A93B]" />
                       <span>{isHindi ? "प्रमाणित" : "Verified"}</span>
                     </div>
                   )}

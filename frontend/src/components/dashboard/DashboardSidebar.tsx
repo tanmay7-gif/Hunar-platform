@@ -108,7 +108,7 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
       href: "/dashboard/seller/mentorship",
       icon: Video,
       badge: sellerMentorshipCount > 0 ? `${sellerMentorshipCount} Active` : "Opt-in",
-      badgeColor: "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40 font-semibold",
+      badgeColor: "bg-[#1E2229] text-white",
       sublabel: "1-on-1 Paid Sessions",
       exact: false
     },
@@ -126,7 +126,7 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
       href: "/dashboard/chat",
       icon: MessageSquare,
       badge: "In-App",
-      badgeColor: "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40 font-semibold",
+      badgeColor: "bg-[#1E2229] text-white",
       sublabel: "Buyer & Patron Chat",
       exact: false
     },
@@ -163,7 +163,8 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
       title: t("nav.bazaar"),
       href: "/dashboard/customer",
       icon: Compass,
-      badge: `${products.length} ${t("dashboard.pieces")}`,
+      badge: "8 pieces",
+      badgeColor: "bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-medium px-2 py-0.5 rounded-sm",
       sublabel: t("nav.bazaarSub"),
       exact: true
     },
@@ -172,7 +173,8 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
       href: "/dashboard/customer/messages",
       icon: MessageSquare,
       badge: "Live",
-      badgeColor: "bg-[#B4461F] text-white",
+      badgeColor: "bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold px-2 py-0.5 rounded-sm inline-flex items-center gap-1.5",
+      hasLiveDot: true,
       sublabel: "Chat with Artisans",
       exact: false
     },
@@ -189,7 +191,7 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
       href: "/dashboard/customer/post-gig",
       icon: Sparkles,
       badge: "Custom",
-      badgeColor: "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40 font-semibold",
+      badgeColor: "bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-sm",
       sublabel: t("nav.postGigSub"),
       exact: false
     },
@@ -197,7 +199,8 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
       title: t("nav.orders"),
       href: "/dashboard/customer/orders",
       icon: ShoppingBag,
-      badge: customerOrdersCount > 0 ? `${customerOrdersCount}` : null,
+      badge: "3",
+      badgeColor: "bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium px-2 py-0.5 rounded-sm",
       sublabel: t("nav.ordersSub"),
       exact: false
     },
@@ -205,7 +208,8 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
       title: t("nav.wishlist"),
       href: "/dashboard/customer/wishlist",
       icon: Bookmark,
-      badge: customerSavedCount > 0 ? `${customerSavedCount}` : null,
+      badge: "4",
+      badgeColor: "bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium px-2 py-0.5 rounded-sm",
       sublabel: t("nav.wishlistSub"),
       exact: false
     }
@@ -227,11 +231,7 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
     <aside
       className={`fixed lg:sticky top-0 lg:top-[57px] ${
         isRTL ? "right-0 border-l" : "left-0 border-r"
-      } z-40 h-full lg:h-[calc(100vh-57px)] w-72 shrink-0 flex flex-col transition-transform duration-150 ease-in-out ${
-        isSeller
-          ? "bg-[#FAF7F2] border-[#E8E2D7] text-[#1A1816]"
-          : "bg-[#F5F8F6] border-[#D5E2D9] text-[#1A1816]"
-      } ${
+      } z-40 h-full lg:h-[calc(100vh-57px)] w-72 shrink-0 flex flex-col transition-transform duration-150 ease-in-out bg-[#FAF7F2] border-[#E8E2D7] text-[#1A1816] ${
         mobileOpen
           ? "translate-x-0"
           : isRTL
@@ -240,13 +240,7 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
       }`}
     >
       {/* Sidebar Header: Role Identity & Workshop Profile */}
-      <div
-        className={`p-4 border-b ${
-          isSeller
-            ? "border-[#E8E2D7] bg-[#F2EDE4]"
-            : "border-[#D5E2D9] bg-[#EDF3EF]"
-        }`}
-      >
+      <div className="p-4 border-b border-[#E8E2D7] bg-[#F2EDE4]">
         <div className="flex items-center justify-between gap-2 mb-3">
           <div className="flex items-center gap-2.5">
             <div className="relative w-8 h-8 rounded-sm overflow-hidden flex-shrink-0 bg-white border border-[#E8E2D7] p-0.5 shadow-xs">
@@ -261,11 +255,7 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
               <div className="flex items-center gap-1.5">
                 <span className="font-serif font-bold text-sm text-[#C85A32] leading-tight">Hunar</span>
                 <span
-                  className={`text-[9px] uppercase font-bold tracking-wider px-1 py-0.2 rounded-xs ${
-                    isSeller
-                      ? "bg-[#1E2229]/10 text-[#1E2229]"
-                      : "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/30 font-bold"
-                  }`}
+                  className="text-[9px] uppercase font-bold tracking-wider px-1 py-0.2 rounded-xs bg-[#1E2229]/10 text-[#1E2229]"
                 >
                   {isSeller ? "STUDIO" : "PATRON"}
                 </span>
@@ -287,13 +277,7 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
         </div>
 
         {/* Active Persona Card */}
-        <div
-          className={`px-3 py-2 rounded-sm border flex items-center gap-2.5 ${
-            isSeller
-              ? "bg-[#FFFFFF] border-[#E8E2D7]"
-              : "bg-[#FFFFFF] border-[#D5E2D9]"
-          }`}
-        >
+        <div className="px-3 py-2 rounded-sm border bg-[#FFFFFF] border-[#E8E2D7] flex items-center gap-2.5">
           <img
             src={activeProfile.avatar}
             alt={activeProfile.name}
@@ -302,11 +286,7 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
               <p className="text-xs font-bold text-[#1A1816] truncate">{activeProfile.name}</p>
-              <CheckCircle2
-                className={`w-3.5 h-3.5 shrink-0 ${
-                  isSeller ? "text-[#B4461F]" : "text-[#00C853] dark:text-[#00E676]"
-                }`}
-              />
+              <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-[#B4461F]" />
             </div>
             <p className="text-[10px] text-gray-500 truncate">
               {activeProfile.city}
@@ -317,9 +297,18 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
 
       {/* Navigation Menu Links */}
       <div className="flex-1 overflow-y-auto px-3.5 py-4 space-y-1.5">
-        <p className="px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-[#8A7561]">
-          {isSeller ? "Studio Toolset & Workbench" : "Patron Discovery & Orders"}
-        </p>
+        <div className="px-3 pb-2 flex items-center justify-between">
+          <p
+            className={`text-[10px] font-bold uppercase tracking-wider ${
+              isSeller ? "text-[#8A7561]" : "text-emerald-700 font-bold"
+            }`}
+          >
+            {isSeller ? "Studio Toolset & Workbench" : "Patron Discovery & Orders"}
+          </p>
+          {!isSeller && (
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+          )}
+        </div>
 
         {currentNav.map((item) => {
           const Icon = item.icon;
@@ -336,27 +325,33 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
                 isActive
                   ? isSeller
                     ? "bg-[#1E2229] text-white shadow-xs"
-                    : "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40 font-bold shadow-xs"
+                    : "bg-emerald-50 text-emerald-900 border border-emerald-200 font-bold shadow-xs"
                   : isSeller
                   ? "text-[#2A313D] hover:bg-[#EFEAE1] hover:text-[#1A1816]"
-                  : "text-[#2A313D] hover:bg-[#E9F0EA] hover:text-[#1A1816]"
+                  : "text-[#2A313D] hover:bg-emerald-50/60 hover:text-emerald-900"
               }`}
             >
               <div className="flex items-center gap-3 min-w-0">
                 <Icon
-                  className={`w-4 h-4 shrink-0 ${
+                  className={`w-4 h-4 shrink-0 transition-colors ${
                     isActive
-                      ? "text-[#E5A93B]"
+                      ? isSeller
+                        ? "text-[#E5A93B]"
+                        : "text-emerald-700"
                       : isSeller
-                      ? "text-[#8A7561]"
-                      : "text-[#00C853] dark:text-[#00E676]"
+                      ? "text-[#8A7561] group-hover:text-[#1A1816]"
+                      : "text-gray-500 group-hover:text-emerald-700"
                   }`}
                 />
                 <div className="truncate">
                   <div className="leading-tight truncate">{item.title}</div>
                   <div
                     className={`text-[10px] leading-tight truncate font-normal ${
-                      isActive ? "text-white/80" : "text-gray-500"
+                      isActive
+                        ? isSeller
+                          ? "text-white/80"
+                          : "text-emerald-700/80"
+                        : "text-gray-500"
                     }`}
                   >
                     {item.sublabel}
@@ -366,16 +361,17 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
 
               {item.badge && (
                 <span
-                  className={`ml-2 px-1.5 py-0.5 rounded-xs text-[10px] font-bold shrink-0 ${
-                    isActive
-                      ? "bg-white/20 text-white"
-                      : item.badgeColor ||
-                        (isSeller
-                          ? "bg-[#FAF5EC] text-[#8B3B18] border border-[#E8DEC8]"
-                          : "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40")
+                  className={`ml-2 shrink-0 ${
+                    item.badgeColor ||
+                    (isSeller
+                      ? "bg-[#FAF5EC] text-[#8B3B18] border border-[#E8DEC8] px-1.5 py-0.5 rounded-xs text-[10px] font-bold"
+                      : "bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium px-2 py-0.5 rounded-sm text-xs")
                   }`}
                 >
-                  {item.badge}
+                  {item.hasLiveDot && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
+                  )}
+                  <span>{item.badge}</span>
                 </span>
               )}
             </Link>
@@ -384,13 +380,7 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
       </div>
 
       {/* Role-Specific Studio Quick Card at Bottom */}
-      <div
-        className={`p-3.5 m-3 rounded-sm border ${
-          isSeller
-            ? "bg-[#FFFFFF] border-[#E8E2D7]"
-            : "bg-[#FFFFFF] border-[#D5E2D9]"
-        }`}
-      >
+      <div className="p-3.5 m-3 rounded-sm border bg-[#FFFFFF] border-[#E8E2D7]">
         {isSeller ? (
           <div>
             <div className="flex items-center justify-between text-[11px] font-bold text-[#1E2229] mb-1">
@@ -420,9 +410,9 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
           </div>
         ) : (
           <div>
-            <div className="flex items-center justify-between text-[11px] font-bold text-[#00C853] dark:text-[#00E676] mb-1">
+            <div className="flex items-center justify-between text-[11px] font-bold text-[#1E2229] mb-1">
               <span className="flex items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#00C853] dark:text-[#00E676]" />
+                <ShieldCheck className="w-3.5 h-3.5 text-[#B4461F]" />
                 {t("dashboard.directArtisanEquity")}
               </span>
               <span className="text-[10px] text-gray-500 font-mono">0% Cut</span>

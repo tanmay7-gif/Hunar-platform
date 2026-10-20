@@ -136,8 +136,8 @@ export default function KalaRoadmapPage() {
                     </div>
 
                     {isStepComplete && (
-                      <span className="px-2.5 py-1 rounded-sm bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40 text-[10px] font-semibold flex items-center gap-1">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-[#00C853] dark:text-[#00E676]" />
+                      <span className="px-2.5 py-1 rounded-sm bg-[#2D583B] text-white text-[10px] font-medium flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#E5A93B]" />
                         <span>Completed</span>
                       </span>
                     )}
@@ -179,13 +179,13 @@ export default function KalaRoadmapPage() {
                             onClick={() => toggleMilestone(milestone.id)}
                             className={`p-4 rounded-sm border transition-colors duration-150 cursor-pointer flex items-start gap-3.5 ${
                               isDone
-                                ? "bg-[#00E676]/10 border-[#00E676]/40 text-[#1A1816]"
+                                ? "bg-[#EEF4F0] border-[#C5DCCB] text-[#1A1816]"
                                 : "bg-white border-[#E8E2D7] hover:bg-[#FAF7F2]"
                             }`}
                           >
                             <div className="mt-0.5 shrink-0">
                               {isDone ? (
-                                <CheckCircle2 className="w-5 h-5 text-[#00C853] dark:text-[#00E676]" />
+                                <CheckCircle2 className="w-5 h-5 text-[#2D583B]" />
                               ) : (
                                 <Circle className="w-5 h-5 text-[#D3CBBE] hover:text-[#B4461F]" />
                               )}

@@ -147,7 +147,7 @@ export default function SellerProductsPage() {
                 </>
               ) : pendingCount > 0 ? (
                 <>
-                  <Wifi className="w-3.5 h-3.5 text-[#00E676]" />
+                  <Wifi className="w-3.5 h-3.5 text-[#C85A32]" />
                   <span className="text-white">{pendingCount} local draft(s)</span>
                   <button
                     type="button"
@@ -158,15 +158,10 @@ export default function SellerProductsPage() {
                   </button>
                 </>
               ) : (
-                <div className="flex items-center gap-2">
-                  <span className="relative flex h-2.5 w-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00E676] opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#00E676] shadow-[0_0_8px_#00E676]"></span>
-                  </span>
-                  <p className="font-serif text-base font-bold text-[#00E676] mt-0.5 tracking-wide">
-                    Sync: Live
-                  </p>
-                </div>
+                <>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#C85A32]" />
+                  <span className="text-white font-semibold">Sync: Live</span>
+                </>
               )}
             </div>
 
@@ -215,7 +210,7 @@ export default function SellerProductsPage() {
           </div>
           <div>
             <span className="text-[#9B948A] text-[10px] uppercase font-semibold">Patron Views:</span>
-            <p className="font-semibold text-base text-[#00E676] mt-0.5">
+            <p className="font-semibold text-base text-[#2D583B] mt-0.5">
               {currentUser.id === "demo-seller-rohit" ? "1,420" : "0"} visits
             </p>
           </div>
@@ -328,7 +323,7 @@ export default function SellerProductsPage() {
             // Explicit status badges: Live, Made-to-Order, Out of Stock
             let statusBadge = {
               text: "Live",
-              color: "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40 font-semibold px-2.5 py-1 rounded-sm"
+              color: "bg-[#2D583B] text-white"
             };
             if (product.stock === 0) {
               statusBadge = {
@@ -422,7 +417,7 @@ export default function SellerProductsPage() {
                       <p className="font-bold text-[#1E2229] flex items-center gap-1.5 mt-0.5">
                         <span
                           className={`w-2 h-2 rounded-full ${
-                            product.stock > 0 ? "bg-[#00E676] shadow-[0_0_6px_#00E676]" : "bg-red-500"
+                            product.stock > 0 ? "bg-[#2D583B]" : "bg-red-500"
                           }`}
                         />
                         {product.stock} units ({product.leadTime})
@@ -444,7 +439,7 @@ export default function SellerProductsPage() {
                     >
                       {isLive ? (
                         <>
-                          <ToggleRight className="w-4 h-4 text-[#00E676]" />
+                          <ToggleRight className="w-4 h-4 text-[#2D583B]" />
                           <span>Visible in Bazaar</span>
                         </>
                       ) : (
@@ -512,24 +507,24 @@ export default function SellerProductsPage() {
                       <td className="py-3.5 px-4">
                         {(() => {
                           let badgeText = "Live";
-                          let badgeStyle = "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/40 font-semibold px-2.5 py-1 rounded-sm";
+                          let badgeStyle = "bg-[#EEF4F0] text-[#2D583B] border-[#C5DCCB]";
                           if (product.stock === 0) {
                             badgeText = "Out of Stock";
-                            badgeStyle = "bg-red-50 text-red-700 border border-red-200 font-semibold px-2.5 py-1 rounded-sm";
+                            badgeStyle = "bg-red-50 text-red-700 border-red-200";
                           } else if (
                             product.deliveryFormat === "On-site Commission" ||
                             product.leadTime?.toLowerCase().includes("order")
                           ) {
                             badgeText = "Made-to-Order";
-                            badgeStyle = "bg-[#FAF5EC] text-[#C85A32] border border-[#E8DEC8] font-semibold px-2.5 py-1 rounded-sm";
+                            badgeStyle = "bg-[#FAF5EC] text-[#C85A32] border-[#E8DEC8]";
                           } else if (!isLive) {
                             badgeText = "Draft";
-                            badgeStyle = "bg-gray-100 text-gray-600 border border-gray-200 font-semibold px-2.5 py-1 rounded-sm";
+                            badgeStyle = "bg-gray-100 text-gray-600 border-gray-200";
                           }
 
                           return (
                             <span
-                              className={`inline-block text-[10px] ${badgeStyle}`}
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${badgeStyle}`}
                             >
                               {badgeText}
                             </span>
@@ -543,7 +538,7 @@ export default function SellerProductsPage() {
                             className="p-1 rounded hover:bg-gray-100 text-gray-600"
                             title="Toggle Live / Draft"
                           >
-                            {isLive ? <ToggleRight className="w-4 h-4 text-[#00E676]" /> : <ToggleLeft className="w-4 h-4 text-gray-400" />}
+                            {isLive ? <ToggleRight className="w-4 h-4 text-[#2D583B]" /> : <ToggleLeft className="w-4 h-4 text-gray-400" />}
                           </button>
                           <button
                             onClick={() => handleOpenEdit(product)}

@@ -120,13 +120,9 @@
 }
 
 .badge-sage {
-  background-color: rgba(0, 230, 118, 0.15);
-  color: #00C853;
-  border: 1px solid rgba(0, 230, 118, 0.4);
-}
-
-:is(.dark, [data-theme="dark"]) .badge-sage {
-  color: #00E676;
+  background-color: #EEF4F0;
+  color: #2D583B;
+  border: 1px solid #C5DCCB;
 }
 
 /* Artisanal paper card styling */

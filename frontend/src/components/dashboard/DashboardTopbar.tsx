@@ -176,11 +176,7 @@ export function DashboardTopbar({
 
   return (
     <div
-      className={`border-b px-4 sm:px-6 py-3 transition-colors duration-150 ${
-        isSeller
-          ? "bg-[#FAF7F2] border-[#E8E2D7]"
-          : "bg-[#F5F8F6] border-[#D5E2D9]"
-      }`}
+      className="border-b px-4 sm:px-6 py-3 transition-colors duration-150 bg-[#FAF7F2] border-[#E8E2D7]"
     >
       <div className="flex items-center justify-between gap-4">
         {/* Left: Mobile Toggle & Page Context */}
@@ -195,13 +191,7 @@ export function DashboardTopbar({
 
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <span
-                className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-xs ${
-                  isSeller
-                    ? "bg-[#1E2229]/10 text-[#1E2229]"
-                    : "bg-[#00E676]/15 text-[#00C853] dark:text-[#00E676] border border-[#00E676]/30 font-bold"
-                }`}
-              >
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-xs bg-[#1E2229]/10 text-[#1E2229]">
                 {contextInfo.badge}
               </span>
               <span className="hidden sm:inline text-xs text-gray-400">•</span>
@@ -245,10 +235,10 @@ export function DashboardTopbar({
               {/* Saved Collections / Cart Indicator */}
               <Link
                 href="/dashboard/customer/wishlist"
-                className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-[#D5E2D9] bg-white text-gray-700 text-xs font-medium hover:bg-[#EDF3EF] transition-colors duration-150"
+                className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-[#D9D0C3] bg-white text-gray-700 text-xs font-medium hover:bg-[#FAF7F2] transition-colors duration-150"
                 title="View Saved Artworks & Collections"
               >
-                <Bookmark className="w-3.5 h-3.5 text-[#00C853] dark:text-[#00E676]" />
+                <Bookmark className="w-3.5 h-3.5 text-[#B4461F]" />
                 <span className="hidden sm:inline">{t("nav.wishlist")}</span>
                 {totalSavedCount > 0 && (
                   <span className="ml-0.5 px-1.5 py-0.2 rounded-xs bg-[#E5A93B] text-[#1E2229] text-[10px] font-bold">
@@ -260,13 +250,13 @@ export function DashboardTopbar({
               {/* My Orders Badge Indicator */}
               <Link
                 href="/dashboard/customer/orders"
-                className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-[#D5E2D9] bg-white text-gray-700 text-xs font-medium hover:bg-[#EDF3EF] transition-colors duration-150"
+                className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-[#D9D0C3] bg-white text-gray-700 text-xs font-medium hover:bg-[#FAF7F2] transition-colors duration-150"
                 title="My Orders & Active Inquiries"
               >
-                <ShoppingBag className="w-3.5 h-3.5 text-[#00C853] dark:text-[#00E676]" />
+                <ShoppingBag className="w-3.5 h-3.5 text-[#B4461F]" />
                 <span className="hidden sm:inline">{t("nav.orders")}</span>
                 {activeOrdersCount > 0 && (
-                  <span className="ml-0.5 px-1.5 py-0.2 rounded-xs bg-[#00E676] text-slate-950 text-[10px] font-bold shadow-[0_0_6px_#00E676]">
+                  <span className="ml-0.5 px-1.5 py-0.2 rounded-xs bg-[#B4461F] text-white text-[10px] font-bold">
                     {activeOrdersCount}
                   </span>
                 )}
@@ -286,11 +276,7 @@ export function DashboardTopbar({
           <div className="flex items-center pl-1 sm:pl-2 border-l border-gray-300 gap-2">
             <button
               onClick={() => handleRoleToggle(isSeller ? "CUSTOMER" : "SELLER")}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-sm text-xs font-medium border transition-colors duration-150 ${
-                isSeller
-                  ? "bg-white border-[#D9D0C3] text-[#1A1816] hover:bg-[#FAF7F2]"
-                  : "bg-white border-[#D5E2D9] text-[#1D3E29] hover:bg-[#EDF3EF]"
-              }`}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-sm text-xs font-medium border border-[#D9D0C3] bg-white text-[#1A1816] hover:bg-[#FAF7F2] transition-colors duration-150"
               title={
                 isSeller
                   ? "Switch to Patron / Customer view (Priya Nair)"

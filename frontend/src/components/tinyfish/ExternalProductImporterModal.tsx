@@ -241,7 +241,7 @@ export function ExternalProductImporterModal({
               <button
                 type="button"
                 onClick={handleApplyToCatalog}
-                className="px-4 py-2 bg-[#00E676] hover:bg-[#00C853] text-[#121417] text-xs font-bold rounded-xs flex items-center gap-2 transition-colors cursor-pointer shadow-[0_0_12px_rgba(0,230,118,0.3)]"
+                className="px-4 py-2 bg-[#2D583B] hover:bg-[#23452e] text-white text-xs font-semibold rounded-xs flex items-center gap-2 transition-colors cursor-pointer shadow-sm"
               >
                 <Package className="w-3.5 h-3.5" />
                 <span>Save to Studio Catalog (₹{extractedResult.extractedData.price})</span>

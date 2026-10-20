@@ -208,7 +208,7 @@ export default function SavedCollectionsPage() {
                               {creator.name}
                             </h3>
                             {creator.isVerified && (
-                              <CheckCircle2 className="w-3.5 h-3.5 text-[#00C853] dark:text-[#00E676]" />
+                              <CheckCircle2 className="w-3.5 h-3.5 text-[#2D583B]" />
                             )}
                           </div>
                           <p className="text-xs text-[#B4461F] font-semibold">{creator.primaryArtForm}</p>
