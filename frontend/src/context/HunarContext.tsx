@@ -10,6 +10,7 @@ import {
   Persona,
   UserAccount,
   Product,
+  CartItem,
   CustomerInquiry,
   MentorshipBooking,
   MentorshipOffering,
@@ -94,6 +95,12 @@ interface HunarContextType {
   deleteProduct: (id: string) => void;
   toggleProductStatus: (id: string) => void;
 
+  // Cart & Checkout
+  cart: CartItem[];
+  addToCart: (item: Partial<CartItem>) => void;
+  removeFromCart: (id: string) => void;
+  clearCart: () => void;
+
   // Customer inquiries & Commission tracker
   inquiries: CustomerInquiry[];
   createInquiry: (inquiry: Partial<CustomerInquiry>) => CustomerInquiry;
@@ -144,6 +151,35 @@ interface HunarContextType {
   dismissToast: () => void;
 }
 
+const DEFAULT_CART_ITEMS: CartItem[] = [
+  {
+    id: "cart-1",
+    productId: "prod-quiet-courtyard",
+    title: "The quiet courtyard",
+    artist: "Rhea Sharma",
+    city: "Jaipur",
+    medium: "Gouache on paper",
+    dimensions: "40 × 30 cm · Unframed",
+    price: 8400,
+    image: "/artworks/the-quiet-courtyard.png",
+    quantity: 1,
+    presentation: "One-of-a-kind piece"
+  },
+  {
+    id: "cart-2",
+    productId: "prod-earth-sky-vase",
+    title: "Earth & sky vase",
+    artist: "Kabir Mehta",
+    city: "Pune",
+    medium: "Hand-thrown stoneware",
+    dimensions: "18 × 12 cm",
+    price: 2200,
+    image: "/artworks/earth-sky-vase.png",
+    quantity: 1,
+    presentation: "One-of-a-kind piece"
+  }
+];
+
 const HunarContext = createContext<HunarContextType | undefined>(undefined);
 
 export function HunarProvider({ children }: { children: React.ReactNode }) {
@@ -151,6 +187,15 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
   const [currentPersona, setCurrentPersona] = useState<Persona>(MOCK_PERSONAS[0]);
   const [currentUser, setCurrentUser] = useState<UserAccount>(DEMO_ACCOUNTS[0]);
   const [creators, setCreators] = useState<Creator[]>(() => SEED_CREATORS.map((c) => protectCreator(c)));
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("hunar_cart");
+        if (saved) return JSON.parse(saved);
+      } catch {}
+    }
+    return DEFAULT_CART_ITEMS;
+  });
   const [opportunities, setOpportunities] = useState<Opportunity[]>(SEED_OPPORTUNITIES);
   const [roadmaps, setRoadmaps] = useState<Record<string, RoadmapStep[]>>(SEED_ROADMAPS);
   const [applications, setApplications] = useState<Application[]>([]);
@@ -801,6 +846,52 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
         return p;
       })
     );
+  };
+
+  // Cart Actions
+  const addToCart = (item: Partial<CartItem>) => {
+    setCart((prev) => {
+      const existing = prev.find((i) => i.productId === item.productId || (item.id && i.id === item.id));
+      if (existing) {
+        return prev.map((i) =>
+          i.productId === item.productId || (item.id && i.id === item.id)
+            ? { ...i, quantity: i.quantity + 1 }
+            : i
+        );
+      }
+      const newItem: CartItem = {
+        id: item.id || `cart-${Date.now()}`,
+        productId: item.productId || `prod-${Date.now()}`,
+        title: item.title || "Handcrafted Artwork",
+        artist: item.artist || "Independent Artisan",
+        city: item.city || "Jaipur",
+        medium: item.medium || "Mixed Media",
+        dimensions: item.dimensions || "Original Dimensions",
+        price: item.price || 1500,
+        image: item.image || "/artworks/the-quiet-courtyard.png",
+        quantity: item.quantity || 1,
+        presentation: item.presentation || "One-of-a-kind piece"
+      };
+      return [...prev, newItem];
+    });
+    showToast(
+      language === "hi" ? "कार्ट में जोड़ा गया" : "Added to Cart",
+      `"${item.title || "Artwork"}" ${language === "hi" ? "आपकी कार्ट में जोड़ दिया गया।" : "added to your order."}`,
+      "success"
+    );
+  };
+
+  const removeFromCart = (id: string) => {
+    setCart((prev) => prev.filter((i) => i.id !== id && i.productId !== id));
+    showToast(
+      language === "hi" ? "कार्ट से हटाया गया" : "Removed from Cart",
+      language === "hi" ? "कलाकृति कार्ट से हटा दी गई।" : "Item removed from your cart.",
+      "info"
+    );
+  };
+
+  const clearCart = () => {
+    setCart([]);
   };
 
   // Inquiries & Commissions
@@ -1533,6 +1624,12 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
         updateProduct,
         deleteProduct,
         toggleProductStatus,
+
+        // Cart & Checkout
+        cart,
+        addToCart,
+        removeFromCart,
+        clearCart,
 
         // Inquiries
         inquiries,

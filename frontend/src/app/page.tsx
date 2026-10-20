@@ -4,532 +4,550 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useHunar } from "@/context/HunarContext";
-import {
-  Sparkles,
-  MapPin,
-  CheckCircle,
-  Share2,
-  ArrowRight,
-  TrendingUp,
-  Compass,
-  Briefcase,
-  Star,
-  MessageCircle,
-  MessageSquare,
-  ExternalLink,
-  Shield,
-  Layers,
-  Award
-} from "lucide-react";
 import { ProtectedImage } from "@/components/ui/ProtectedImage";
+import {
+  Search,
+  ChevronDown,
+  ArrowRight,
+  ArrowUpRight,
+  Store,
+  Clock,
+  Sparkles,
+  ShoppingBag,
+  Check
+} from "lucide-react";
 
 export default function HomePage() {
   const router = useRouter();
-  const { language, creators, currentPersona, opportunities, startOrGetConversation } = useHunar();
-  const isHindi = language === "hi";
+  const { currentUser, addToCart } = useHunar();
 
-  const [selectedCategory, setSelectedCategory] = useState<string>("All");
-  const [selectedCity, setSelectedCity] = useState<string>("All");
+  const [activeCategory, setActiveCategory] = useState("All crafts");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState("Recent first");
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
+  const [addedItem, setAddedItem] = useState<string | null>(null);
 
-  const categories = [
-    { id: "All", label: isHindi ? "सभी विधाएं" : "All Crafts" },
-    { id: "Madhubani & Folk", label: isHindi ? "मधुबनी एवं लोक कला" : "Madhubani & Folk" },
-    { id: "Murals", label: isHindi ? "कैफे व भित्ति चित्र" : "Wall Murals" },
-    { id: "Pottery", label: isHindi ? "टेराकोटा व पॉटरी" : "Studio Pottery" },
-    { id: "Bridal Mehndi", label: isHindi ? "ब्राइडल मेहंदी" : "Bridal Mehndi" }
+  // Determine seller target link based on auth status
+  const sellerLink = currentUser?.role === "SELLER" ? "/dashboard/seller" : "/auth?role=artist";
+
+  // Hero showcase items (matching Screenshot 1)
+  const heroItems = [
+    {
+      id: "prod-quiet-courtyard",
+      title: "The quiet courtyard",
+      artist: "Rhea Sharma · Jaipur · Gouache on paper",
+      image: "/artworks/quiet-courtyard-detail.png",
+      cta: "Discover this piece",
+      link: "/artwork/prod-quiet-courtyard"
+    },
+    {
+      id: "prod-pink-city-morning",
+      title: "Pink city morning",
+      artist: "Rhea Sharma · Jaipur · Acrylic on canvas",
+      image: "/artworks/pink-city-morning.png",
+      cta: "Discover this piece",
+      link: "/artwork/prod-pink-city-morning",
+      hasCtas: true
+    },
+    {
+      id: "prod-river-pebble-bowl",
+      title: "River pebble bowl",
+      artist: "Kabir Mehta · Pune · Glazed stoneware",
+      image: "/artworks/river-pebble-bowl.png",
+      cta: "Discover this piece",
+      link: "/artwork/prod-river-pebble-bowl"
+    }
   ];
 
-  const cities = ["All", "Delhi NCR", "Jaipur", "Lucknow", "Madhubani / Delhi NCR"];
+  // Category cards (matching Screenshot 1)
+  const categories = [
+    { name: "Paintings", image: "/artworks/cat-paintings.png", slug: "Paintings" },
+    { name: "Ceramics", image: "/artworks/cat-ceramics.png", slug: "Ceramics" },
+    { name: "Textiles", image: "/artworks/cat-textiles.png", slug: "Textiles" },
+    { name: "Jewellery", image: "/artworks/cat-jewellery.png", slug: "Jewellery" },
+    { name: "Prints", image: "/artworks/cat-prints.png", slug: "Prints" }
+  ];
 
-  const filteredCreators = creators.filter((c) => {
-    const matchCat = selectedCategory === "All" || c.primaryArtForm === selectedCategory;
-    const matchCity = selectedCity === "All" || c.city.toLowerCase().includes(selectedCity.toLowerCase());
-    return matchCat && matchCity;
-  });
+  // Curator's picks (6 items from Screenshot 1)
+  const curatorPicks = [
+    {
+      id: "prod-quiet-courtyard",
+      title: "The quiet courtyard",
+      artist: "Rhea Sharma · Jaipur",
+      medium: "Gouache on paper · 40 × 50 cm",
+      price: 8400,
+      image: "/artworks/the-quiet-courtyard.png",
+      category: "Watercolour"
+    },
+    {
+      id: "prod-earth-sky-vase",
+      title: "Earth & sky vase",
+      artist: "Kabir Mehta · Pune",
+      medium: "Hand-thrown stoneware · 18 × 12 cm",
+      price: 2200,
+      image: "/artworks/earth-sky-vase.png",
+      category: "Ceramics"
+    },
+    {
+      id: "prod-monsoon-window",
+      title: "Monsoon window",
+      artist: "Rhea Sharma · Jaipur",
+      medium: "Acrylic on canvas · 30 × 30 cm",
+      price: 4800,
+      image: "/artworks/monsoon-window.png",
+      category: "Paintings"
+    },
+    {
+      id: "prod-quiet-contemplation",
+      title: "Quiet Contemplation",
+      artist: "Meera Devi · Bagru",
+      medium: "Block-printed cotton · 40 × 50 cm",
+      price: 3200,
+      image: "/artworks/quiet-contemplation.png",
+      category: "Textiles"
+    },
+    {
+      id: "prod-marigold-study",
+      title: "Marigold study",
+      artist: "Rhea Sharma · Jaipur",
+      medium: "Gouache on paper · 21 × 30 cm",
+      price: 3600,
+      image: "/artworks/marigold-study.png",
+      category: "Prints"
+    },
+    {
+      id: "prod-sunlight-better-days",
+      title: "Sunlight \"Better Days\"",
+      artist: "Tara Joshi · Ahmedabad",
+      medium: "Hand-formed brass · 25 × 30 cm",
+      price: 1600,
+      image: "/artworks/sunlight-better-days.png",
+      category: "Jewellery"
+    }
+  ];
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/shop?q=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      router.push("/shop");
+    }
+  };
+
+  const handleQuickAdd = (e: React.MouseEvent, piece: (typeof curatorPicks)[0]) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addToCart({
+      id: `cart-${piece.id}-${Date.now()}`,
+      productId: piece.id,
+      title: piece.title,
+      price: piece.price,
+      medium: piece.medium,
+      image: piece.image,
+      quantity: 1,
+      artist: piece.artist
+    });
+    setAddedItem(piece.id);
+    setTimeout(() => setAddedItem(null), 2000);
+  };
 
   return (
-    <div className="min-h-screen">
-      {/* Editorial Artisanal Hero Section */}
-      <section className="relative overflow-hidden bg-[#FAF7F2] border-b border-[#E8E2D7]">
-        <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center min-h-[75vh] py-12 md:py-20">
-            {/* Left Column (lg:col-span-7) */}
-            <div className="lg:col-span-7">
-              {/* Grounded Editorial Section Label */}
-              <p className="text-xs font-semibold uppercase tracking-wider text-[#8A7561] mb-3">
-                {isHindi ? "जमीनी भारतीय कलाकारों का स्वावलंबी मंच" : "Grassroots Creator & Artisan Guild"}
-              </p>
-
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-[#1E2229] leading-[1.15] tracking-tight">
-                {isHindi ? (
-                  <>
-                    हस्तकला की सच्ची कीमत। <br />
-                    <span className="text-[#B4461F]">बिना किसी बिचौलिए के।</span>
-                  </>
-                ) : (
-                  <>
-                    Dignity, Direct Gigs & <br />
-                    <span className="text-[#B4461F]">Fair Value for Grassroots Masters.</span>
-                  </>
-                )}
-              </h1>
-
-              <p className="mt-5 text-base sm:text-lg text-[#635C53] leading-relaxed max-w-2xl font-normal">
-                {isHindi
-                  ? "मधुबनी चित्रकारों, भित्ति कलाकारों, कुम्हारों और मेंहदी शिल्पकारों के लिए एक प्रामाणिक डिजिटल मंच। शेयर करें अपना डिजिटल हुनर कार्ड, सीधे व्हाट्सएप पर पाएं क्लाइंट्स और बढ़ाएं अपनी आजीविका।"
-                  : "The hyper-local career and monetization platform for India's folk painters, muralists, studio potters, and henna artisans. Share your lookbook Hunar Card, match with regional gigs, and scale income with structured roadmaps."}
-              </p>
-
-              {/* Hero CTAs */}
-              <div className="mt-8 flex flex-wrap items-center gap-3.5">
-                <Link
-                  href="/dashboard/customer"
-                  className="px-6 py-3 rounded-sm bg-[#1E2229] hover:bg-[#111418] text-[#FAF7F2] font-medium text-xs sm:text-sm shadow-sm transition-colors duration-150 flex items-center gap-2 group"
+    <div className="min-h-screen bg-[#F7F5EF] text-[#2B1219]">
+      {/* 1. HERO SEARCH & FILTERS BAR */}
+      <section className="border-b border-[#E7E0D6] bg-[#F7F5EF] py-2.5 px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+          {/* Quick Category filter pills */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+            {["All crafts", "Paintings", "Ceramics", "Prints"].map((cat) => {
+              const isSelected = activeCategory === cat;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => {
+                    setActiveCategory(cat);
+                    if (cat !== "All crafts") {
+                      router.push(`/shop?cat=${encodeURIComponent(cat)}`);
+                    } else {
+                      router.push("/shop");
+                    }
+                  }}
+                  className={`px-3.5 py-1 rounded-full text-xs font-medium transition-colors shrink-0 ${
+                    isSelected
+                      ? "bg-[#2B1219] text-[#FFFDF8]"
+                      : "bg-[#FAF5EC] text-[#5E4B4E] border border-[#E7E0D6] hover:border-[#D4CDC3] hover:text-[#2B1219]"
+                  }`}
                 >
-                  <Compass className="w-4 h-4 text-[#E5A93B]" />
-                  <span>{isHindi ? "शिल्प बाज़ार देखें" : "Explore Bazaar"}</span>
-                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-                </Link>
-
-                <Link
-                  href="/onboarding"
-                  className="px-5 py-3 rounded-sm border border-[#D9D0C3] bg-[#FAF7F2] hover:bg-[#EFEAE1] text-[#1E2229] font-medium text-xs sm:text-sm transition-colors duration-150 flex items-center gap-2 shadow-xs"
-                >
-                  <Sparkles className="w-4 h-4 text-[#B4461F]" />
-                  <span>{isHindi ? "कारीगर के रूप में जुड़ें" : "Join as Creator"}</span>
-                </Link>
-              </div>
-
-              {/* Trust Indicators */}
-              <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-[#635C53]">
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle className="w-3.5 h-3.5 text-[#2E7D32]" />
-                  <span>{isHindi ? "100% सत्यापित शिल्पकार" : "100% Verified Artisans"}</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <Shield className="w-3.5 h-3.5 text-[#B4461F]" />
-                  <span>{isHindi ? "सीधा खाता भुगतान (0% कट)" : "Direct Bank Payouts (0% Cut)"}</span>
-                </div>
-              </div>
-
-              {/* Live stats summary */}
-              <div className="mt-10 pt-8 border-t border-[#E8E2D7] grid grid-cols-2 sm:grid-cols-4 gap-6">
-                <div>
-                  <p className="text-2xl sm:text-3xl font-serif font-bold text-[#1E2229]">450+</p>
-                  <p className="text-xs text-gray-500 font-medium mt-0.5">
-                    {isHindi ? "सत्यापित कलाकार" : "Verified Artisans"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-2xl sm:text-3xl font-serif font-bold text-[#B4461F]">0%</p>
-                  <p className="text-xs text-gray-500 font-medium mt-0.5">
-                    {isHindi ? "बिचौलिया कमीशन" : "Commission Taken"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-2xl sm:text-3xl font-serif font-bold text-[#1E2229]">₹1.4 Cr+</p>
-                  <p className="text-xs text-gray-500 font-medium mt-0.5">
-                    {isHindi ? "सीधी कमाई कराई" : "Direct Gig Payouts"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-2xl sm:text-3xl font-serif font-bold text-[#1E2229]">4.94★</p>
-                  <p className="text-xs text-gray-500 font-medium mt-0.5">
-                    {isHindi ? "क्लाइंट संतुष्टि दर" : "Client Satisfaction"}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Column (lg:col-span-5): Authentic Artisan Showcase */}
-            <div className="lg:col-span-5 relative">
-              <div className="relative w-full max-w-md mx-auto lg:max-w-none">
-                {/* Tactile border frame */}
-                <div className="relative overflow-hidden rounded-sm border border-[#E7E0D6] bg-[#FFFFFF] p-3 shadow-[0_4px_20px_rgba(0,0,0,0.06)]">
-                  <div className="relative aspect-[4/5] w-full overflow-hidden rounded-sm bg-[#F4EFE6]">
-                    <img
-                      src="https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?auto=format&fit=crop&w=1000&q=80"
-                      alt="Master artisan handcrafting raw terracotta clay on a potter's wheel"
-                      className="h-full w-full object-cover select-none pointer-events-none"
-                      draggable={false}
-                    />
-                  </div>
-
-                  {/* Authentic Caption Plate */}
-                  <div className="mt-3.5 px-2 pb-1.5 flex items-center justify-between text-xs">
-                    <div>
-                      <p className="font-serif font-semibold text-[#1E2229] text-sm">Rohit Sharma</p>
-                      <p className="text-[#635C53]">Master Potter & Terracotta Sculptor • Khurja, UP</p>
-                    </div>
-                    <span className="inline-flex items-center rounded-sm bg-[#F0EAE1] px-2 py-1 text-[11px] font-medium text-[#1E2229] border border-[#D9D0C3]">
-                      Verified Artisan
-                    </span>
-                  </div>
-                </div>
-
-                {/* Subtle, physical offset accent card (non-AI, non-floating) */}
-                <div className="hidden sm:block absolute -bottom-5 -left-6 rounded-sm border border-[#E7E0D6] bg-[#FAF7F2] p-4 shadow-md max-w-[210px]">
-                  <p className="text-[11px] font-medium uppercase tracking-wider text-[#8A7561]">Direct Monetization</p>
-                  <p className="mt-1 text-sm font-semibold text-[#1E2229]">100% earnings to creator bank accounts</p>
-                </div>
-              </div>
-            </div>
+                  {cat}
+                </button>
+              );
+            })}
           </div>
-        </div>
 
-        {/* Decorative artisanal motif watermark */}
-        <div className="absolute right-[-60px] top-[-40px] opacity-10 pointer-events-none select-none text-[280px] font-serif text-[#B4461F]">
-          हु
+          {/* Search bar */}
+          <form onSubmit={handleSearchSubmit} className="relative flex-1 max-w-md">
+            <div className="relative flex items-center">
+              <Search className="w-3.5 h-3.5 absolute left-3.5 text-[#8A8986]" />
+              <input
+                type="text"
+                placeholder="Search craft, artist, or material..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-[#FFFFFF] border border-[#D4CDC3] rounded-full pl-9 pr-4 py-1.5 text-xs text-[#2B1219] placeholder-[#8A8986] focus:outline-hidden focus:border-[#6E1F2E] transition-colors shadow-2xs"
+              />
+            </div>
+          </form>
+
+          {/* Sort dropdown */}
+          <div className="relative flex items-center gap-1 text-xs text-[#5E4B4E] shrink-0 self-end md:self-auto">
+            <span>Sort by:</span>
+            <button
+              onClick={() => setShowSortDropdown(!showSortDropdown)}
+              className="flex items-center gap-1 font-medium text-[#2B1219] hover:text-[#6E1F2E] transition-colors"
+            >
+              <span>{sortBy}</span>
+              <ChevronDown className="w-3.5 h-3.5" />
+            </button>
+
+            {showSortDropdown && (
+              <div className="absolute right-0 top-full mt-1.5 w-36 bg-[#FFFDF8] border border-[#D4CDC3] rounded-sm shadow-md py-1 z-30">
+                {["Recent first", "Price: Low to High", "Price: High to Low"].map((option) => (
+                  <button
+                    key={option}
+                    onClick={() => {
+                      setSortBy(option);
+                      setShowSortDropdown(false);
+                    }}
+                    className={`w-full text-left px-3 py-1.5 text-xs transition-colors ${
+                      sortBy === option
+                        ? "bg-[#F0E3C8] text-[#2B1219] font-medium"
+                        : "text-[#5E4B4E] hover:bg-[#FAF7F2] hover:text-[#2B1219]"
+                    }`}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </section>
 
-      {/* Dynamic Matched Banner for active Persona */}
-      {currentPersona && currentPersona.role === "creator" && (
-        <section className="bg-[#FAF7F2] border-b border-[#E8E2D7] py-3.5 px-6 md:px-12">
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-2.5">
-              <p className="text-[#8B3B18] font-semibold">
-                {isHindi ? (
-                  <>
-                    नमस्ते <span className="underline">{currentPersona.name}</span>! आपकी कला विधा (
-                    {currentPersona.artCategory}) के लिए{" "}
-                    <span className="font-bold">
-                      {opportunities.filter((o) => o.matchedCategories.includes(currentPersona.artCategory || "")).length} नए अवसर
-                    </span>{" "}
-                    उपलब्ध हैं।
-                  </>
-                ) : (
-                  <>
-                    Active Persona: <span className="font-bold underline">{currentPersona.name}</span> • We found{" "}
-                    <span className="font-bold">
-                      {opportunities.filter((o) => o.matchedCategories.includes(currentPersona.artCategory || "")).length} gigs
-                    </span>{" "}
-                    matching your craft category ({currentPersona.artCategory})!
-                  </>
-                )}
+      {/* 2. HERO FEATURED SHOWCASE (3-Card Layout) */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 pb-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-start">
+          {heroItems.map((item) => (
+            <div key={item.id} className="flex flex-col">
+              <Link
+                href={item.link}
+                className="group block bg-[#FFFDF8] rounded-xs overflow-hidden border border-[#E7E0D6] hover:border-[#C8B8A6] transition-colors"
+              >
+                {/* Image Matting Frame */}
+                <div className="aspect-4/3 w-full bg-[#F0E3C8]/40 overflow-hidden relative">
+                  <ProtectedImage
+                    src={item.image}
+                    alt={item.title}
+                    className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+                  />
+                </div>
+
+                {/* Card Meta */}
+                <div className="p-3.5 bg-[#FFFDF8]">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <h3 className="font-serif text-[15px] font-semibold text-[#2B1219] group-hover:text-[#6E1F2E] transition-colors truncate">
+                        {item.title}
+                      </h3>
+                      <p className="text-[11px] text-[#5E4B4E] mt-0.5 leading-snug truncate">
+                        {item.artist}
+                      </p>
+                    </div>
+                    <span className="text-[11px] text-[#2B1219] font-medium shrink-0 flex items-center gap-0.5 group-hover:text-[#6E1F2E] transition-colors">
+                      {item.cta} ↗
+                    </span>
+                  </div>
+                </div>
+              </Link>
+
+              {/* Center Card CTAs (Exploration & Selling Hooks) */}
+              {item.hasCtas && (
+                <div className="mt-6 flex flex-col items-center justify-center text-center">
+                  <div className="flex items-center gap-3">
+                    <Link
+                      href="/shop"
+                      className="px-5 py-2 rounded-xs bg-[#6E1F2E] hover:bg-[#581723] text-[#FFFDF8] text-xs font-medium transition-colors flex items-center gap-1.5 shadow-2xs"
+                    >
+                      <span>Explore craft</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                    <Link
+                      href={sellerLink}
+                      className="px-5 py-2 rounded-xs bg-transparent border border-[#D4CDC3] hover:bg-[#F0E3C8] text-[#2B1219] text-xs font-medium transition-colors"
+                    >
+                      Start selling
+                    </Link>
+                  </div>
+                  <p className="text-[11px] text-[#8A8986] mt-2 max-w-xs">
+                    No 24-month lock-ins, non-exclusives &amp; direct buyer payouts.
+                  </p>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 3. VALUE PROPOSITION TICKER (3-Point Strip) */}
+      <section className="border-y border-[#E7E0D6] py-3.5 px-4 bg-[#F0E3C8]/20">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-3 text-center text-xs text-[#5E4B4E]">
+          <div className="flex items-center justify-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#C85A32]" />
+            <span>Handcrafted, not produced in bulk</span>
+          </div>
+          <div className="flex items-center justify-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#C85A32]" />
+            <span>Fair pay returned direct to every artist</span>
+          </div>
+          <div className="flex items-center justify-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#C85A32]" />
+            <span>Free 14-day insured returns</span>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. SHOP BY CATEGORY ("Find your kind of beautiful.") */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+        <p className="text-[10px] font-bold uppercase tracking-wider text-[#C85A32] mb-1">
+          Shop by category
+        </p>
+        <h2 className="font-serif text-2xl sm:text-3xl text-[#2B1219] font-medium tracking-tight mb-6">
+          Find your kind of beautiful.
+        </h2>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+          {categories.map((cat) => (
+            <Link
+              key={cat.name}
+              href={`/shop?cat=${encodeURIComponent(cat.slug)}`}
+              className="group block"
+            >
+              <div className="aspect-square rounded-xs overflow-hidden bg-[#F0E3C8]/40 border border-[#E7E0D6] group-hover:border-[#C8B8A6] transition-colors relative">
+                <ProtectedImage
+                  src={cat.image}
+                  alt={cat.name}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+              <div className="mt-2 flex items-center justify-between text-xs text-[#2B1219]">
+                <span className="font-medium group-hover:text-[#6E1F2E] transition-colors">
+                  {cat.name}
+                </span>
+                <ArrowUpRight className="w-3.5 h-3.5 text-[#8A8986] group-hover:text-[#6E1F2E] transition-colors" />
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* 5. CURATOR'S PICKS ("A few things to fall for.") */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10 border-t border-[#E7E0D6]">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-6">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#C85A32] mb-1">
+              Curator&apos;s picks
+            </p>
+            <h2 className="font-serif text-2xl sm:text-3xl text-[#2B1219] font-medium tracking-tight">
+              A few things to fall for.
+            </h2>
+            <p className="text-xs text-[#5E4B4E] mt-1">
+              Small creators. 12 new pieces at a time. Pieces worth making room for.
+            </p>
+          </div>
+          <Link
+            href="/shop"
+            className="text-xs text-[#5E4B4E] hover:text-[#2B1219] flex items-center gap-1 font-medium transition-colors"
+          >
+            <span>Explore all art</span>
+            <ArrowUpRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        {/* 6 Grid items (3x2 layout) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-8">
+          {curatorPicks.map((piece) => {
+            const isJustAdded = addedItem === piece.id;
+            return (
+              <div key={piece.id} className="group relative">
+                <Link href={`/artwork/${piece.id}`} className="block">
+                  <div className="aspect-4/3 rounded-xs overflow-hidden bg-[#F0E3C8]/40 border border-[#E7E0D6] group-hover:border-[#C8B8A6] transition-colors relative">
+                    <ProtectedImage
+                      src={piece.image}
+                      alt={piece.title}
+                      className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+                    />
+
+                    {/* Quick Add To Cart Button */}
+                    <button
+                      onClick={(e) => handleQuickAdd(e, piece)}
+                      title="Add to cart"
+                      className={`absolute bottom-2 right-2 p-1.5 rounded-xs transition-colors z-10 flex items-center gap-1 text-[11px] font-medium shadow-xs ${
+                        isJustAdded
+                          ? "bg-[#4E6E58] text-[#FFFDF8]"
+                          : "bg-[#FFFDF8]/90 hover:bg-[#6E1F2E] text-[#2B1219] hover:text-[#FFFDF8] border border-[#E7E0D6]"
+                      }`}
+                    >
+                      {isJustAdded ? (
+                        <>
+                          <Check className="w-3 h-3" />
+                          <span>Added</span>
+                        </>
+                      ) : (
+                        <ShoppingBag className="w-3.5 h-3.5" />
+                      )}
+                    </button>
+                  </div>
+
+                  <div className="mt-2.5">
+                    <div className="flex items-baseline justify-between gap-2">
+                      <h3 className="text-xs font-semibold text-[#2B1219] group-hover:text-[#6E1F2E] transition-colors truncate">
+                        {piece.title}
+                      </h3>
+                      <span className="text-xs font-bold text-[#2B1219] shrink-0">
+                        ₹{piece.price.toLocaleString("en-IN")}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-[#5E4B4E] mt-0.5">{piece.artist}</p>
+                    <p className="text-[10px] text-[#8A8986]">{piece.medium}</p>
+                  </div>
+                </Link>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* 6. SPOTLIGHT: THE ARTIST BEHIND THE BRUSH */}
+      <section className="bg-[#F0E3C8]/60 border-y border-[#E7E0D6] py-14 px-4 sm:px-6 my-10">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center">
+          {/* Large portrait on left */}
+          <div className="md:col-span-5 aspect-4/5 rounded-xs overflow-hidden border border-[#E7E0D6] bg-[#FFFDF8]">
+            <ProtectedImage
+              src="/artworks/rhea-sharma-portrait.png"
+              alt="Rhea Sharma in her Jaipur studio"
+              className="w-full h-full object-cover"
+            />
+          </div>
+
+          {/* Story & text on right */}
+          <div className="md:col-span-7 space-y-4">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#C85A32]">
+              The artist behind the brush
+            </p>
+            <h2 className="font-serif text-3xl sm:text-4xl text-[#2B1219] font-medium leading-tight">
+              Colour, courtyards and everyday wonder.
+            </h2>
+            <p className="text-xs text-[#5E4B4E] leading-relaxed max-w-lg">
+              For Jaipur-based painter Rhea Sharma, inspiration lives just outside her window:
+              the warm pink glow of sunlit walls, lush familiar greenery and small moments worth
+              pausing for.
+            </p>
+            <div className="pt-2">
+              <h4 className="text-xs font-semibold text-[#2B1219]">Rhea Sharma</h4>
+              <p className="text-[11px] text-[#5E4B4E]">Florence · Aqua Palettes</p>
+            </div>
+            <div className="pt-2">
+              <Link
+                href="/artist/rhea-sharma"
+                className="text-xs text-[#6E1F2E] hover:text-[#581723] font-medium flex items-center gap-1 group"
+              >
+                <span>Shop artist&apos;s collection</span>
+                <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 7. OUR COMMITMENT / WHY HUNAR EXISTS */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center">
+          {/* Story text on left */}
+          <div className="md:col-span-7 space-y-4 order-2 md:order-1">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#C85A32]">
+              Our commitment / Why Hunar exists
+            </p>
+            <h2 className="font-serif text-3xl sm:text-4xl text-[#2B1219] font-medium leading-tight">
+              Good things come from real people.
+            </h2>
+            <p className="text-xs text-[#5E4B4E] leading-relaxed max-w-lg">
+              Across India, independent artists build traditions that don&apos;t belong in large factories.
+              Too often, their work disappears into noisy feeds.
+            </p>
+            <p className="text-xs text-[#5E4B4E] leading-relaxed max-w-lg">
+              Hunar gives it a place to breathe, understood and brought home — with the artist&apos;s name
+              always in the picture.
+            </p>
+          </div>
+
+          {/* Photo on right */}
+          <div className="md:col-span-5 aspect-4/3 rounded-xs overflow-hidden border border-[#E7E0D6] bg-[#FFFDF8] order-1 md:order-2">
+            <ProtectedImage
+              src="/artworks/rhea-process.png"
+              alt="Artisan at work table"
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* 8. FOR CREATORS ("More making. Less managing.") */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10 mb-12">
+        <div className="bg-[#FAF0EB] rounded-xs border border-[#F3CFBF] p-8 sm:p-10">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-8 border-b border-[#EAC9B8]">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#C85A32] mb-1">
+                For creators
               </p>
+              <h2 className="font-serif text-2xl sm:text-3xl text-[#2B1219] font-medium">
+                More making. Less managing.
+              </h2>
             </div>
             <Link
-              href="/opportunities"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm bg-[#1E2229] text-white font-medium hover:bg-[#111418] transition-colors duration-150 shrink-0"
+              href={sellerLink}
+              className="px-5 py-2 rounded-xs bg-[#6E1F2E] hover:bg-[#581723] text-[#FFFDF8] text-xs font-medium transition-colors shrink-0 flex items-center gap-1.5 self-start sm:self-center shadow-2xs"
             >
-              <span>{isHindi ? "मैच किए गए अवसर देखें" : "View Matched Gigs"}</span>
+              <span>Start selling</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
-        </section>
-      )}
 
-      {/* Main Creator Showcase & Filter Board */}
-      <section className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 py-16 sm:py-24">
-        {/* Section Title & Filter Tabs */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-[#E8E2D7]">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#8A7561] mb-2">
-              {isHindi ? "हस्तनिर्मित विरासत" : "Regional Directory & Lookbook"}
-            </p>
-            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#1E2229]">
-              {isHindi ? "प्रमाणित भारतीय कलाकार एवं कारीगर" : "Featured Verified Artisans"}
-            </h2>
-            <p className="text-xs sm:text-sm text-[#635C53] mt-1">
-              {isHindi
-                ? "सीधे कलाकारों से जुड़ें, उनकी कार्यशैली देखें और बिना किसी मध्यस्थ के ऑर्डर दें।"
-                : "Browse verified craft profiles, transparent pricing, and connect directly on WhatsApp."}
-            </p>
-          </div>
-
-          {/* City Selector */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-gray-500 whitespace-nowrap flex items-center gap-1">
-              <MapPin className="w-3.5 h-3.5 text-[#B4461F]" />
-              {isHindi ? "शहर चुनें:" : "City:"}
-            </span>
-            <select
-              value={selectedCity}
-              onChange={(e) => setSelectedCity(e.target.value)}
-              className="px-3 py-1.5 rounded-sm bg-[#FDFCF9] border border-[#D3CBBE] text-xs font-semibold text-[#1A1816] focus:outline-none focus:border-[#1E2229]"
-            >
-              {cities.map((city) => (
-                <option key={city} value={city}>
-                  {city === "All" ? (isHindi ? "सभी शहर" : "All Cities") : city}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Category Filter Tabs */}
-        <div className="flex items-center gap-2 py-6 overflow-x-auto no-scrollbar">
-          {categories.map((cat) => {
-            const isSelected = selectedCategory === cat.id;
-            return (
-              <button
-                key={cat.id}
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`px-4 py-2 rounded-sm text-xs font-medium whitespace-nowrap transition-colors duration-150 ${
-                  isSelected
-                    ? "bg-[#1E2229] text-[#FAF7F2] shadow-xs"
-                    : "bg-[#FFFFFF] border border-[#D9D0C3] text-[#2D2A26] hover:bg-[#EFEAE1]"
-                }`}
-              >
-                {cat.label}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Creator "Hunar Card" Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-4">
-          {filteredCreators.map((creator) => {
-            const primarySample = creator.portfolioImages[0];
-            return (
-              <div
-                key={creator.id}
-                className="rounded-sm overflow-hidden flex flex-col group border border-[#E8E2D7] bg-[#FFFFFF] shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow duration-150"
-              >
-                {/* Cover & Portfolio Image Preview */}
-                <div className="relative h-60 bg-[#F5EFE6] overflow-hidden">
-                  <ProtectedImage
-                    src={primarySample ? primarySample.imageUrl : creator.avatarUrl}
-                    alt={creator.name}
-                    className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
-                    wrapperClassName="w-full h-full"
-                  />
-
-                  {/* Primary Craft Tag */}
-                  <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5">
-                    <span className="px-2.5 py-1 rounded-xs text-[11px] font-semibold bg-[#FAF7F2] text-[#1A1816] border border-[#E8E2D7] shadow-xs">
-                      {isHindi ? creator.artFormHindi : creator.primaryArtForm}
-                    </span>
-                  </div>
-
-                  {/* Verified Seal Stamp */}
-                  {creator.isVerified && (
-                    <div className="absolute top-3 right-3 z-20 flex items-center gap-1 px-2.5 py-0.5 rounded-xs bg-[#2D583B] text-white text-[10px] font-bold shadow-xs">
-                      <CheckCircle className="w-3 h-3 text-[#E5A93B]" />
-                      <span>{isHindi ? "प्रमाणित" : "Verified"}</span>
-                    </div>
-                  )}
-
-                  {/* Base Pricing Box on bottom right */}
-                  <div className="absolute bottom-3 right-3 z-20 bg-[#1E2229] text-[#FAF7F2] px-2.5 py-1 rounded-xs text-xs font-mono">
-                    {creator.unitPricingLabel.split("•")[0]}
-                  </div>
-
-                  {/* Location badge on bottom left */}
-                  <div className="absolute bottom-3 left-3 z-20 text-[#FAF7F2] text-xs flex items-center gap-1 font-medium bg-[#1E2229]/80 px-2 py-0.5 rounded-xs">
-                    <MapPin className="w-3.5 h-3.5 text-[#E5A93B]" />
-                    <span>{creator.city}</span>
-                  </div>
-                </div>
-
-                {/* Creator Information Body */}
-                <div className="p-6 flex-1 flex flex-col justify-between">
-                  <div>
-                    {/* Avatar & Name */}
-                    <div className="flex items-start gap-3.5">
-                      <ProtectedImage
-                        src={creator.avatarUrl}
-                        alt={creator.name}
-                        className="w-14 h-14 rounded-full object-cover aspect-square"
-                        wrapperClassName="w-14 h-14 rounded-full ring-2 ring-[#E8E2D7] border-2 border-white shadow-sm shrink-0 -mt-10 relative z-20 bg-white"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <Link
-                          href={`/u/${creator.username}`}
-                          className="hover:text-[#B4461F] transition-colors duration-150"
-                        >
-                          <h3 className="font-serif text-lg font-bold text-[#1A1816] truncate flex items-center gap-1.5 mb-0.5">
-                            {isHindi ? creator.nameHindi : creator.name}
-                          </h3>
-                        </Link>
-                        <p className="text-xs text-gray-500 truncate">
-                          {creator.experienceLevel}
-                        </p>
-                      </div>
-
-                      <div className="flex items-center gap-1 text-xs font-bold text-[#1A1816]">
-                        <Star className="w-3.5 h-3.5 fill-[#E5A93B] text-[#E5A93B]" />
-                        <span>{creator.rating}</span>
-                        <span className="text-gray-400 font-normal">({creator.reviewsCount})</span>
-                      </div>
-                    </div>
-
-                    {/* Bio snippet */}
-                    <p className="mt-3.5 text-xs text-[#635C53] leading-relaxed line-clamp-2">
-                      {isHindi ? creator.bioHindi : creator.bio}
-                    </p>
-
-                    {/* Skill tags */}
-                    <div className="mt-3 flex flex-wrap gap-1.5">
-                      {creator.skills.slice(0, 3).map((skill) => (
-                        <span
-                          key={skill}
-                          className="px-2 py-0.5 rounded-xs text-[10px] font-medium bg-[#FAF7F2] text-[#635C53] border border-[#E8E2D7]"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Actions & WhatsApp button */}
-                  <div className="mt-5 pt-4 border-t border-[#E8E2D7] flex items-center gap-2">
-                    <Link
-                      href={`/u/${creator.username}`}
-                      className="flex-1 text-center py-2 px-3 rounded-sm bg-[#FAF7F2] border border-[#D9D0C3] text-[#1A1816] text-xs font-medium hover:bg-[#EFEAE1] transition-colors duration-150 flex items-center justify-center gap-1.5"
-                    >
-                      <span>{isHindi ? "हुनर कार्ड देखें" : "View Lookbook"}</span>
-                      <ArrowRight className="w-3 h-3 text-[#B4461F]" />
-                    </Link>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const conv = startOrGetConversation({
-                          sellerId: creator.id,
-                          initialMessage: `Namaste ${creator.name}! I discovered your featured studio on Hunar and would like to chat about custom artwork.`
-                        });
-                        router.push(`/dashboard/chat/${conv.id}`);
-                      }}
-                      className="p-2 rounded-sm bg-[#B4461F] text-white hover:bg-[#963715] transition-colors duration-150"
-                      title={isHindi ? "सीधा संदेश भेजें" : "Direct In-App Chat"}
-                    >
-                      <MessageSquare className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* Asymmetric Purposeful Kala Roadmap Section */}
-      <section className="bg-[#FAF7F2] border-y border-[#E8E2D7] py-16 sm:py-24">
-        <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-            {/* Left Column: Purpose & Blueprint Strategy */}
-            <div className="lg:col-span-5 space-y-4">
-              <p className="text-xs font-semibold uppercase tracking-wider text-[#8A7561] mb-2">
-                {isHindi ? "कला रोडमैप प्रणाली" : "Field-Tested Artisan Playbook"}
+          {/* 3 feature columns */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-8">
+            <div className="space-y-2">
+              <Store className="w-5 h-5 text-[#C85A32]" />
+              <h4 className="text-xs font-semibold text-[#2B1219]">Your own rich storefront</h4>
+              <p className="text-[11px] text-[#5E4B4E] leading-relaxed">
+                A profile, a lookbook and your work in one place. No algorithms to outsmart:
+                your link, your audience, your craft.
               </p>
-              <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#1E2229] leading-tight">
-                {isHindi ? (
-                  <>
-                    शिल्प से स्वावलंबन: <br />
-                    <span className="text-[#B4461F]">महीना 1, 3, और 6 का स्पष्ट मार्ग।</span>
-                  </>
-                ) : (
-                  <>
-                    From Raw Craft to Scaled Income: <br />
-                    <span className="text-[#B4461F]">A Practical 6-Month Trajectory.</span>
-                  </>
-                )}
-              </h2>
-              <p className="text-sm text-[#635C53] leading-relaxed">
-                {isHindi
-                  ? "कोई अस्पष्ट सलाह नहीं। वर्ग-फुट की दरें तय करने से लेकर कैफे मालिकों से 50% एडवांस अनुबंध हासिल करने तक के व्यावहारिक कदम।"
-                  : "No generic corporate advice. Concrete micro-steps: calculating per-sq-ft unit rates for murals, lead-free certification for pottery, and enforcing a 50% advance contract."}
-              </p>
-
-              <div className="pt-2">
-                <Link
-                  href="/roadmap"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-sm bg-[#1E2229] hover:bg-[#111418] text-[#FAF7F2] font-medium text-xs shadow-xs transition-colors duration-150"
-                >
-                  <span>{isHindi ? "अपनी विधा का रोडमैप चुनें" : "Explore Kala Roadmap"}</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
             </div>
 
-            {/* Right Column: Asymmetric Structured Lookbook Table */}
-            <div className="lg:col-span-7 bg-white border border-[#E8E2D7] rounded-sm p-6 sm:p-8 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-              <h3 className="font-serif text-base font-bold text-[#1E2229] mb-4 pb-3 border-b border-[#E8E2D7]">
-                Milestone Execution Framework (6-Month Trajectory)
-              </h3>
-
-              <div className="divide-y divide-[#E8E2D7] text-xs">
-                {/* Stage 1 */}
-                <div className="py-4 first:pt-0 grid grid-cols-1 md:grid-cols-12 gap-3 items-start">
-                  <div className="md:col-span-3">
-                    <span className="px-2 py-0.5 rounded-xs bg-[#FAF7F2] border border-[#E8E2D7] text-[#1A1816] font-mono font-bold text-[11px]">
-                      Phase 01
-                    </span>
-                    <p className="font-bold text-[#1A1816] mt-1.5">Groundwork & Unit Rates</p>
-                    <p className="text-[11px] text-[#8B3B18] font-mono font-semibold">₹15,000 – ₹25,000/mo</p>
-                  </div>
-                  <div className="md:col-span-9 text-[#635C53] leading-relaxed">
-                    Photo 3 test walls, lock unit economics (₹150–180/sq ft for murals, lead-free certification for studio pottery), and publish a verified 1-page PDF lookbook for WhatsApp sharing.
-                  </div>
-                </div>
-
-                {/* Stage 2 */}
-                <div className="py-4 grid grid-cols-1 md:grid-cols-12 gap-3 items-start">
-                  <div className="md:col-span-3">
-                    <span className="px-2 py-0.5 rounded-xs bg-[#FAF7F2] border border-[#E8E2D7] text-[#1A1816] font-mono font-bold text-[11px]">
-                      Phase 02
-                    </span>
-                    <p className="font-bold text-[#1A1816] mt-1.5">First 5 B2B Clients</p>
-                    <p className="text-[11px] text-[#8B3B18] font-mono font-semibold">₹40,000 – ₹65,000/mo</p>
-                  </div>
-                  <div className="md:col-span-9 text-[#635C53] leading-relaxed">
-                    Pitch 10 cafes and boutique studios with digital surface mockups, enforce a strict 50% advance milestone escrow, and record natural process videos for organic patron inquiries.
-                  </div>
-                </div>
-
-                {/* Stage 3 */}
-                <div className="py-4 last:pb-0 grid grid-cols-1 md:grid-cols-12 gap-3 items-start">
-                  <div className="md:col-span-3">
-                    <span className="px-2 py-0.5 rounded-xs bg-[#FAF7F2] border border-[#E8E2D7] text-[#1A1816] font-mono font-bold text-[11px]">
-                      Phase 03
-                    </span>
-                    <p className="font-bold text-[#1A1816] mt-1.5">Retainers & Scaled Crew</p>
-                    <p className="text-[11px] text-[#8B3B18] font-mono font-semibold">₹85,000 – ₹1,40,000/mo</p>
-                  </div>
-                  <div className="md:col-span-9 text-[#635C53] leading-relaxed">
-                    Sign ongoing retainer contracts with 2 interior architectural firms, train 2 apprentice artisans from your local cluster, and integrate 2-year weatherproofing warranty guarantees.
-                  </div>
-                </div>
-              </div>
+            <div className="space-y-2">
+              <Clock className="w-5 h-5 text-[#C85A32]" />
+              <h4 className="text-xs font-semibold text-[#2B1219]">List a piece in minutes</h4>
+              <p className="text-[11px] text-[#5E4B4E] leading-relaxed">
+                Upload your photos, write a few words and set your price. We handle payment
+                and packaging guidelines.
+              </p>
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Direct Guild Artisan Discovery Callout */}
-      <section className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 py-16 sm:py-24">
-        <div className="rounded-sm bg-[#1E2229] text-[#FAF7F2] p-8 sm:p-12 relative overflow-hidden border border-[#343B47]">
-          <div className="relative z-10 max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#E5A93B] mb-2">
-              {isHindi ? "शिल्प बाज़ार • सीधा कारीगर संपर्क" : "Direct Guild Trade"}
-            </p>
-            <h3 className="text-2xl sm:text-3xl font-serif font-bold text-[#FAF7F2]">
-              {isHindi
-                ? "सीधे भारत के प्रामाणिक कारीगरों से कलाकृतियां प्राप्त करें"
-                : "Source Bespoke Craft Directly from India's Master Artisans"}
-            </h3>
-            <p className="mt-3 text-xs sm:text-sm text-[#D9D0C3] leading-relaxed font-normal">
-              {isHindi
-                ? "बिना किसी बिचौलिए के सीधे कलाकारों से हाथ से बनी टेराकोटा, मधुबनी चित्रकला और भित्ति म्यूरल्स का ऑर्डर दें। 100% भुगतान सीधे कारीगर को।"
-                : "From studio pottery to heritage Mithila folk paintings and architectural murals. Browse ready inventory or commission custom work with zero middleman commissions."}
-            </p>
-
-            <div className="mt-6 flex flex-wrap items-center gap-3">
-              <Link
-                href="/dashboard/customer"
-                className="px-5 py-2.5 rounded-sm bg-[#B4461F] text-white font-medium text-xs hover:bg-[#963715] transition-colors duration-150 flex items-center gap-2"
-              >
-                <span>{isHindi ? "हस्तशिल्प बाज़ार देखें" : "Explore Handmade Bazaar"}</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-              <Link
-                href="/dashboard/customer/post-gig"
-                className="px-5 py-2.5 rounded-sm bg-[#2A313D] border border-[#4B5565] text-white font-medium text-xs hover:bg-[#343C4B] transition-colors duration-150 flex items-center gap-2"
-              >
-                <span>{isHindi ? "कस्टम ऑर्डर पोस्ट करें" : "Post a Custom Brief"}</span>
-              </Link>
+            <div className="space-y-2">
+              <Sparkles className="w-5 h-5 text-[#C85A32]" />
+              <h4 className="text-xs font-semibold text-[#2B1219]">Keep the essentials together</h4>
+              <p className="text-[11px] text-[#5E4B4E] leading-relaxed">
+                See your available pieces and orders in one clear dashboard, so you can get back
+                to creating.
+              </p>
             </div>
           </div>
         </div>

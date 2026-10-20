@@ -80,7 +80,13 @@ export type ProductCategory =
   | "Handloom & Textiles"
   | "Mural Design"
   | "Bridal Mehndi"
-  | "Woodwork & Stone";
+  | "Woodwork & Stone"
+  | "Paintings"
+  | "Ceramics"
+  | "Textiles"
+  | "Prints"
+  | "Jewellery"
+  | string;
 
 export type DeliveryFormat = "Physical Artwork" | "On-site Commission";
 export type ProductStatus = "Live" | "Draft" | "Sold Out";
@@ -100,6 +106,7 @@ export interface Product {
   viewsCount?: number;
   dimensions?: string;
   material?: string;
+  presentation?: string;
   sellerId: string;
   sellerName: string;
   sellerCity: string;
@@ -108,6 +115,20 @@ export interface Product {
   sellerWhatsapp: string;
   sellerVerified: boolean;
   createdAt: string;
+}
+
+export interface CartItem {
+  id: string;
+  productId: string;
+  title: string;
+  artist: string;
+  city?: string;
+  medium: string;
+  dimensions: string;
+  price: number;
+  image: string;
+  quantity: number;
+  presentation?: string;
 }
 
 export type OpportunityType = "Commission" | "Murals" | "Event Booking" | "Exhibition" | "Grant";

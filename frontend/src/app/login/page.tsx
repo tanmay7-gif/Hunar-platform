@@ -35,15 +35,15 @@ export default function LoginPage() {
 
   // 1-Click Demo Profiles
   const demoSeller = {
-    email: "rohit.potter@hunar.in",
-    password: "demo_artisan_2026",
+    email: "rhea@example.com",
+    password: "password123",
     role: "SELLER" as const,
-    name: "Rohit Sharma",
-    title: isHindi ? "मास्टर सेरेमिक एवं टेराकोटा शिल्पकार" : "Master Ceramicist & Terracotta Sculptor",
-    cluster: "Khurja Ceramic Cluster / Delhi NCR",
-    avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=600&q=80",
-    badge: isHindi ? "सत्यापित शिल्पी स्टूडियो" : "Verified Artisan Studio",
-    stat: isHindi ? "८ लाइव उत्पाद • ४.९६★ रेटिंग" : "8 Active Listings • 4.96★ Rating"
+    name: "Rhea Sharma",
+    title: isHindi ? "स्वतंत्र चित्रकार एवं गौचे शिल्पकार" : "Independent Painter · Aqua Palettes",
+    cluster: "Jaipur Studio, Rajasthan",
+    avatar: "/artworks/rhea-sharma-portrait.png",
+    badge: isHindi ? "सत्यापित कलाकार स्टूडियो" : "Verified Artist Studio",
+    stat: isHindi ? "६ कृतियाँ • ४ उपलब्ध" : "6 Works · 4 Available Originals"
   };
 
   const demoCustomer = {
