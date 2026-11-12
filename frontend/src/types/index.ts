@@ -310,11 +310,16 @@ export interface PayPalCaptureResponse {
   success: boolean;
   status: string;
   orderID: string;
+  id?: string;
+  payer?: {
+    email_address?: string;
+    [key: string]: unknown;
+  };
   captureId?: string;
-  transactionRef: string;
-  payment: Record<string, unknown>;
+  transactionRef?: string;
+  payment?: Record<string, unknown>;
   capture?: Record<string, unknown>;
-  orderStatus: string;
+  orderStatus?: string;
   isMock?: boolean;
   message?: string;
 }

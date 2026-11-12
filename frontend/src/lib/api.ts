@@ -10,10 +10,32 @@ import {
   Channel3TrendMetric,
 } from "@/types";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const getApiBaseUrl = () => {
+  if (typeof window !== "undefined") {
+    // In the browser, always default to relative /api unless explicitly set to a remote server
+    if (process.env.NEXT_PUBLIC_API_URL && !process.env.NEXT_PUBLIC_API_URL.includes("localhost:5000")) {
+      return process.env.NEXT_PUBLIC_API_URL;
+    }
+    return "/api";
+  }
+  return process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+};
 
 export async function fetchFromApi<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  const url = `${API_BASE_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
+  const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+
+  let url: string;
+  if (cleanEndpoint.startsWith("/api")) {
+    url = cleanEndpoint;
+  } else {
+    const base = getApiBaseUrl();
+    // If base ends with /api and cleanEndpoint starts with /api, avoid duplication
+    if (base.endsWith("/api") && cleanEndpoint.startsWith("/api")) {
+      url = cleanEndpoint;
+    } else {
+      url = `${base}${cleanEndpoint}`;
+    }
+  }
   
   const headers = {
     "Content-Type": "application/json",

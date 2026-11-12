@@ -181,13 +181,22 @@ export function PaymentModal({
             setPaypalError(null);
             setPaypalNotice(null);
             try {
-              const res = await ApiService.createPayPalOrder({
-                amount: usdAmount,
-                currency: "USD",
-                orderId,
-                description: `Hunar Order #${orderId}: ${productTitle}`,
+              const res = await fetch("/api/payment/paypal/create-order", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  amount: usdAmount,
+                  currency: "USD",
+                  orderId,
+                  description: `Hunar Order #${orderId}: ${productTitle}`,
+                }),
               });
-              return res.orderID || res.id;
+              if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.message || `Could not initialize PayPal order (${res.status})`);
+              }
+              const orderData = await res.json();
+              return orderData.orderID || orderData.id;
             } catch (err: any) {
               setPaypalError(err.message || "Could not initialize PayPal order.");
               throw err;
@@ -197,33 +206,46 @@ export function PaymentModal({
             setIsProcessing(true);
             setPaypalError(null);
             try {
-              const captureRes = await ApiService.capturePayPalOrder({
-                orderID: data.orderID,
-                conversationId,
-                orderId,
+              const res = await fetch("/api/payment/paypal/capture-order", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  orderID: data.orderID,
+                  conversationId,
+                  orderId,
+                }),
               });
+              if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.message || `Failed to capture PayPal payment (${res.status})`);
+              }
+              const captureRes = await res.json();
 
               const txnRef =
                 captureRes.captureId ||
                 captureRes.transactionRef ||
                 `PAYPAL-${data.orderID}`;
 
+              setPaypalError(null);
               setCompletedTxnRef(txnRef);
 
               await onConfirmPayment("PAYPAL", {
                 orderID: data.orderID,
-                captureId: captureRes.captureId,
+                captureId: captureRes.captureId || txnRef,
                 transactionRef: txnRef,
                 captureDetails: captureRes.capture,
               });
 
               showToast(
-                "PayPal Payment Captured",
-                `Order ${orderId} successfully captured via PayPal Sandbox ($${usdAmount} USD).`,
+                "Payment Successful",
+                `Order ${orderId} successfully captured via PayPal Sandbox ($${usdAmount.toFixed(2)} USD).`,
                 "success"
               );
 
               setIsCompleted(true);
+              setTimeout(() => {
+                onClose();
+              }, 1200);
             } catch (err: any) {
               setPaypalError(err.message || "Failed to capture PayPal payment.");
             } finally {
@@ -318,45 +340,69 @@ export function PaymentModal({
     setPaypalNotice(null);
 
     try {
-      // 1. Create PayPal Order
-      const createRes = await ApiService.createPayPalOrder({
-        amount: usdAmount,
-        currency: "USD",
-        orderId,
-        description: `Hunar Order #${orderId}: ${productTitle}`,
+      // 1. Create PayPal Order via relative Next.js route
+      const createResponse = await fetch("/api/payment/paypal/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: usdAmount,
+          currency: "USD",
+          orderId,
+          description: `Hunar Order #${orderId}: ${productTitle}`,
+        }),
       });
+
+      if (!createResponse.ok) {
+        const err = await createResponse.json().catch(() => ({}));
+        throw new Error(err.message || `Failed to create PayPal order (${createResponse.status})`);
+      }
+      const createRes = await createResponse.json();
 
       // Brief realistic delay
       await new Promise((r) => setTimeout(r, 700));
 
-      // 2. Capture PayPal Order
-      const captureRes = await ApiService.capturePayPalOrder({
-        orderID: createRes.orderID || createRes.id,
-        conversationId,
-        orderId,
+      // 2. Capture PayPal Order via relative Next.js route
+      const captureResponse = await fetch("/api/payment/paypal/capture-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderID: createRes.orderID || createRes.id,
+          conversationId,
+          orderId,
+        }),
       });
+
+      if (!captureResponse.ok) {
+        const err = await captureResponse.json().catch(() => ({}));
+        throw new Error(err.message || `Failed to capture PayPal order (${captureResponse.status})`);
+      }
+      const captureRes = await captureResponse.json();
 
       const txnRef =
         captureRes.captureId ||
         captureRes.transactionRef ||
         `PAYPAL-${createRes.orderID}`;
 
+      setPaypalError(null);
       setCompletedTxnRef(txnRef);
 
       await onConfirmPayment("PAYPAL", {
         orderID: createRes.orderID,
-        captureId: captureRes.captureId,
+        captureId: captureRes.captureId || txnRef,
         transactionRef: txnRef,
         captureDetails: captureRes.capture,
       });
 
       showToast(
-        "PayPal Payment Captured",
-        `Order ${orderId} successfully captured via PayPal Sandbox ($${usdAmount} USD).`,
+        "Payment Successful",
+        `Order ${orderId} successfully captured via PayPal Sandbox ($${usdAmount.toFixed(2)} USD).`,
         "success"
       );
 
       setIsCompleted(true);
+      setTimeout(() => {
+        onClose();
+      }, 1200);
     } catch (err: any) {
       console.error("PayPal simulation error:", err);
       setPaypalError(err.message || "Failed to execute PayPal transaction.");
