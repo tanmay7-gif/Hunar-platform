@@ -133,7 +133,7 @@ interface HunarContextType {
     conversationId: string,
     orderId: string,
     amount: number,
-    method: "UPI_QR" | "NETBANKING_CARD",
+    method: "UPI_QR" | "NETBANKING_CARD" | "PAYPAL",
     cardDetails?: any
   ) => Promise<{ success: boolean; transactionRef: string; payment: Payment }>;
   sellerTotalEarnings: number;
@@ -1158,10 +1158,14 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
     conversationId: string,
     orderId: string,
     amount: number,
-    method: "UPI_QR" | "NETBANKING_CARD",
+    method: "UPI_QR" | "NETBANKING_CARD" | "PAYPAL",
     cardDetails?: any
   ): Promise<{ success: boolean; transactionRef: string; payment: Payment }> => {
-    const transactionRef = `HNR-TXN-${Math.floor(10000 + Math.random() * 90000)}`;
+    const transactionRef =
+      cardDetails?.transactionRef ||
+      cardDetails?.captureId ||
+      `HNR-TXN-${Math.floor(10000 + Math.random() * 90000)}`;
+
     const payment: Payment = {
       id: `pay-${Date.now()}`,
       conversationId,
@@ -1170,7 +1174,9 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
       method,
       status: "PAID",
       transactionRef,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      paypalOrderId: cardDetails?.orderID,
+      captureId: cardDetails?.captureId,
     };
 
     const receiptMessage: Message = {
@@ -1178,7 +1184,11 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
       conversationId,
       senderId: currentUser.id,
       text: `Payment Confirmed: ₹${amount.toLocaleString("en-IN")} received via ${
-        method === "UPI_QR" ? "UPI QR Scan" : "Netbanking / RuPay Card"
+        method === "UPI_QR"
+          ? "UPI QR Scan"
+          : method === "PAYPAL"
+          ? "PayPal Sandbox (USD)"
+          : "Netbanking / RuPay Card"
       }.`,
       isPaymentCard: true,
       paymentDetails: {

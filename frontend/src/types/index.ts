@@ -236,6 +236,8 @@ export interface MentorshipBooking {
   createdAt: string;
 }
 
+export type PaymentMethod = "UPI_QR" | "NETBANKING_CARD" | "PAYPAL";
+
 export interface Message {
   id: string;
   conversationId: string;
@@ -246,10 +248,11 @@ export interface Message {
     orderId: string;
     amount: number;
     status: "PENDING" | "PAID" | "FAILED";
-    method?: "UPI_QR" | "NETBANKING_CARD";
+    method?: PaymentMethod;
     transactionRef?: string;
     timestamp?: string;
     productTitle?: string;
+    currency?: string;
   };
   attachmentUrl?: string;
   createdAt: string;
@@ -260,10 +263,110 @@ export interface Payment {
   conversationId: string;
   orderId: string;
   amount: number;
-  method: "UPI_QR" | "NETBANKING_CARD";
+  method: PaymentMethod;
   status: "PENDING" | "PAID" | "FAILED";
   transactionRef: string;
   createdAt: string;
+  paypalOrderId?: string;
+  captureId?: string;
+  currency?: string;
+}
+
+// PayPal Sandbox v2 Interfaces
+export interface PayPalCreateOrderRequest {
+  amount: number;
+  currency?: string;
+  orderId?: string;
+  description?: string;
+}
+
+export interface PayPalOrderLink {
+  href: string;
+  rel: string;
+  method: string;
+}
+
+export interface PayPalCreateOrderResponse {
+  success: boolean;
+  orderID: string;
+  id: string;
+  status: string;
+  currency: string;
+  amount: number;
+  inrEquivalent?: number;
+  links: PayPalOrderLink[];
+  isMock?: boolean;
+  warning?: string;
+}
+
+export interface PayPalCaptureRequest {
+  orderID: string;
+  conversationId?: string;
+  orderId?: string;
+  internalOrderId?: string;
+}
+
+export interface PayPalCaptureResponse {
+  success: boolean;
+  status: string;
+  orderID: string;
+  captureId?: string;
+  transactionRef: string;
+  payment: Record<string, unknown>;
+  capture?: Record<string, unknown>;
+  orderStatus: string;
+  isMock?: boolean;
+  message?: string;
+}
+
+// Channel3 Product Data & Valuation Interfaces
+export interface Channel3Product {
+  id: string;
+  title: string;
+  price: number;
+  priceUsd?: number;
+  currency: string;
+  merchant?: string;
+  imageUrl?: string;
+  url?: string;
+  category?: string;
+  isCommercialAlternative?: boolean;
+}
+
+export interface Channel3ValuationRequest {
+  query: string;
+  category?: string;
+  costOfMaterials?: number;
+  hoursToCraft?: number;
+  currency?: string;
+}
+
+export interface Channel3ValuationResponse {
+  query: string;
+  category?: string;
+  benchmarks: Channel3Product[];
+  averageMarketPrice: number;
+  averageMarketPriceUsd?: number;
+  suggestedMinPrice: number;
+  suggestedOptimalPrice: number;
+  suggestedPremiumPrice: number;
+  craftPremiumPercentage: number;
+  currency: string;
+  reasoning: string;
+  artisanWageProtection: {
+    floorWage: number;
+    handmadeAuthenticityFactor: string;
+  };
+  isMock?: boolean;
+}
+
+export interface Channel3TrendMetric {
+  category: string;
+  averageCommercialPrice: number;
+  suggestedHandmadePrice: number;
+  premiumPercentage: number;
+  sampleCommercialTitle: string;
+  merchant: string;
 }
 
 export interface Conversation {

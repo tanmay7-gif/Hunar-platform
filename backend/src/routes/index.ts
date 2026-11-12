@@ -8,6 +8,7 @@ import statsRoutes from "./stats.routes";
 import chatRoutes from "./chat";
 import paymentRoutes from "./payment";
 import tinyfishRoutes from "./tinyfish";
+import channel3Routes from "./channel3.routes";
 
 const apiRouter = Router();
 
@@ -20,6 +21,7 @@ apiRouter.use("/stats", statsRoutes);
 apiRouter.use("/chat", chatRoutes);
 apiRouter.use("/payment", paymentRoutes);
 apiRouter.use("/tinyfish", tinyfishRoutes);
+apiRouter.use("/channel3", channel3Routes);
 
 // Health check
 apiRouter.get("/health", (req: Request, res: Response) => {

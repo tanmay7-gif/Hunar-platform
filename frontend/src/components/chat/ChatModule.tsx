@@ -127,7 +127,7 @@ export function ChatModule({ initialConversationId, defaultRoleView }: ChatModul
 
   // Confirm payment handler
   const handleConfirmPayment = async (
-    method: "UPI_QR" | "NETBANKING_CARD",
+    method: "UPI_QR" | "NETBANKING_CARD" | "PAYPAL",
     details?: any
   ) => {
     if (!activeConv) return;
@@ -425,7 +425,14 @@ export function ChatModule({ initialConversationId, defaultRoleView }: ChatModul
                           </p>
 
                           <div className="flex items-center justify-between text-[10px] text-[#8A7561] pt-1">
-                            <span>Method: {msg.paymentDetails.method || "UPI QR / Card"}</span>
+                            <span>
+                              Method:{" "}
+                              {msg.paymentDetails.method === "PAYPAL"
+                                ? "PayPal Sandbox (USD)"
+                                : msg.paymentDetails.method === "UPI_QR"
+                                ? "UPI QR Scan"
+                                : msg.paymentDetails.method || "UPI QR / Card"}
+                            </span>
                             <span>{msg.paymentDetails.timestamp || msg.createdAt}</span>
                           </div>
                         </div>
@@ -597,6 +604,7 @@ export function ChatModule({ initialConversationId, defaultRoleView }: ChatModul
           productImage={modalPaymentParams.productImage}
           sellerName={activeConv.sellerName}
           sellerCity={activeConv.sellerCity}
+          conversationId={activeConv.id}
           onConfirmPayment={handleConfirmPayment}
         />
       )}

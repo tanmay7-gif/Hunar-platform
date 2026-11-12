@@ -7,7 +7,9 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "lint": "eslint src --ext .ts"
+    "lint": "eslint src --ext .ts",
+    "test:paypal": "tsx src/test-paypal.ts",
+    "test:channel3": "tsx src/test-channel3.ts"
   },
   "dependencies": {
     "@hunar/tinyfish": "*",
