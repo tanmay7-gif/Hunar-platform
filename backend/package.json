@@ -9,7 +9,8 @@
     "start": "node dist/server.js",
     "lint": "eslint src --ext .ts",
     "test:paypal": "tsx src/test-paypal.ts",
-    "test:channel3": "tsx src/test-channel3.ts"
+    "test:channel3": "tsx src/test-channel3.ts",
+    "test:paytm": "tsx src/test-paytm.ts"
   },
   "dependencies": {
     "@hunar/tinyfish": "*",

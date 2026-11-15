@@ -225,6 +225,54 @@ export interface PayPalCaptureResponse {
   message?: string;
 }
 
+// Paytm Payment Gateway Interfaces (Staging / Sandbox)
+export interface PaytmInitiateRequest {
+  orderId: string;
+  amount: number;
+  customerId?: string;
+  conversationId?: string;
+  customerPhone?: string;
+  customerEmail?: string;
+}
+
+export interface PaytmInitiateResponse {
+  success: boolean;
+  txnToken: string;
+  orderId: string;
+  amount: number;
+  mid?: string;
+  callbackUrl?: string;
+  isMock?: boolean;
+  status?: string;
+  message?: string;
+  rawResult?: Record<string, unknown>;
+}
+
+export interface PaytmVerifyRequest {
+  orderId: string;
+  txnToken?: string;
+  transactionRef?: string;
+  conversationId?: string;
+  amount?: number;
+}
+
+export interface PaytmVerifyResponse {
+  success: boolean;
+  status: "TXN_SUCCESS" | "TXN_FAILURE" | "PENDING" | string;
+  orderId: string;
+  txnId: string;
+  bankTxnId?: string;
+  txnAmount: number | string;
+  currency: string;
+  gatewayName?: string;
+  paymentMode?: string;
+  txnDate?: string;
+  isMock?: boolean;
+  message?: string;
+  orderStatus?: string;
+  payment?: Record<string, unknown>;
+}
+
 // Channel3 Product Data & Valuation Interfaces
 export interface Channel3Product {
   id: string;

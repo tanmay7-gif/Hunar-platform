@@ -24,4 +24,15 @@ export const config = {
     apiKey: process.env.CHANNEL3_API_KEY || "",
     apiBase: process.env.CHANNEL3_API_BASE || "https://api.trychannel3.com/v1",
   },
+  // Paytm Payment Gateway (Staging / Sandbox)
+  PAYTM_MID: process.env.PAYTM_MID || "DIY1238682135545801",
+  PAYTM_MERCHANT_KEY: process.env.PAYTM_MERCHANT_KEY || "bKMfNxPPf_Q!ZhKr",
+  PAYTM_WEBSITE: process.env.PAYTM_WEBSITE || "WEBSTAGING",
+  PAYTM_HOST: process.env.PAYTM_HOST || "https://securegw-stage.paytm.in",
+  paytm: {
+    mid: process.env.PAYTM_MID || "DIY1238682135545801",
+    merchantKey: process.env.PAYTM_MERCHANT_KEY || "bKMfNxPPf_Q!ZhKr",
+    website: process.env.PAYTM_WEBSITE || "WEBSTAGING",
+    host: process.env.PAYTM_HOST || "https://securegw-stage.paytm.in",
+  },
 };

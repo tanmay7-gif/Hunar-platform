@@ -26,6 +26,7 @@ import {
   SEED_MENTORSHIP_BOOKINGS,
   SEED_CONVERSATIONS
 } from "@/lib/data";
+import { PaymentMethod } from "@/types";
 import { tinyFish } from "@tinyfish/core";
 import { SupportedLanguage, useLanguage } from "@/context/LanguageContext";
 import {
@@ -133,7 +134,7 @@ interface HunarContextType {
     conversationId: string,
     orderId: string,
     amount: number,
-    method: "UPI_QR" | "NETBANKING_CARD" | "PAYPAL",
+    method: PaymentMethod,
     cardDetails?: any
   ) => Promise<{ success: boolean; transactionRef: string; payment: Payment }>;
   sellerTotalEarnings: number;
@@ -1158,12 +1159,13 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
     conversationId: string,
     orderId: string,
     amount: number,
-    method: "UPI_QR" | "NETBANKING_CARD" | "PAYPAL",
+    method: PaymentMethod,
     cardDetails?: any
   ): Promise<{ success: boolean; transactionRef: string; payment: Payment }> => {
     const transactionRef =
       cardDetails?.transactionRef ||
       cardDetails?.captureId ||
+      cardDetails?.txnId ||
       `HNR-TXN-${Math.floor(10000 + Math.random() * 90000)}`;
 
     const payment: Payment = {
@@ -1177,6 +1179,8 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
       createdAt: new Date().toISOString(),
       paypalOrderId: cardDetails?.orderID,
       captureId: cardDetails?.captureId,
+      paytmTxnToken: cardDetails?.txnToken,
+      bankTxnId: cardDetails?.bankTxnId,
     };
 
     const receiptMessage: Message = {
@@ -1188,6 +1192,8 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
           ? "UPI QR Scan"
           : method === "PAYPAL"
           ? "PayPal Sandbox (USD)"
+          : method === "PAYTM"
+          ? "Paytm Staging Gateway (Wallet / UPI / NetBanking)"
           : "Netbanking / RuPay Card"
       }.`,
       isPaymentCard: true,

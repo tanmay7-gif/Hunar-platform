@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useHunar } from "@/context/HunarContext";
 import { useLanguage } from "@/context/LanguageContext";
-import { Conversation, Message } from "@/types";
+import { Conversation, Message, PaymentMethod } from "@/types";
 import { PaymentModal } from "./PaymentModal";
 import {
   MessageSquare,
@@ -127,7 +127,7 @@ export function ChatModule({ initialConversationId, defaultRoleView }: ChatModul
 
   // Confirm payment handler
   const handleConfirmPayment = async (
-    method: "UPI_QR" | "NETBANKING_CARD" | "PAYPAL",
+    method: PaymentMethod,
     details?: any
   ) => {
     if (!activeConv) return;
@@ -190,9 +190,8 @@ export function ChatModule({ initialConversationId, defaultRoleView }: ChatModul
                   setActiveConversationId(conv.id);
                   router.push(`/dashboard/chat/${conv.id}`);
                 }}
-                className={`w-full p-4 text-left transition-colors duration-150 flex items-start gap-3.5 relative ${
-                  isSelected ? "bg-white border-l-4 border-l-[#B4461F] shadow-xs" : "hover:bg-[#F3EADB]"
-                }`}
+                className={`w-full p-4 text-left transition-colors duration-150 flex items-start gap-3.5 relative ${isSelected ? "bg-white border-l-4 border-l-[#B4461F] shadow-xs" : "hover:bg-[#F3EADB]"
+                  }`}
               >
                 {/* Avatar with Verified Craft Badge */}
                 <div className="relative shrink-0">
@@ -430,8 +429,8 @@ export function ChatModule({ initialConversationId, defaultRoleView }: ChatModul
                               {msg.paymentDetails.method === "PAYPAL"
                                 ? "PayPal Sandbox (USD)"
                                 : msg.paymentDetails.method === "UPI_QR"
-                                ? "UPI QR Scan"
-                                : msg.paymentDetails.method || "UPI QR / Card"}
+                                  ? "UPI QR Scan"
+                                  : msg.paymentDetails.method || "UPI QR / Card"}
                             </span>
                             <span>{msg.paymentDetails.timestamp || msg.createdAt}</span>
                           </div>
@@ -489,11 +488,10 @@ export function ChatModule({ initialConversationId, defaultRoleView }: ChatModul
                   ) : (
                     /* Standard Speech Bubble */
                     <div
-                      className={`max-w-md p-3.5 rounded-sm text-xs leading-relaxed ${
-                        isMe
+                      className={`max-w-md p-3.5 rounded-sm text-xs leading-relaxed ${isMe
                           ? "bg-[#FAF0EB] text-[#1E2229] border border-[#F3CFBF] rounded-br-xs"
                           : "bg-white text-[#1E2229] border border-[#E8DEC8] rounded-bl-xs shadow-xs"
-                      }`}
+                        }`}
                     >
                       <p>{msg.text}</p>
                       <span className="text-[10px] text-[#8A7561] block text-right mt-1 font-mono">
@@ -536,11 +534,10 @@ export function ChatModule({ initialConversationId, defaultRoleView }: ChatModul
                 placeholder={
                   isHindi
                     ? "संदेश लिखें (कस्टम साइज़, रंग या डिलीवरी पर चर्चा करें)..."
-                    : `Write a message to ${
-                        currentUser.role === "CUSTOMER"
-                          ? activeConv.sellerName
-                          : activeConv.customerName
-                      }...`
+                    : `Write a message to ${currentUser.role === "CUSTOMER"
+                      ? activeConv.sellerName
+                      : activeConv.customerName
+                    }...`
                 }
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
@@ -567,11 +564,10 @@ export function ChatModule({ initialConversationId, defaultRoleView }: ChatModul
                     handleSellerRequestPayment();
                   }
                 }}
-                className={`px-4 py-2.5 rounded-sm text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs ${
-                  currentUser.role === "CUSTOMER"
+                className={`px-4 py-2.5 rounded-sm text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs ${currentUser.role === "CUSTOMER"
                     ? "bg-[#2D583B] text-white hover:bg-[#23452E]"
                     : "bg-[#1E2229] text-[#FAF7F2] hover:bg-[#2C323D]"
-                }`}
+                  }`}
               >
                 <CreditCard className="w-3.5 h-3.5" />
                 <span>

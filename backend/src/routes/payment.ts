@@ -12,4 +12,8 @@ router.get("/history", PaymentController.getPaymentHistory);
 router.post("/paypal/create-order", PaymentController.createPayPalOrder);
 router.post("/paypal/capture-order", PaymentController.capturePayPalOrder);
 
+// Paytm Payment Gateway (Staging / Sandbox) Endpoints
+router.post("/paytm/initiate", PaymentController.initiatePaytmTransaction);
+router.post("/paytm/verify", PaymentController.verifyPaytmTransaction);
+
 export default router;

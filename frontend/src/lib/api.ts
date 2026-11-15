@@ -4,6 +4,10 @@ import {
   PayPalCreateOrderResponse,
   PayPalCaptureRequest,
   PayPalCaptureResponse,
+  PaytmInitiateRequest,
+  PaytmInitiateResponse,
+  PaytmVerifyRequest,
+  PaytmVerifyResponse,
   Channel3Product,
   Channel3ValuationRequest,
   Channel3ValuationResponse,
@@ -102,6 +106,19 @@ export const ApiService = {
 
   capturePayPalOrder: (data: PayPalCaptureRequest) =>
     fetchFromApi<PayPalCaptureResponse>("/payment/paypal/capture-order", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  // Paytm Payment Gateway (Staging / Sandbox)
+  initiatePaytmTransaction: (data: PaytmInitiateRequest) =>
+    fetchFromApi<PaytmInitiateResponse>("/payment/paytm/initiate", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  verifyPaytmTransaction: (data: PaytmVerifyRequest) =>
+    fetchFromApi<PaytmVerifyResponse>("/payment/paytm/verify", {
       method: "POST",
       body: JSON.stringify(data),
     }),
