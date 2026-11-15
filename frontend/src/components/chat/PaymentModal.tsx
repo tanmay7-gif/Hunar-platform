@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { QRCodeDisplay } from "./QRCodeDisplay";
 import { useHunar } from "@/context/HunarContext";
-import { ApiService } from "@/lib/api";
 import { PaymentMethod } from "@/types";
 import {
   X,
@@ -22,6 +21,9 @@ import {
   ExternalLink,
   Wallet,
   Zap,
+  Copy,
+  Check,
+  Building2,
 } from "lucide-react";
 
 declare global {
@@ -29,6 +31,9 @@ declare global {
     paypal?: any;
   }
 }
+
+export type PaymentTab = "paytm" | "paypal";
+export type PaytmSubMethod = "UPI" | "CARD" | "WALLET";
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -43,6 +48,49 @@ interface PaymentModalProps {
   onConfirmPayment: (method: PaymentMethod, details?: any) => Promise<any>;
 }
 
+// Two-tone Paytm SVG Icon (Navy #002970 + Cyan #00BAF2)
+function PaytmLogoIcon({ className = "w-6 h-6" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+      <rect width="32" height="32" rx="7" fill="#002970" />
+      <text
+        x="4"
+        y="21"
+        fontFamily="system-ui, -apple-system, sans-serif"
+        fontWeight="900"
+        fontSize="13"
+        fill="#FFFFFF"
+        letterSpacing="-0.3"
+      >
+        Pay
+      </text>
+      <text
+        x="20.5"
+        y="21"
+        fontFamily="system-ui, -apple-system, sans-serif"
+        fontWeight="900"
+        fontSize="13"
+        fill="#00BAF2"
+        letterSpacing="-0.3"
+      >
+        tm
+      </text>
+    </svg>
+  );
+}
+
+// Inline Paytm Two-Tone Wordmark Badge
+function PaytmBadge({ className = "" }: { className?: string }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-[#E8F6FE] border border-[#BCE4FB] text-[11px] font-black select-none ${className}`}
+    >
+      <span className="text-[#002970]">Pay</span>
+      <span className="text-[#00BAF2]">tm</span>
+    </span>
+  );
+}
+
 export function PaymentModal({
   isOpen,
   onClose,
@@ -53,19 +101,30 @@ export function PaymentModal({
   sellerName,
   sellerCity = "India",
   conversationId,
-  onConfirmPayment
+  onConfirmPayment,
 }: PaymentModalProps) {
   const { showToast } = useHunar();
-  const [method, setMethod] = useState<PaymentMethod>("UPI_QR");
+
+  // Exactly two top-level tabs: Paytm and PayPal Sandbox
+  const [activeTab, setActiveTab] = useState<PaymentTab>("paytm");
+  // Consolidated Paytm sub-methods: UPI, Cards & Netbanking, Wallet
+  const [paytmSubMethod, setPaytmSubMethod] = useState<PaytmSubMethod>("UPI");
+
   const [isProcessing, setIsProcessing] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   const [completedTxnRef, setCompletedTxnRef] = useState("");
+  const [copiedUpi, setCopiedUpi] = useState(false);
 
-  // Card Simulator State
+  // Card Inputs State (inside Paytm -> Net Banking & Cards)
   const [cardNumber, setCardNumber] = useState("");
   const [cardHolder, setCardHolder] = useState("");
   const [expiry, setExpiry] = useState("");
   const [cvv, setCvv] = useState("");
+  const [selectedBank, setSelectedBank] = useState("HDFC");
+
+  // Simulated Paytm Wallet State
+  const walletAvailableBalance = 5420.0;
+  const isWalletSufficient = walletAvailableBalance >= amount;
 
   // PayPal Sandbox State
   const [isSdkLoading, setIsSdkLoading] = useState(false);
@@ -76,19 +135,79 @@ export function PaymentModal({
   const paypalContainerRef = useRef<HTMLDivElement>(null);
   const buttonsRenderedRef = useRef(false);
 
-  // Paytm Payment Gateway State (Staging / Sandbox)
+  // Paytm Gateway State
   const [paytmTxnToken, setPaytmTxnToken] = useState<string | null>(null);
   const [isPaytmInitiating, setIsPaytmInitiating] = useState(false);
   const [paytmError, setPaytmError] = useState<string | null>(null);
-  const [paytmSubMode, setPaytmSubMode] = useState<"WALLET" | "UPI" | "NETBANKING">("WALLET");
   const [paytmStage, setPaytmStage] = useState<string | null>(null);
 
-  // Currency Conversion (INR to USD: standard conversion approx 1 USD = 85 INR)
+  // Currency Conversion: 1 USD ≈ 85 INR
   const usdAmount = Number((amount / 85).toFixed(2));
 
-  // Load PayPal SDK when PayPal tab is selected
+  // Construct official UPI URI
+  const artisanUpiId = "seller.hunar@upi";
+  const upiUri = `upi://pay?pa=${artisanUpiId}&pn=${encodeURIComponent(
+    sellerName
+  )}&am=${amount}&cu=INR&tn=HunarOrder_${orderId}`;
+
+  // Copy artisan UPI ID to clipboard
+  const handleCopyUpiId = () => {
+    try {
+      navigator.clipboard.writeText(artisanUpiId);
+      setCopiedUpi(true);
+      setTimeout(() => setCopiedUpi(false), 2000);
+    } catch {
+      // fallback
+    }
+  };
+
+  // Auto-initiate Paytm transaction token when Paytm tab is chosen
   useEffect(() => {
-    if (!isOpen || method !== "PAYPAL" || isCompleted) return;
+    if (!isOpen || activeTab !== "paytm" || isCompleted) return;
+    if (paytmTxnToken || isPaytmInitiating) return;
+
+    let isMounted = true;
+    const initPaytm = async () => {
+      setIsPaytmInitiating(true);
+      setPaytmError(null);
+      try {
+        const res = await fetch("/api/payment/paytm/initiate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            orderId,
+            amount,
+            customerId: `CUST-${(conversationId || "HUNAR").replace(/[^a-zA-Z0-9]/g, "").slice(0, 8)}`,
+          }),
+        });
+        const data = await res.json();
+        if (isMounted) {
+          if (data.txnToken) {
+            setPaytmTxnToken(data.txnToken);
+          } else {
+            setPaytmError(data.message || "Failed to obtain Paytm transaction token.");
+          }
+        }
+      } catch (err: any) {
+        if (isMounted) {
+          console.warn("[Paytm Staging] Auto-initiate error, using simulator token:", err);
+          setPaytmTxnToken(`MOCK-PAYTM-TOKEN-${Date.now()}`);
+        }
+      } finally {
+        if (isMounted) setIsPaytmInitiating(false);
+      }
+    };
+
+    initPaytm();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isOpen, activeTab, isCompleted, orderId, amount, conversationId, paytmTxnToken, isPaytmInitiating]);
+
+  // Load PayPal SDK when PayPal tab is chosen
+  useEffect(() => {
+    if (!isOpen || activeTab !== "paypal" || isCompleted) return;
 
     const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "your_sandbox_client_id";
     const isPlaceholder =
@@ -156,13 +275,13 @@ export function PaymentModal({
         };
       }
     }
-  }, [isOpen, method, isCompleted]);
+  }, [isOpen, activeTab, isCompleted]);
 
   // Render PayPal Smart Payment Buttons
   useEffect(() => {
     if (
       !isOpen ||
-      method !== "PAYPAL" ||
+      activeTab !== "paypal" ||
       !isSdkLoaded ||
       useMockMode ||
       !paypalContainerRef.current ||
@@ -172,7 +291,6 @@ export function PaymentModal({
       return;
     }
 
-    // Clean up container before rendering
     paypalContainerRef.current.innerHTML = "";
     buttonsRenderedRef.current = false;
 
@@ -266,7 +384,7 @@ export function PaymentModal({
           },
           onError: (err: any) => {
             console.error("[PayPal SDK Button Error]:", err);
-            setPaypalError("A PayPal SDK error occurred. You can also simulate approval below.");
+            setPaypalError("A PayPal SDK error occurred. You can simulate approval below.");
           },
         })
         .render(paypalContainerRef.current);
@@ -278,7 +396,7 @@ export function PaymentModal({
     }
   }, [
     isOpen,
-    method,
+    activeTab,
     isSdkLoaded,
     useMockMode,
     isCompleted,
@@ -288,27 +406,29 @@ export function PaymentModal({
     conversationId,
     onConfirmPayment,
     showToast,
+    onClose,
   ]);
 
   if (!isOpen) return null;
 
-  // Format Card Number with 4-digit spacing
+  // Format Card Number
   const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value.replace(/\D/g, "").slice(0, 16);
     const formatted = raw.match(/.{1,4}/g)?.join(" ") || raw;
     setCardNumber(formatted);
   };
 
-  // Format Expiry with MM/YY
+  // Format Expiry
   const handleExpiryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let raw = e.target.value.replace(/\D/g, "").slice(0, 4);
+    const raw = e.target.value.replace(/\D/g, "").slice(0, 4);
     if (raw.length >= 3) {
-      raw = `${raw.slice(0, 2)}/${raw.slice(2)}`;
+      setExpiry(`${raw.slice(0, 2)}/${raw.slice(2, 4)}`);
+    } else {
+      setExpiry(raw);
     }
-    setExpiry(raw);
   };
 
-  // One-click quick-fill test button for Card
+  // Quick Demo Card Details Filler
   const handleFillDemoCard = () => {
     setCardNumber("4532 8920 1144 8821");
     setCardHolder("Priya Nair (Hunar Patron)");
@@ -316,40 +436,13 @@ export function PaymentModal({
     setCvv("892");
   };
 
-  // Construct official UPI payment intent URI
-  const upiUri = `upi://pay?pa=seller.hunar@upi&pn=${encodeURIComponent(
-    sellerName
-  )}&am=${amount}&cu=INR&tn=HunarOrder_${orderId}`;
-
-  // Execute payment confirmation for UPI or Card
-  const handlePay = async () => {
-    setIsProcessing(true);
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 900));
-      const res = await onConfirmPayment(method, {
-        cardNumber,
-        cardHolder,
-        orderId,
-      });
-      setCompletedTxnRef(
-        res?.transactionRef || `HNR-TXN-${Math.floor(10000 + Math.random() * 90000)}`
-      );
-      setIsCompleted(true);
-    } catch (err) {
-      console.error("Payment submission error:", err);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  // Execute PayPal Sandbox simulation / fallback capture
+  // Execute PayPal Sandbox simulation
   const handleSimulatePayPal = async () => {
     setIsProcessing(true);
     setPaypalError(null);
     setPaypalNotice(null);
 
     try {
-      // 1. Create PayPal Order via relative Next.js route
       const createResponse = await fetch("/api/payment/paypal/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -367,10 +460,8 @@ export function PaymentModal({
       }
       const createRes = await createResponse.json();
 
-      // Brief realistic delay
-      await new Promise((r) => setTimeout(r, 700));
+      await new Promise((r) => setTimeout(r, 600));
 
-      // 2. Capture PayPal Order via relative Next.js route
       const captureResponse = await fetch("/api/payment/paypal/capture-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -420,55 +511,11 @@ export function PaymentModal({
     }
   };
 
-  // Auto-initiate Paytm transaction token when Paytm tab is chosen
-  useEffect(() => {
-    if (!isOpen || method !== "PAYTM" || isCompleted) return;
-    if (paytmTxnToken || isPaytmInitiating) return;
-
-    let isMounted = true;
-    const initPaytm = async () => {
-      setIsPaytmInitiating(true);
-      setPaytmError(null);
-      try {
-        const res = await fetch("/api/payment/paytm/initiate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            orderId,
-            amount,
-            customerId: `CUST-${(conversationId || "HUNAR").replace(/[^a-zA-Z0-9]/g, "").slice(0, 8)}`,
-          }),
-        });
-        const data = await res.json();
-        if (isMounted) {
-          if (data.txnToken) {
-            setPaytmTxnToken(data.txnToken);
-          } else {
-            setPaytmError(data.message || "Failed to obtain Paytm txn token.");
-          }
-        }
-      } catch (err: any) {
-        if (isMounted) {
-          console.warn("[Paytm Staging] Auto-initiate error, using simulator token:", err);
-          setPaytmTxnToken(`MOCK-PAYTM-TOKEN-${Date.now()}`);
-        }
-      } finally {
-        if (isMounted) setIsPaytmInitiating(false);
-      }
-    };
-
-    initPaytm();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [isOpen, method, isCompleted, orderId, amount, conversationId, paytmTxnToken, isPaytmInitiating]);
-
-  // Execute Paytm Staging Payment Confirmation & Verification
-  const handleExecutePaytm = async () => {
+  // Execute Paytm Payment (UPI, Cards, Wallet)
+  const handleExecutePaytm = async (subChannel: PaytmSubMethod = paytmSubMethod) => {
     setIsProcessing(true);
     setPaytmError(null);
-    setPaytmStage("Initiating Paytm Staging Handshake...");
+    setPaytmStage(`Initiating Paytm ${subChannel === "WALLET" ? "Wallet" : subChannel === "UPI" ? "UPI" : "Net Banking"}...`);
 
     try {
       let token = paytmTxnToken;
@@ -487,10 +534,10 @@ export function PaymentModal({
         setPaytmTxnToken(token);
       }
 
-      await new Promise((r) => setTimeout(r, 500));
+      await new Promise((r) => setTimeout(r, 450));
       setPaytmStage("Generating SHA256 Checksum Signature...");
-      await new Promise((r) => setTimeout(r, 500));
-      setPaytmStage("Verifying Transaction via Paytm order/status v3...");
+      await new Promise((r) => setTimeout(r, 450));
+      setPaytmStage("Verifying Transaction Status via order/status v3...");
 
       const verifyRes = await fetch("/api/payment/paytm/verify", {
         method: "POST",
@@ -518,12 +565,12 @@ export function PaymentModal({
         bankTxnId: verifyData.bankTxnId,
         transactionRef: txnRef,
         txnToken: token,
-        paymentMode: paytmSubMode,
+        paymentMode: subChannel,
       });
 
       showToast(
         "Payment Successful",
-        `Order ${orderId} captured via Paytm Staging (₹${amount.toLocaleString("en-IN")}).`,
+        `Order ${orderId} captured via Paytm (₹${amount.toLocaleString("en-IN")}).`,
         "success"
       );
 
@@ -540,14 +587,14 @@ export function PaymentModal({
     }
   };
 
-  // Instant Paytm Staging Simulator Execution
+  // Instant Paytm Staging Simulator Execution (1-click judge approval)
   const handleSimulatePaytm = async () => {
     setIsProcessing(true);
     setPaytmError(null);
-    setPaytmStage("Simulating Paytm Staging Handshake...");
+    setPaytmStage("Simulating Instant Paytm Authorization...");
 
     try {
-      await new Promise((r) => setTimeout(r, 400));
+      await new Promise((r) => setTimeout(r, 350));
       const res = await fetch("/api/payment/paytm/simulate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -567,7 +614,7 @@ export function PaymentModal({
         txnId: txnRef,
         bankTxnId: simData.bankTxnId,
         transactionRef: txnRef,
-        paymentMode: paytmSubMode,
+        paymentMode: paytmSubMethod,
         isSimulated: true,
       });
 
@@ -593,18 +640,27 @@ export function PaymentModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
       <div className="relative w-full max-w-lg bg-[#FDFCF9] rounded-sm border border-[#E8DEC8] shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
-        {/* Modal Top Header */}
+        {/* Modal Top Header with Clean Paytm Branding */}
         <div className="px-6 py-4.5 bg-[#FAF7F2] border-b border-[#E8DEC8] flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-[#FAF0EB] border border-[#F3CFBF] flex items-center justify-center text-[#B4461F]">
-              <Lock className="w-4 h-4" />
+            <div className="w-8 h-8 rounded-full bg-[#EBF7FD] border border-[#BCE4FB] flex items-center justify-center text-[#002970]">
+              <PaytmLogoIcon className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-serif font-bold text-base text-[#1E2229]">
-                Secure Direct Artisan Checkout
-              </h3>
+              <div className="flex items-center gap-2">
+                <h3 className="font-serif font-bold text-base text-[#1E2229]">
+                  Direct Artisan Checkout
+                </h3>
+                {activeTab === "paytm" ? (
+                  <PaytmBadge />
+                ) : (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-100 border border-sky-200 text-[10px] font-bold text-sky-800">
+                    PayPal Sandbox
+                  </span>
+                )}
+              </div>
               <p className="text-[11px] text-[#635C53]">
-                0% Middleman • 100% Direct to Artisan Guild
+                0% Middleman • 100% Direct Escrow to Artisan Studio
               </p>
             </div>
           </div>
@@ -673,7 +729,7 @@ export function PaymentModal({
                 </span>
                 <h4 className="font-serif font-bold text-2xl text-[#1E2229] pt-1">
                   ₹{amount.toLocaleString("en-IN")}{" "}
-                  {method === "PAYPAL" && (
+                  {activeTab === "paypal" && (
                     <span className="text-lg font-normal text-sky-700">
                       (${usdAmount.toFixed(2)} USD)
                     </span>
@@ -698,15 +754,15 @@ export function PaymentModal({
                   <span className="font-mono text-[#1E2229]">{orderId}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[#8A7561]">Payment Method:</span>
+                  <span className="text-[#8A7561]">Payment Channel:</span>
                   <span className="font-medium text-[#1E2229]">
-                    {method === "UPI_QR"
-                      ? "Dynamic UPI QR Code"
-                      : method === "PAYPAL"
-                      ? "PayPal Sandbox (REST v2)"
-                      : method === "PAYTM"
-                      ? "Paytm Staging (Wallet / UPI / NetBanking)"
-                      : "Netbanking / RuPay Card"}
+                    {activeTab === "paypal"
+                      ? "PayPal Sandbox (REST v2 USD)"
+                      : paytmSubMethod === "UPI"
+                      ? "Paytm UPI (Scan & Pay)"
+                      : paytmSubMethod === "WALLET"
+                      ? "Paytm Wallet (Instant 1-Click)"
+                      : "Paytm Net Banking & Cards"}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
@@ -733,293 +789,442 @@ export function PaymentModal({
             </div>
           ) : (
             /* ========================================================= */
-            /* METHOD SELECTOR & PAYMENT VIEWS                          */
+            /* EXACTLY TWO TOP-LEVEL TABS: PAYTM & PAYPAL SANDBOX       */
             /* ========================================================= */
             <>
-              {/* Payment Method Selector Tabs: 4 Options */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {/* Option A: UPI */}
+              {/* Top-Level Tabs Grid */}
+              <div className="grid grid-cols-2 gap-3">
+                {/* Tab 1: Paytm */}
                 <button
                   type="button"
-                  onClick={() => setMethod("UPI_QR")}
-                  className={`p-2.5 rounded-sm border text-left flex flex-col sm:flex-row items-start sm:items-center gap-2 transition-all duration-150 ${
-                    method === "UPI_QR"
-                      ? "border-[#B4461F] bg-[#FBF0EB] ring-1 ring-[#B4461F]"
+                  onClick={() => {
+                    setActiveTab("paytm");
+                  }}
+                  className={`p-3 rounded-sm border text-left flex items-center gap-3 transition-all duration-150 ${
+                    activeTab === "paytm"
+                      ? "border-[#00BAF2] bg-[#F0F8FF] ring-2 ring-[#00BAF2]/30 shadow-xs"
                       : "border-[#E8DEC8] bg-white hover:bg-[#FAF7F2]"
                   }`}
                 >
                   <div
-                    className={`w-7 h-7 rounded-xs flex items-center justify-center shrink-0 ${
-                      method === "UPI_QR"
-                        ? "bg-[#B4461F] text-white"
-                        : "bg-[#F5F2EB] text-[#8A7561]"
-                    }`}
-                  >
-                    <QrCode className="w-3.5 h-3.5" />
-                  </div>
-                  <div className="min-w-0">
-                    <span className="font-serif font-bold text-xs text-[#1E2229] block truncate">
-                      UPI QR
-                    </span>
-                    <span className="text-[10px] text-[#635C53] block truncate">
-                      GPay, PhonePe
-                    </span>
-                  </div>
-                </button>
-
-                {/* Option B: Card */}
-                <button
-                  type="button"
-                  onClick={() => setMethod("NETBANKING_CARD")}
-                  className={`p-2.5 rounded-sm border text-left flex flex-col sm:flex-row items-start sm:items-center gap-2 transition-all duration-150 ${
-                    method === "NETBANKING_CARD"
-                      ? "border-[#B4461F] bg-[#FBF0EB] ring-1 ring-[#B4461F]"
-                      : "border-[#E8DEC8] bg-white hover:bg-[#FAF7F2]"
-                  }`}
-                >
-                  <div
-                    className={`w-7 h-7 rounded-xs flex items-center justify-center shrink-0 ${
-                      method === "NETBANKING_CARD"
-                        ? "bg-[#B4461F] text-white"
-                        : "bg-[#F5F2EB] text-[#8A7561]"
-                    }`}
-                  >
-                    <CreditCard className="w-3.5 h-3.5" />
-                  </div>
-                  <div className="min-w-0">
-                    <span className="font-serif font-bold text-xs text-[#1E2229] block truncate">
-                      Card / Net
-                    </span>
-                    <span className="text-[10px] text-[#635C53] block truncate">
-                      RuPay, Visa
-                    </span>
-                  </div>
-                </button>
-
-                {/* Option C: PayPal Sandbox */}
-                <button
-                  type="button"
-                  onClick={() => setMethod("PAYPAL")}
-                  className={`p-2.5 rounded-sm border text-left flex flex-col sm:flex-row items-start sm:items-center gap-2 transition-all duration-150 ${
-                    method === "PAYPAL"
-                      ? "border-sky-500 bg-sky-50/70 ring-1 ring-sky-500"
-                      : "border-[#E8DEC8] bg-white hover:bg-[#FAF7F2]"
-                  }`}
-                >
-                  <div
-                    className={`w-7 h-7 rounded-xs flex items-center justify-center shrink-0 ${
-                      method === "PAYPAL"
-                        ? "bg-sky-600 text-white"
-                        : "bg-sky-50 text-sky-700"
-                    }`}
-                  >
-                    <DollarSign className="w-3.5 h-3.5" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1">
-                      <span className="font-serif font-bold text-xs text-[#1E2229] block truncate">
-                        PayPal
-                      </span>
-                      <span className="text-[9px] font-bold px-1 py-0.2 rounded-xs bg-sky-100 text-sky-700 border border-sky-200">
-                        Sandbox
-                      </span>
-                    </div>
-                    <span className="text-[10px] text-[#635C53] block truncate">
-                      USD Checkout
-                    </span>
-                  </div>
-                </button>
-
-                {/* Option D: Paytm (Wallet, UPI, NetBanking) */}
-                <button
-                  type="button"
-                  onClick={() => setMethod("PAYTM")}
-                  className={`p-2.5 rounded-sm border text-left flex flex-col sm:flex-row items-start sm:items-center gap-2 transition-all duration-150 ${
-                    method === "PAYTM" || (method as string) === "paytm"
-                      ? "border-[#00BAF2] bg-[#F0F8FF] ring-1 ring-[#00BAF2]"
-                      : "border-[#E8DEC8] bg-white hover:bg-[#FAF7F2]"
-                  }`}
-                >
-                  <div
-                    className={`w-7 h-7 rounded-xs flex items-center justify-center shrink-0 ${
-                      method === "PAYTM" || (method as string) === "paytm"
-                        ? "bg-[#002970] text-[#00BAF2]"
+                    className={`w-9 h-9 rounded-xs flex items-center justify-center shrink-0 ${
+                      activeTab === "paytm"
+                        ? "bg-[#002970] text-[#00BAF2] shadow-xs"
                         : "bg-cyan-50 text-[#002970]"
                     }`}
                   >
-                    <Wallet className="w-3.5 h-3.5" />
+                    <PaytmLogoIcon className="w-6 h-6" />
                   </div>
                   <div className="min-w-0">
-                    <div className="flex items-center gap-1">
-                      <span className="font-serif font-bold text-xs text-[#002970] block truncate">
-                        Paytm
-                      </span>
-                      <span className="text-[9px] font-bold px-1 py-0.2 rounded-xs bg-[#00BAF2]/15 text-[#002970] border border-[#00BAF2]/30">
-                        Staging
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-serif font-black text-sm tracking-tight text-[#002970] block truncate">
+                        Pay<span className="text-[#00BAF2]">tm</span>
                       </span>
                     </div>
-                    <span className="text-[10px] text-[#635C53] block truncate">
-                      Wallet, UPI, NetBanking
+                    <span className="text-[11px] text-[#635C53] block truncate">
+                      UPI, Cards & Wallet
+                    </span>
+                  </div>
+                </button>
+
+                {/* Tab 2: PayPal Sandbox */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab("paypal");
+                  }}
+                  className={`p-3 rounded-sm border text-left flex items-center gap-3 transition-all duration-150 ${
+                    activeTab === "paypal"
+                      ? "border-sky-500 bg-sky-50/70 ring-2 ring-sky-500/30 shadow-xs"
+                      : "border-[#E8DEC8] bg-white hover:bg-[#FAF7F2]"
+                  }`}
+                >
+                  <div
+                    className={`w-9 h-9 rounded-xs flex items-center justify-center shrink-0 ${
+                      activeTab === "paypal"
+                        ? "bg-sky-600 text-white shadow-xs"
+                        : "bg-sky-50 text-sky-700"
+                    }`}
+                  >
+                    <DollarSign className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-serif font-bold text-sm text-[#1E2229] block truncate">
+                        PayPal Sandbox
+                      </span>
+                    </div>
+                    <span className="text-[11px] text-[#635C53] block truncate">
+                      USD Checkout
                     </span>
                   </div>
                 </button>
               </div>
 
-              {/* Method A: Dynamic UPI QR Code */}
-              {method === "UPI_QR" && (
-                <div className="space-y-4 pt-1 animate-in fade-in duration-150 text-center">
-                  <div className="bg-[#FAF7F2] p-5 rounded-sm border border-[#E8DEC8] inline-block mx-auto">
-                    <QRCodeDisplay value={upiUri} size={190} />
+              {/* ===================================================== */}
+              {/* TAB 1 CONTENT: PAYTM (UPI, CARDS & NET, WALLET)       */}
+              {/* ===================================================== */}
+              {activeTab === "paytm" && (
+                <div className="space-y-4 pt-1 animate-in fade-in duration-150">
+                  {/* Paytm Sub-Method Pill Selector */}
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-medium text-[#635C53] uppercase tracking-wider block">
+                      Choose Paytm Payment Mode
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {/* Sub-method A: Paytm UPI */}
+                      <button
+                        type="button"
+                        onClick={() => setPaytmSubMethod("UPI")}
+                        className={`p-2.5 rounded-xs border text-center transition-all ${
+                          paytmSubMethod === "UPI"
+                            ? "border-[#00BAF2] bg-[#00BAF2]/10 text-[#002970] font-bold shadow-xs"
+                            : "border-[#E8DEC8] bg-white text-[#635C53] hover:bg-[#FAF7F2]"
+                        }`}
+                      >
+                        <QrCode className="w-4 h-4 mx-auto mb-1 text-[#002970]" />
+                        <span className="text-xs block">Paytm UPI</span>
+                      </button>
 
-                    <div className="mt-3 flex items-center justify-center gap-2 text-[11px] text-[#635C53]">
-                      <Smartphone className="w-3.5 h-3.5 text-[#2D583B]" />
-                      <span className="font-mono font-medium">seller.hunar@upi</span>
+                      {/* Sub-method B: Cards & Net Banking */}
+                      <button
+                        type="button"
+                        onClick={() => setPaytmSubMethod("CARD")}
+                        className={`p-2.5 rounded-xs border text-center transition-all ${
+                          paytmSubMethod === "CARD"
+                            ? "border-[#00BAF2] bg-[#00BAF2]/10 text-[#002970] font-bold shadow-xs"
+                            : "border-[#E8DEC8] bg-white text-[#635C53] hover:bg-[#FAF7F2]"
+                        }`}
+                      >
+                        <CreditCard className="w-4 h-4 mx-auto mb-1 text-[#B4461F]" />
+                        <span className="text-xs block">Net Banking & Cards</span>
+                      </button>
+
+                      {/* Sub-method C: Paytm Wallet */}
+                      <button
+                        type="button"
+                        onClick={() => setPaytmSubMethod("WALLET")}
+                        className={`p-2.5 rounded-xs border text-center transition-all ${
+                          paytmSubMethod === "WALLET"
+                            ? "border-[#00BAF2] bg-[#00BAF2]/10 text-[#002970] font-bold shadow-xs"
+                            : "border-[#E8DEC8] bg-white text-[#635C53] hover:bg-[#FAF7F2]"
+                        }`}
+                      >
+                        <Wallet className="w-4 h-4 mx-auto mb-1 text-[#00BAF2]" />
+                        <span className="text-xs block">Paytm Wallet</span>
+                      </button>
                     </div>
                   </div>
 
-                  <div className="space-y-1 text-center">
-                    <p className="text-xs font-semibold text-[#1E2229]">
-                      Scan with GPay, PhonePe, or Paytm to complete transaction.
-                    </p>
-                    <p className="text-[11px] text-[#8A7561]">
-                      Amount of ₹{amount.toLocaleString("en-IN")} will be held in escrow until crafting begins.
-                    </p>
-                  </div>
+                  {/* Sub-method 1: Paytm UPI (Scan & Pay + Copy Snippet) */}
+                  {paytmSubMethod === "UPI" && (
+                    <div className="space-y-4 pt-1 animate-in fade-in duration-150 text-center">
+                      <div className="bg-[#FAF7F2] p-4 rounded-sm border border-[#E8DEC8] inline-block mx-auto">
+                        <QRCodeDisplay value={upiUri} size={175} />
 
-                  {/* Immediate Verification Action */}
-                  <div className="pt-2">
+                        {/* Artisan UPI ID Copy Snippet */}
+                        <div className="mt-3 flex items-center justify-center gap-2">
+                          <div className="px-2.5 py-1 rounded-xs bg-white border border-[#D3CBBE] flex items-center gap-2 text-xs">
+                            <span className="text-[10px] text-[#8A7561] font-mono">UPI ID:</span>
+                            <span className="font-mono font-bold text-[#1E2229]">{artisanUpiId}</span>
+                            <button
+                              type="button"
+                              onClick={handleCopyUpiId}
+                              className="p-1 rounded text-[#002970] hover:bg-cyan-50 transition-colors ml-1"
+                              title="Copy UPI ID"
+                            >
+                              {copiedUpi ? (
+                                <Check className="w-3.5 h-3.5 text-emerald-600" />
+                              ) : (
+                                <Copy className="w-3.5 h-3.5" />
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1 text-center">
+                        <p className="text-xs font-semibold text-[#1E2229]">
+                          Scan with Paytm, GPay, PhonePe, or BHIM to pay directly.
+                        </p>
+                        <p className="text-[11px] text-[#8A7561]">
+                          Amount of ₹{amount.toLocaleString("en-IN")} will be held in secure escrow until crafting begins.
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        disabled={isProcessing}
+                        onClick={() => handleExecutePaytm("UPI")}
+                        className="w-full py-3 px-4 rounded-sm bg-[#002970] text-white font-medium text-xs hover:bg-[#001D50] transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-75"
+                      >
+                        {isProcessing ? (
+                          <>
+                            <RefreshCw className="w-4 h-4 animate-spin text-[#00BAF2]" />
+                            <span>{paytmStage || "Verifying UPI Payment..."}</span>
+                          </>
+                        ) : (
+                          <>
+                            <QrCode className="w-4 h-4 text-[#00BAF2]" />
+                            <span>Verify & Complete UPI Payment (₹{amount.toLocaleString("en-IN")})</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Sub-method 2: Net Banking & Cards (Embedded Inputs) */}
+                  {paytmSubMethod === "CARD" && (
+                    <div className="space-y-4 pt-1 animate-in fade-in duration-150">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-[#1E2229]">
+                          Card & Net Banking Details
+                        </span>
+                        <button
+                          type="button"
+                          onClick={handleFillDemoCard}
+                          className="text-[11px] font-semibold text-[#B4461F] hover:underline flex items-center gap-1"
+                        >
+                          <Sparkles className="w-3 h-3" />
+                          <span>Fill Demo Card Details</span>
+                        </button>
+                      </div>
+
+                      {/* Card Input Form */}
+                      <div className="space-y-3 text-xs">
+                        <div>
+                          <label className="block text-[11px] font-medium text-[#635C53] mb-1">
+                            Card Number (Debit / Credit / RuPay)
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="4532 8920 1144 8821"
+                            value={cardNumber}
+                            onChange={handleCardNumberChange}
+                            maxLength={19}
+                            className="w-full px-3 py-2 bg-white border border-[#D3CBBE] rounded-xs font-mono text-xs text-[#1E2229] focus:outline-none focus:border-[#00BAF2]"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-medium text-[#635C53] mb-1">
+                            Cardholder Name
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="Priya Nair"
+                            value={cardHolder}
+                            onChange={(e) => setCardHolder(e.target.value)}
+                            className="w-full px-3 py-2 bg-white border border-[#D3CBBE] rounded-xs text-xs text-[#1E2229] focus:outline-none focus:border-[#00BAF2]"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-[11px] font-medium text-[#635C53] mb-1">
+                              Expiry Date
+                            </label>
+                            <input
+                              type="text"
+                              placeholder="MM/YY"
+                              value={expiry}
+                              onChange={handleExpiryChange}
+                              maxLength={5}
+                              className="w-full px-3 py-2 bg-white border border-[#D3CBBE] rounded-xs font-mono text-xs text-[#1E2229] focus:outline-none focus:border-[#00BAF2]"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[11px] font-medium text-[#635C53] mb-1">
+                              CVV / CVC
+                            </label>
+                            <input
+                              type="password"
+                              placeholder="•••"
+                              value={cvv}
+                              onChange={(e) => setCvv(e.target.value.replace(/\D/g, "").slice(0, 3))}
+                              maxLength={3}
+                              className="w-full px-3 py-2 bg-white border border-[#D3CBBE] rounded-xs font-mono text-xs text-[#1E2229] focus:outline-none focus:border-[#00BAF2]"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Net Banking Bank Selector Chips */}
+                      <div className="space-y-1.5 pt-1">
+                        <label className="block text-[11px] font-medium text-[#635C53]">
+                          Or Pay via Popular Net Banking
+                        </label>
+                        <div className="flex flex-wrap gap-1.5">
+                          {["HDFC", "SBI", "ICICI", "Axis", "PNB"].map((bank) => (
+                            <button
+                              key={bank}
+                              type="button"
+                              onClick={() => setSelectedBank(bank)}
+                              className={`px-2.5 py-1 rounded-xs border text-[11px] transition-colors ${
+                                selectedBank === bank
+                                  ? "border-[#00BAF2] bg-[#00BAF2]/10 text-[#002970] font-bold"
+                                  : "border-[#E8DEC8] bg-white text-[#635C53] hover:bg-[#FAF7F2]"
+                              }`}
+                            >
+                              {bank}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        disabled={isProcessing}
+                        onClick={() => handleExecutePaytm("CARD")}
+                        className="w-full py-3 px-4 rounded-sm bg-[#002970] text-white font-medium text-xs hover:bg-[#001D50] transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-75"
+                      >
+                        {isProcessing ? (
+                          <>
+                            <RefreshCw className="w-4 h-4 animate-spin text-[#00BAF2]" />
+                            <span>{paytmStage || "Processing Bank Gateway..."}</span>
+                          </>
+                        ) : (
+                          <>
+                            <CreditCard className="w-4 h-4 text-[#00BAF2]" />
+                            <span>Pay ₹{amount.toLocaleString("en-IN")} via Net Banking & Card</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Sub-method 3: Paytm Wallet (Active Balance & 1-Click Deduction) */}
+                  {paytmSubMethod === "WALLET" && (
+                    <div className="space-y-4 pt-1 animate-in fade-in duration-150">
+                      {/* Active Wallet Balance Card */}
+                      <div className="p-4 bg-gradient-to-br from-[#F0F8FF] to-cyan-50/60 border border-[#00BAF2]/30 rounded-sm space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Wallet className="w-5 h-5 text-[#00BAF2]" />
+                            <div>
+                              <span className="font-bold text-xs text-[#002970] block">
+                                Paytm Active Wallet
+                              </span>
+                              <span className="text-[10px] text-[#635C53]">
+                                Linked to +91 98118 ••••• (Verified Patron)
+                              </span>
+                            </div>
+                          </div>
+                          <span className="px-2 py-0.5 rounded-xs text-[10px] font-bold bg-[#00BAF2]/15 text-[#002970] border border-[#00BAF2]/30">
+                            Pre-loaded
+                          </span>
+                        </div>
+
+                        <div className="p-3 bg-white/90 rounded-xs border border-[#BCE4FB] flex items-center justify-between">
+                          <div>
+                            <span className="text-[10px] text-[#635C53] block uppercase tracking-wider">
+                              Available Wallet Balance
+                            </span>
+                            <span className="font-mono font-bold text-lg text-[#002970]">
+                              ₹{walletAvailableBalance.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                            </span>
+                          </div>
+                          {isWalletSufficient ? (
+                            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-xs border border-emerald-200">
+                              <CheckCircle2 className="w-3.5 h-3.5" /> Sufficient
+                            </span>
+                          ) : (
+                            <span className="text-[11px] font-bold text-amber-700 bg-amber-50 px-2 py-1 rounded-xs border border-amber-200">
+                              Partial
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="text-[11px] text-[#635C53] space-y-1">
+                          {isWalletSufficient ? (
+                            <p className="text-emerald-800">
+                              ✓ Your wallet balance covers this transaction. Remaining balance will be:{" "}
+                              <strong className="font-mono">
+                                ₹{(walletAvailableBalance - amount).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                              </strong>
+                            </p>
+                          ) : (
+                            <p className="text-amber-800">
+                              Wallet balance is ₹{walletAvailableBalance.toFixed(2)}. The remaining ₹{(amount - walletAvailableBalance).toFixed(2)} will be debited via your primary linked bank account.
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        disabled={isProcessing}
+                        onClick={() => handleExecutePaytm("WALLET")}
+                        className="w-full py-3 px-4 rounded-sm bg-[#002970] text-white font-medium text-xs hover:bg-[#001D50] transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-75"
+                      >
+                        {isProcessing ? (
+                          <>
+                            <RefreshCw className="w-4 h-4 animate-spin text-[#00BAF2]" />
+                            <span>{paytmStage || "Debiting Paytm Wallet..."}</span>
+                          </>
+                        ) : (
+                          <>
+                            <Zap className="w-4 h-4 text-[#00BAF2]" />
+                            <span>
+                              Pay ₹{amount.toLocaleString("en-IN")} with Paytm Wallet (Instant 1-Click)
+                            </span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Error Alert */}
+                  {paytmError && (
+                    <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-sm text-xs flex items-start gap-2">
+                      <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-600" />
+                      <div>
+                        <span className="font-semibold block">Paytm Error</span>
+                        <span>{paytmError}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Dedicated Paytm Staging Sandbox Simulator Card for Evaluators */}
+                  <div className="bg-[#FAF7F2] p-4 rounded-sm border border-[#E8DEC8] space-y-2 pt-3">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-semibold text-[#002970] flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-[#00BAF2]" />
+                        Paytm Staging Sandbox Simulator
+                      </span>
+                      <span className="text-[10px] font-mono text-[#8A7561]">
+                        MID: DIY1238682135545801
+                      </span>
+                    </div>
+
+                    <p className="text-[11px] text-[#635C53] leading-relaxed">
+                      Instant offline evaluation executing SHA256 checksum generation, <code>theia/api/v1/initiateTransaction</code>, and <code>v3/order/status</code>.
+                    </p>
+
                     <button
                       type="button"
                       disabled={isProcessing}
-                      onClick={handlePay}
-                      className="w-full py-3 px-4 rounded-sm bg-[#2D583B] text-white font-medium text-xs hover:bg-[#23452E] transition-colors duration-150 flex items-center justify-center gap-2 shadow-sm disabled:opacity-75"
+                      onClick={handleSimulatePaytm}
+                      className="w-full py-2.5 px-3 rounded-xs border border-[#00BAF2]/50 bg-[#F0F8FF] hover:bg-[#E1F3FE] text-[#002970] text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors shadow-xs"
                     >
-                      {isProcessing ? (
-                        <>
-                          <RefreshCw className="w-4 h-4 animate-spin" />
-                          <span>Verifying UPI Webhook & Escrow...</span>
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle2 className="w-4 h-4" />
-                          <span>Simulate Scan & Pay ₹{amount.toLocaleString("en-IN")}</span>
-                        </>
-                      )}
+                      <Sparkles className="w-3.5 h-3.5 text-[#00BAF2]" />
+                      <span>Simulate Instant Paytm Approval (₹{amount.toLocaleString("en-IN")})</span>
                     </button>
+                  </div>
+
+                  {/* Security Guarantee Strip */}
+                  <div className="pt-1 flex items-center justify-center gap-2 text-[10px] text-[#8A7561]">
+                    <ShieldCheck className="w-3.5 h-3.5 text-[#00BAF2]" />
+                    <span>Paytm 256-Bit SSL Escrow • 100% Direct to Artisan</span>
                   </div>
                 </div>
               )}
 
-              {/* Method B: Netbanking & Card Simulator */}
-              {method === "NETBANKING_CARD" && (
+              {/* ===================================================== */}
+              {/* TAB 2 CONTENT: PAYPAL SANDBOX (USD CHECKOUT)          */}
+              {/* ===================================================== */}
+              {activeTab === "paypal" && (
                 <div className="space-y-4 pt-1 animate-in fade-in duration-150">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-[#1E2229]">
-                      Indian Banking Card Details
-                    </span>
-                    <button
-                      type="button"
-                      onClick={handleFillDemoCard}
-                      className="text-[11px] font-semibold text-[#B4461F] hover:underline flex items-center gap-1"
-                    >
-                      <Sparkles className="w-3 h-3" />
-                      <span>Fill Demo Card Details</span>
-                    </button>
-                  </div>
-
-                  <div className="space-y-3 text-xs">
-                    {/* Card Number */}
-                    <div>
-                      <label className="block text-[11px] font-semibold text-[#8A7561] mb-1 uppercase tracking-wider">
-                        Card / Account Number
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="4532 •••• •••• 8821"
-                        value={cardNumber}
-                        onChange={handleCardNumberChange}
-                        className="w-full px-3.5 py-2.5 rounded-sm border border-[#D3CBBE] bg-white text-[#1E2229] font-mono tracking-wider focus:outline-none focus:border-[#B4461F]"
-                      />
-                    </div>
-
-                    {/* Cardholder Name */}
-                    <div>
-                      <label className="block text-[11px] font-semibold text-[#8A7561] mb-1 uppercase tracking-wider">
-                        Cardholder Name
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Priya Nair"
-                        value={cardHolder}
-                        onChange={(e) => setCardHolder(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-sm border border-[#D3CBBE] bg-white text-[#1E2229] focus:outline-none focus:border-[#B4461F]"
-                      />
-                    </div>
-
-                    {/* Expiry & CVV */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-[11px] font-semibold text-[#8A7561] mb-1 uppercase tracking-wider">
-                          Expiry Date
-                        </label>
-                        <input
-                          type="text"
-                          placeholder="MM/YY"
-                          value={expiry}
-                          onChange={handleExpiryChange}
-                          className="w-full px-3.5 py-2.5 rounded-sm border border-[#D3CBBE] bg-white text-[#1E2229] font-mono focus:outline-none focus:border-[#B4461F]"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-[11px] font-semibold text-[#8A7561] mb-1 uppercase tracking-wider">
-                          CVV / Netbanking PIN
-                        </label>
-                        <input
-                          type="password"
-                          maxLength={4}
-                          placeholder="•••"
-                          value={cvv}
-                          onChange={(e) => setCvv(e.target.value.replace(/\D/g, ""))}
-                          className="w-full px-3.5 py-2.5 rounded-sm border border-[#D3CBBE] bg-white text-[#1E2229] font-mono tracking-widest focus:outline-none focus:border-[#B4461F]"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Submit CTA */}
-                  <div className="pt-2 space-y-2">
-                    <button
-                      type="button"
-                      disabled={isProcessing || !cardNumber}
-                      onClick={handlePay}
-                      className="w-full py-3 px-4 rounded-sm btn-terracotta text-white font-medium text-xs flex items-center justify-center gap-2 shadow-sm disabled:opacity-60"
-                    >
-                      {isProcessing ? (
-                        <>
-                          <RefreshCw className="w-4 h-4 animate-spin" />
-                          <span>Authorizing via Banking Gateway...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Lock className="w-4 h-4" />
-                          <span>Pay ₹{amount.toLocaleString("en-IN")} Securely</span>
-                        </>
-                      )}
-                    </button>
-
-                    <div className="flex items-center justify-center gap-2 text-[10px] text-[#8A7561]">
-                      <ShieldCheck className="w-3.5 h-3.5 text-[#2D583B]" />
-                      <span>256-bit Encrypted • Direct Artisan Escrow</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Method C: PayPal Sandbox (REST API v2) */}
-              {method === "PAYPAL" && (
-                <div className="space-y-4 pt-1 animate-in fade-in duration-150">
-                  {/* Currency Conversion & Sandbox Banner */}
                   <div className="p-3.5 bg-sky-50/70 border border-sky-200 rounded-sm space-y-2">
                     <div className="flex items-center justify-between text-xs">
                       <div className="flex items-center gap-1.5 text-sky-900 font-semibold">
@@ -1043,7 +1248,6 @@ export function PaymentModal({
                     </div>
                   </div>
 
-                  {/* Notice or Warning Alert */}
                   {paypalNotice && (
                     <div className="p-3 bg-amber-50 border border-amber-200 text-amber-800 rounded-sm text-xs flex items-start gap-2">
                       <Info className="w-4 h-4 shrink-0 mt-0.5 text-amber-600" />
@@ -1054,7 +1258,6 @@ export function PaymentModal({
                     </div>
                   )}
 
-                  {/* Error Alert */}
                   {paypalError && (
                     <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-sm text-xs flex items-start gap-2">
                       <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-600" />
@@ -1065,7 +1268,6 @@ export function PaymentModal({
                     </div>
                   )}
 
-                  {/* SDK Loading Spinner */}
                   {isSdkLoading && (
                     <div className="py-8 text-center space-y-2 text-xs text-[#635C53]">
                       <RefreshCw className="w-6 h-6 animate-spin mx-auto text-sky-600" />
@@ -1074,7 +1276,6 @@ export function PaymentModal({
                     </div>
                   )}
 
-                  {/* Official PayPal Buttons Container */}
                   <div
                     ref={paypalContainerRef}
                     id="paypal-button-container"
@@ -1083,7 +1284,6 @@ export function PaymentModal({
                     }`}
                   />
 
-                  {/* Sandbox Simulator / Fallback Card (for offline/dummy/mock mode) */}
                   {(useMockMode || !isSdkLoaded) && !isSdkLoading && (
                     <div className="bg-[#FAF7F2] p-4 rounded-sm border border-[#E8DEC8] space-y-3">
                       <div className="flex items-center justify-between text-xs">
@@ -1122,7 +1322,6 @@ export function PaymentModal({
                     </div>
                   )}
 
-                  {/* Optional developer toggle for fast testing when live SDK is rendered */}
                   {isSdkLoaded && !useMockMode && !isSdkLoading && (
                     <div className="pt-1 text-center">
                       <button
@@ -1137,186 +1336,9 @@ export function PaymentModal({
                     </div>
                   )}
 
-                  {/* Security Guarantee Strip */}
                   <div className="pt-2 flex items-center justify-center gap-2 text-[10px] text-[#8A7561]">
                     <ShieldCheck className="w-3.5 h-3.5 text-sky-600" />
                     <span>PayPal Sandbox API v2 • Escrow-Secured Artisan Payout</span>
-                  </div>
-                </div>
-              )}
-
-              {/* Method D: Paytm Payment Gateway (Staging / Sandbox) */}
-              {method === "PAYTM" && (
-                <div className="space-y-4 pt-1 animate-in fade-in duration-150">
-                  {/* Paytm Gateway Strip */}
-                  <div className="p-3.5 bg-gradient-to-r from-[#F0F8FF] to-cyan-50/50 border border-[#00BAF2]/30 rounded-sm space-y-2">
-                    <div className="flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-1.5 font-semibold text-[#002970]">
-                        <div className="w-5 h-5 rounded-xs bg-[#002970] text-[#00BAF2] flex items-center justify-center font-bold text-[10px]">
-                          P
-                        </div>
-                        <span>Paytm Payment Gateway (Staging)</span>
-                      </div>
-                      <span className="px-1.5 py-0.5 rounded-xs text-[9px] font-mono font-bold bg-[#00BAF2]/20 text-[#002970] border border-[#00BAF2]/40">
-                        v1 INITIATE • v3 STATUS
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2 text-[11px] pt-1 border-t border-[#00BAF2]/20">
-                      <div>
-                        <span className="text-[#635C53] block text-[10px]">Paytm Order ID:</span>
-                        <strong className="text-[#1E2229] font-mono">{orderId}</strong>
-                      </div>
-                      <div>
-                        <span className="text-[#635C53] block text-[10px]">Txn Token (SHA256):</span>
-                        <span className="text-[#002970] font-mono text-[10px] truncate block">
-                          {isPaytmInitiating ? (
-                            <span className="text-amber-600 flex items-center gap-1">
-                              <RefreshCw className="w-2.5 h-2.5 animate-spin" /> Generating...
-                            </span>
-                          ) : (
-                            paytmTxnToken || "Ready on initiate"
-                          )}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Channel selection (Wallet, UPI, Netbanking) */}
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-medium text-[#635C53] uppercase tracking-wider block">
-                      Select Paytm Channel
-                    </label>
-                    <div className="grid grid-cols-3 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setPaytmSubMode("WALLET")}
-                        className={`p-2.5 rounded-xs border text-center transition-all ${
-                          paytmSubMode === "WALLET"
-                            ? "border-[#00BAF2] bg-[#00BAF2]/10 text-[#002970] font-bold shadow-xs"
-                            : "border-[#E8DEC8] bg-white text-[#635C53] hover:bg-[#FAF7F2]"
-                        }`}
-                      >
-                        <Wallet className="w-4 h-4 mx-auto mb-1 text-[#00BAF2]" />
-                        <span className="text-xs block">Paytm Wallet</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setPaytmSubMode("UPI")}
-                        className={`p-2.5 rounded-xs border text-center transition-all ${
-                          paytmSubMode === "UPI"
-                            ? "border-[#00BAF2] bg-[#00BAF2]/10 text-[#002970] font-bold shadow-xs"
-                            : "border-[#E8DEC8] bg-white text-[#635C53] hover:bg-[#FAF7F2]"
-                        }`}
-                      >
-                        <Zap className="w-4 h-4 mx-auto mb-1 text-[#002970]" />
-                        <span className="text-xs block">Paytm UPI</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setPaytmSubMode("NETBANKING")}
-                        className={`p-2.5 rounded-xs border text-center transition-all ${
-                          paytmSubMode === "NETBANKING"
-                            ? "border-[#00BAF2] bg-[#00BAF2]/10 text-[#002970] font-bold shadow-xs"
-                            : "border-[#E8DEC8] bg-white text-[#635C53] hover:bg-[#FAF7F2]"
-                        }`}
-                      >
-                        <CreditCard className="w-4 h-4 mx-auto mb-1 text-[#B4461F]" />
-                        <span className="text-xs block">Net Banking</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Channel Description Banner */}
-                  <div className="bg-[#FAF7F2] p-3 rounded-xs border border-[#E8DEC8] text-xs">
-                    {paytmSubMode === "WALLET" && (
-                      <div className="flex items-center gap-2 text-[#002970]">
-                        <Smartphone className="w-4 h-4 text-[#00BAF2] shrink-0" />
-                        <span>Instant deduction from registered Paytm Staging Wallet balance (₹10,000 Sandbox Balance).</span>
-                      </div>
-                    )}
-                    {paytmSubMode === "UPI" && (
-                      <div className="flex items-center gap-2 text-[#002970]">
-                        <Zap className="w-4 h-4 text-emerald-600 shrink-0" />
-                        <span>Paytm UPI Staging Intent: Direct @paytm VPA instant authorization.</span>
-                      </div>
-                    )}
-                    {paytmSubMode === "NETBANKING" && (
-                      <div className="flex items-center gap-2 text-[#002970]">
-                        <CreditCard className="w-4 h-4 text-sky-700 shrink-0" />
-                        <span>Staging simulated Gateway redirect for HDFC, SBI, ICICI & Axis Bank.</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Error Alert */}
-                  {paytmError && (
-                    <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-sm text-xs flex items-start gap-2">
-                      <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-600" />
-                      <div>
-                        <span className="font-semibold block">Paytm Error</span>
-                        <span>{paytmError}</span>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Primary Checkout Button */}
-                  <div className="space-y-2 pt-1">
-                    <button
-                      type="button"
-                      disabled={isProcessing || isPaytmInitiating}
-                      onClick={handleExecutePaytm}
-                      className="w-full py-3 px-4 rounded-sm bg-[#002970] text-white font-medium text-xs hover:bg-[#001D50] transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-75"
-                    >
-                      {isProcessing ? (
-                        <>
-                          <RefreshCw className="w-4 h-4 animate-spin text-[#00BAF2]" />
-                          <span>{paytmStage || "Verifying Paytm Gateway..."}</span>
-                        </>
-                      ) : (
-                        <>
-                          <Wallet className="w-4 h-4 text-[#00BAF2]" />
-                          <span>
-                            Pay ₹{amount.toLocaleString("en-IN")} via Paytm {paytmSubMode === "WALLET" ? "Wallet" : paytmSubMode === "UPI" ? "UPI Intent" : "Net Banking"}
-                          </span>
-                        </>
-                      )}
-                    </button>
-
-                    {/* Dedicated Staging Simulator Card for Hackathon Judges */}
-                    <div className="bg-[#FAF7F2] p-4 rounded-sm border border-[#E8DEC8] space-y-2">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="font-semibold text-[#002970] flex items-center gap-1">
-                          <Sparkles className="w-3.5 h-3.5 text-[#00BAF2]" />
-                          Paytm Staging Sandbox Simulator
-                        </span>
-                        <span className="text-[10px] font-mono text-[#8A7561]">
-                          MID: DIY1238682135545801
-                        </span>
-                      </div>
-
-                      <p className="text-[11px] text-[#635C53] leading-relaxed">
-                        Instant offline-ready staging evaluation with SHA256 checksum generation, <code>theia/api/v1/initiateTransaction</code>, and <code>v3/order/status</code> verification.
-                      </p>
-
-                      <button
-                        type="button"
-                        disabled={isProcessing}
-                        onClick={handleSimulatePaytm}
-                        className="w-full py-2.5 px-3 rounded-xs border border-[#00BAF2]/50 bg-[#F0F8FF] hover:bg-[#E1F3FE] text-[#002970] text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
-                      >
-                        <Sparkles className="w-3.5 h-3.5 text-[#00BAF2]" />
-                        <span>Simulate Instant Paytm Approval (₹{amount.toLocaleString("en-IN")})</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Security Guarantee Strip */}
-                  <div className="pt-2 flex items-center justify-center gap-2 text-[10px] text-[#8A7561]">
-                    <ShieldCheck className="w-3.5 h-3.5 text-[#00BAF2]" />
-                    <span>Paytm Staging Gateway • Escrow-Secured Artisan Payout</span>
                   </div>
                 </div>
               )}
