@@ -40,6 +40,8 @@ export interface Creator {
   portfolioImages: CreatorPortfolioItem[];
   whatsappInquiryText: string;
   completedGigsCount: number;
+  email?: string;
+  userId?: string;
   offersMentorship?: boolean;
   mentorshipTitle?: string;
   mentorshipFee?: number;
@@ -1651,5 +1653,94 @@ export const SEED_CONVERSATIONS: Conversation[] = [
     ]
   }
 ];
+
+// ==========================================
+// PERSISTENT DATA MERGE UTILITIES
+// ==========================================
+
+/**
+ * Merges newly registered or modified dynamic creators with seed creators.
+ * - Dynamic creators take precedence (appearing first and overriding seed creators with matching id, username, email, or userId).
+ * - Multi-key deduplication is enforced on `id`, `username`, `email`, and `userId`.
+ * - All unmodified seed creators are retained.
+ */
+export function mergeCreatorsWithSeeds(
+  dynamicCreators: Creator[] = [],
+  seedCreators: Creator[] = SEED_CREATORS
+): Creator[] {
+  const seenIds = new Set<string>();
+  const seenUsernames = new Set<string>();
+  const seenEmails = new Set<string>();
+  const seenUserIds = new Set<string>();
+  const result: Creator[] = [];
+
+  const matchesSeen = (c: Creator): boolean => {
+    if (seenIds.has(c.id)) return true;
+    if (c.username && seenUsernames.has(c.username.toLowerCase())) return true;
+    if (c.email && seenEmails.has(c.email.toLowerCase())) return true;
+    if (c.userId && seenUserIds.has(c.userId)) return true;
+    return false;
+  };
+
+  const markSeen = (c: Creator) => {
+    seenIds.add(c.id);
+    if (c.username) seenUsernames.add(c.username.toLowerCase());
+    if (c.email) seenEmails.add(c.email.toLowerCase());
+    if (c.userId) seenUserIds.add(c.userId);
+  };
+
+  // Add dynamic / registered creators first
+  for (const c of dynamicCreators) {
+    if (!c || !c.id) continue;
+    if (!matchesSeen(c)) {
+      markSeen(c);
+      result.push(c);
+    }
+  }
+
+  // Add seed creators that haven't been overridden
+  for (const s of seedCreators) {
+    if (!s || !s.id) continue;
+    if (!matchesSeen(s)) {
+      markSeen(s);
+      result.push(s);
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Merges dynamic products with seed products.
+ * - Dynamic products take precedence (appearing first).
+ * - Deduplication is enforced on `id`.
+ * - All unmodified seed products are retained.
+ */
+export function mergeProductsWithSeeds(
+  dynamicProducts: Product[] = [],
+  seedProducts: Product[] = SEED_PRODUCTS
+): Product[] {
+  const seenIds = new Set<string>();
+  const result: Product[] = [];
+
+  for (const p of dynamicProducts) {
+    if (!p || !p.id) continue;
+    if (!seenIds.has(p.id)) {
+      seenIds.add(p.id);
+      result.push(p);
+    }
+  }
+
+  for (const s of seedProducts) {
+    if (!s || !s.id) continue;
+    if (!seenIds.has(s.id)) {
+      seenIds.add(s.id);
+      result.push(s);
+    }
+  }
+
+  return result;
+}
+
 
 

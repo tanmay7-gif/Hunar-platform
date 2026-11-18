@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { useHunar } from "@/context/HunarContext";
+import { useHunar, STORAGE_KEYS } from "@/context/HunarContext";
 import {
   Store,
   Heart,
@@ -45,6 +45,7 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return; // Prevent duplicate double-click submissions
     setErrorMessage("");
 
     if (!name.trim()) {
@@ -77,6 +78,14 @@ export default function SignupPage() {
     setLoading(false);
 
     if (result.success && result.user) {
+      // Ensure user account is synchronously persisted in localStorage
+      try {
+        localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(result.user));
+        localStorage.setItem("hunar_user_account", JSON.stringify(result.user));
+      } catch {
+        // ignore
+      }
+
       if (result.user.role === "SELLER" && !result.user.onboardingCompleted) {
         router.push("/onboarding");
       } else if (result.user.role === "SELLER") {
@@ -321,10 +330,13 @@ export default function SignupPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full sm:w-auto px-6 py-2.5 rounded-sm font-medium text-xs text-white transition-colors duration-150 flex items-center justify-center gap-2 shadow-xs disabled:opacity-50 cursor-pointer ${
+                className={`w-full sm:w-auto px-6 py-2.5 rounded-sm font-medium text-xs text-white transition-colors duration-150 flex items-center justify-center gap-2 shadow-xs disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer ${
                   role === "SELLER" ? "bg-[#1E2229] hover:bg-[#111418]" : "bg-[#2D583B] hover:bg-[#23452E]"
                 }`}
               >
+                {loading && (
+                  <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                )}
                 <span>
                   {loading
                     ? isHindi

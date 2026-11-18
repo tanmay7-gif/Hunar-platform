@@ -4,7 +4,8 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useHunar } from "@/context/HunarContext";
+import { useHunar, STORAGE_KEYS } from "@/context/HunarContext";
+import { Creator } from "@/lib/data";
 import confetti from "canvas-confetti";
 import {
   Sparkles,
@@ -42,6 +43,7 @@ export default function OnboardingPage() {
   const [phone, setPhone] = useState<string>("");
   const [bio, setBio] = useState<string>("");
   const [createdUsername, setCreatedUsername] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const artForms = [
     {
@@ -114,6 +116,8 @@ export default function OnboardingPage() {
 
   const handleFinish = (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting || createdUsername) return; // Prevent double-click submission
+    setIsSubmitting(true);
 
     const artistName = name.trim() || (isHindi ? "शिल्पकार साथी" : "Artisan Creator");
     const artistBio =
@@ -135,6 +139,25 @@ export default function OnboardingPage() {
     });
 
     setCreatedUsername(created.username);
+
+    // Explicitly guarantee creator is persisted in browser storage
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.ARTISANS);
+      const existing: Creator[] = stored ? JSON.parse(stored) : [];
+      const updated = [
+        created,
+        ...existing.filter(
+          (c) =>
+            c.id !== created.id &&
+            c.username?.toLowerCase() !== created.username?.toLowerCase() &&
+            (!created.email || !c.email || c.email.toLowerCase() !== created.email.toLowerCase()) &&
+            (!created.userId || !c.userId || c.userId !== created.userId)
+        )
+      ];
+      localStorage.setItem(STORAGE_KEYS.ARTISANS, JSON.stringify(updated));
+    } catch {
+      // ignore
+    }
 
     // Fire celebratory confetti!
     try {
@@ -608,9 +631,17 @@ export default function OnboardingPage() {
 
                     <button
                       type="submit"
-                      className="px-6 py-3 rounded-sm bg-[#1E2229] hover:bg-[#111418] text-white font-medium text-xs sm:text-sm shadow-sm transition-colors duration-150 flex items-center gap-2"
+                      disabled={isSubmitting}
+                      className="px-6 py-3 rounded-sm bg-[#1E2229] hover:bg-[#111418] text-white font-medium text-xs sm:text-sm shadow-sm transition-colors duration-150 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     >
-                      <span>{isHindi ? "हुनर कार्ड प्रकाशित करें" : "Publish My Hunar Card"}</span>
+                      {isSubmitting ? (
+                        <>
+                          <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          <span>{isHindi ? "कार्ड प्रकाशित हो रहा है..." : "Publishing..."}</span>
+                        </>
+                      ) : (
+                        <span>{isHindi ? "हुनर कार्ड प्रकाशित करें" : "Publish My Hunar Card"}</span>
+                      )}
                     </button>
                   </div>
                 </form>

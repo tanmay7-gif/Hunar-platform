@@ -145,15 +145,36 @@ export const CreatorService = {
 
   create: (data: Partial<Creator>) => {
     const db = getDatabase();
-    const username = (data.name || "artisan")
+
+    // Check if creator already exists by id, username, email, or userId; if so, update idempotently
+    const existingIndex = db.creators.findIndex(
+      (c) =>
+        (data.id && c.id === data.id) ||
+        (data.username && c.username.toLowerCase() === data.username.toLowerCase()) ||
+        (data.email && c.email && data.email.toLowerCase() === c.email.toLowerCase()) ||
+        (data.userId && c.userId && data.userId === c.userId)
+    );
+
+    if (existingIndex !== -1) {
+      const merged = protectCreator({
+        ...db.creators[existingIndex],
+        ...data,
+      });
+      db.creators[existingIndex] = merged;
+      return merged;
+    }
+
+    const username = data.username || ((data.name || "artisan")
       .toLowerCase()
-      .replace(/[^a-z0-9]/g, "-") + `-${Math.floor(Math.random() * 899 + 100)}`;
+      .replace(/[^a-z0-9]/g, "-") + `-${Math.floor(Math.random() * 899 + 100)}`);
 
     const newCreator: Creator = {
-      id: `creator-${Date.now()}`,
+      id: data.id || `creator-${Date.now()}`,
       name: data.name || "Artisan Creator",
       nameHindi: data.nameHindi || data.name || "कारीगर",
-      username: data.username || username,
+      username: username,
+      email: data.email,
+      userId: data.userId || (data.id?.startsWith("creator-") ? data.id.replace("creator-", "") : undefined),
       phone: data.phone || "+91 98765 43210",
       whatsapp: data.whatsapp || "919876543210",
       city: data.city || "Jaipur",
@@ -204,12 +225,16 @@ export const CreatorService = {
     return securedCreator;
   },
 
-  update: (username: string, updates: Partial<Creator>) => {
+  update: (idOrUsername: string, updates: Partial<Creator>) => {
     const db = getDatabase();
-    const index = db.creators.findIndex((c) => c.username.toLowerCase() === username.toLowerCase());
+    const index = db.creators.findIndex(
+      (c) =>
+        c.id === idOrUsername ||
+        c.username.toLowerCase() === idOrUsername.toLowerCase()
+    );
     if (index === -1) return null;
 
-    db.creators[index] = { ...db.creators[index], ...updates };
+    db.creators[index] = protectCreator({ ...db.creators[index], ...updates });
     return db.creators[index];
   },
 
@@ -762,11 +787,23 @@ export const AuthService = {
     // If new user is a seller, also ensure they have a creator profile registered
     if (newUser.role === "SELLER") {
       const username = newUser.email.split("@")[0].replace(/[^a-zA-Z0-9_-]/g, "");
+      newUser.username = username;
+
+      const existingCreatorIdx = db.creators.findIndex(
+        (c) =>
+          c.id === `creator-${newUser.id}` ||
+          c.username.toLowerCase() === username.toLowerCase() ||
+          (c.email && c.email.toLowerCase() === newUser.email.toLowerCase()) ||
+          (c.userId && c.userId === newUser.id)
+      );
+
       const newCreator: Creator = {
         id: `creator-${newUser.id}`,
         name: newUser.name,
         nameHindi: newUser.name,
         username,
+        email: newUser.email,
+        userId: newUser.id,
         phone: "+91 98765 43210",
         whatsapp: "919876543210",
         city: newUser.city,
@@ -793,7 +830,12 @@ export const AuthService = {
         whatsappInquiryText: "Namaste! I saw your Hunar Card. I would like to inquire about your craft.",
         portfolioImages: []
       };
-      db.creators.push(newCreator);
+
+      if (existingCreatorIdx !== -1) {
+        db.creators[existingCreatorIdx] = protectCreator({ ...db.creators[existingCreatorIdx], ...newCreator });
+      } else {
+        db.creators.unshift(protectCreator(newCreator));
+      }
     }
 
     return {

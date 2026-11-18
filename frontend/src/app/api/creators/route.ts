@@ -31,22 +31,62 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/creators - Register / create a new creator profile
+// POST /api/creators - Register / create or update a creator profile
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    if (!body.name || !body.primaryArtForm) {
+    if (!body || typeof body !== "object") {
+      return NextResponse.json(
+        { success: false, error: "Invalid JSON body provided." },
+        { status: 400 }
+      );
+    }
+
+    // Support batch registration / synchronization
+    if (Array.isArray(body)) {
+      const results = body.map((item) => CreatorService.create(item));
+      return NextResponse.json(
+        {
+          success: true,
+          count: results.length,
+          data: results
+        },
+        { status: 201 }
+      );
+    }
+
+    if (!body.name && !body.id && !body.username) {
       return NextResponse.json(
         {
           success: false,
-          error: "Missing required fields: 'name' and 'primaryArtForm' are required."
+          error: "Missing required fields: 'name', 'id', or 'username' must be provided."
         },
         { status: 400 }
       );
     }
 
-    const newCreator = CreatorService.create(body);
+    // If only updates were provided with an existing id or username, update it
+    const idOrUsername = body.id || body.username;
+    if (idOrUsername && (!body.name || !body.primaryArtForm)) {
+      const updated = CreatorService.update(idOrUsername, body);
+      if (updated) {
+        return NextResponse.json(
+          {
+            success: true,
+            message: "Hunar Card creator profile updated successfully.",
+            data: updated
+          },
+          { status: 200 }
+        );
+      }
+    }
+
+    const newCreator = CreatorService.create({
+      ...body,
+      name: body.name || "Artisan Creator",
+      primaryArtForm: body.primaryArtForm || "Crafts & Studio Art"
+    });
 
     return NextResponse.json(
       {
@@ -60,6 +100,43 @@ export async function POST(request: NextRequest) {
     console.error("Error in POST /api/creators:", error);
     return NextResponse.json(
       { success: false, error: "Failed to process creator creation" },
+      { status: 500 }
+    );
+  }
+}
+
+// PUT /api/creators - Update an existing creator profile
+export async function PUT(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const idOrUsername = body.id || body.username;
+
+    if (!idOrUsername) {
+      return NextResponse.json(
+        { success: false, error: "Missing 'id' or 'username' in update payload." },
+        { status: 400 }
+      );
+    }
+
+    const updated = CreatorService.update(idOrUsername, body);
+    if (!updated) {
+      // Fallback: create if it didn't exist yet
+      const created = CreatorService.create(body);
+      return NextResponse.json(
+        { success: true, message: "Created new creator profile.", data: created },
+        { status: 201 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Creator profile updated successfully.",
+      data: updated
+    });
+  } catch (error) {
+    console.error("Error in PUT /api/creators:", error);
+    return NextResponse.json(
+      { success: false, error: "Failed to update creator profile." },
       { status: 500 }
     );
   }

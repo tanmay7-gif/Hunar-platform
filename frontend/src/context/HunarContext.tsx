@@ -24,7 +24,9 @@ import {
   SEED_PRODUCTS,
   SEED_INQUIRIES,
   SEED_MENTORSHIP_BOOKINGS,
-  SEED_CONVERSATIONS
+  SEED_CONVERSATIONS,
+  mergeCreatorsWithSeeds,
+  mergeProductsWithSeeds
 } from "@/lib/data";
 import { PaymentMethod } from "@/types";
 import { tinyFish } from "@tinyfish/core";
@@ -36,6 +38,13 @@ import {
   protectCreator,
   protectInquiry
 } from "@/lib/imageProtection";
+
+export const STORAGE_KEYS = {
+  AUTH_USER: "hunar_user",
+  ARTISANS: "hunar_registered_artisans",
+  PRODUCTS: "hunar_registered_products",
+  USERS: "hunar_registered_users"
+} as const;
 
 interface ToastState {
   id: string;
@@ -69,6 +78,8 @@ interface HunarContextType {
   hireCreator: (creatorId: string, clientName: string, clientPhone: string, budget: number, note: string) => void;
   postOpportunity: (opp: Partial<Opportunity>) => void;
   registerCreatorFromOnboarding: (newCreator: Partial<Creator>) => Creator;
+  registerArtisan: (newArtisan: Creator) => Creator;
+  updateCreatorProfile: (creatorIdOrUsername: string, updates: Partial<Creator>) => void;
 
   // Role-based auth & Demo account states
   currentUser: UserAccount;
@@ -151,12 +162,42 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
   const { currentLanguage: language, setLanguage, toggleLanguage, t } = useLanguage();
   const [currentPersona, setCurrentPersona] = useState<Persona>(MOCK_PERSONAS[0]);
   const [currentUser, setCurrentUser] = useState<UserAccount>(DEMO_ACCOUNTS[0]);
-  const [creators, setCreators] = useState<Creator[]>(() => SEED_CREATORS.map((c) => protectCreator(c)));
+  const [creators, setCreators] = useState<Creator[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEYS.ARTISANS);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            return mergeCreatorsWithSeeds(parsed.map((c) => protectCreator(c)));
+          }
+        }
+      } catch (e) {
+        console.warn("Failed to load stored artisans from localStorage:", e);
+      }
+    }
+    return SEED_CREATORS.map((c) => protectCreator(c));
+  });
   const [opportunities, setOpportunities] = useState<Opportunity[]>(SEED_OPPORTUNITIES);
   const [roadmaps, setRoadmaps] = useState<Record<string, RoadmapStep[]>>(SEED_ROADMAPS);
   const [applications, setApplications] = useState<Application[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [products, setProducts] = useState<Product[]>(() => SEED_PRODUCTS.map((p) => protectProduct(p)));
+  const [products, setProducts] = useState<Product[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            return mergeProductsWithSeeds(parsed.map((p) => protectProduct(p)));
+          }
+        }
+      } catch (e) {
+        console.warn("Failed to load stored products from localStorage:", e);
+      }
+    }
+    return SEED_PRODUCTS.map((p) => protectProduct(p));
+  });
   const [inquiries, setInquiries] = useState<CustomerInquiry[]>(() => SEED_INQUIRIES.map((i) => protectInquiry(i)));
   const [mentorshipBookings, setMentorshipBookings] = useState<MentorshipBooking[]>(SEED_MENTORSHIP_BOOKINGS);
   const [conversations, setConversations] = useState<Conversation[]>(() => {
@@ -181,6 +222,36 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
     mh_m2: true
   });
   const [toast, setToast] = useState<ToastState | null>(null);
+
+  const saveCreatorsToStorage = (creatorsList: Creator[]) => {
+    if (typeof window === "undefined") return;
+    try {
+      const dynamicCreators = creatorsList.filter(
+        (c) => !SEED_CREATORS.some((s) => s.id === c.id && JSON.stringify(s) === JSON.stringify(c))
+      );
+      localStorage.setItem(
+        STORAGE_KEYS.ARTISANS,
+        JSON.stringify(dynamicCreators.length > 0 ? dynamicCreators : creatorsList)
+      );
+    } catch (err) {
+      console.warn("Failed to persist artisans to localStorage:", err);
+    }
+  };
+
+  const saveProductsToStorage = (productsList: Product[]) => {
+    if (typeof window === "undefined") return;
+    try {
+      const dynamicProducts = productsList.filter(
+        (p) => !SEED_PRODUCTS.some((s) => s.id === p.id && JSON.stringify(s) === JSON.stringify(p))
+      );
+      localStorage.setItem(
+        STORAGE_KEYS.PRODUCTS,
+        JSON.stringify(dynamicProducts.length > 0 ? dynamicProducts : productsList)
+      );
+    } catch (err) {
+      console.warn("Failed to persist products to localStorage:", err);
+    }
+  };
 
   // Helper to load user-specific saved collections (Wishlist & Shortlists)
   const loadUserSavedData = (user: UserAccount) => {
@@ -210,9 +281,59 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Load from local storage in browser
+  // Load and hydrate from local storage in browser
   useEffect(() => {
     try {
+      // 1. Hydrate registered artisans
+      const savedArtisans = localStorage.getItem(STORAGE_KEYS.ARTISANS);
+      if (savedArtisans) {
+        try {
+          const parsed = JSON.parse(savedArtisans);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const protectedParsed = parsed.map((c: Creator) => protectCreator(c));
+            setCreators(mergeCreatorsWithSeeds(protectedParsed));
+          }
+        } catch (err) {
+          console.warn("Error parsing saved artisans from localStorage:", err);
+        }
+      }
+
+      // Background synchronization with /api/creators
+      fetch("/api/creators")
+        .then((res) => res.json())
+        .then((json) => {
+          if (json?.success && Array.isArray(json.data) && json.data.length > 0) {
+            const serverCreators = json.data.map((c: Creator) => protectCreator(c));
+            setCreators((prev) => {
+              const merged = mergeCreatorsWithSeeds(serverCreators, prev);
+              const dynamicOnes = merged.filter((c) => !SEED_CREATORS.some((s) => s.id === c.id));
+              if (dynamicOnes.length > 0) {
+                try {
+                  localStorage.setItem(STORAGE_KEYS.ARTISANS, JSON.stringify(dynamicOnes));
+                } catch {}
+              }
+              return merged;
+            });
+          }
+        })
+        .catch((err) => {
+          console.warn("Could not sync with /api/creators:", err);
+        });
+
+      // 2. Hydrate products from local storage
+      const savedProducts = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
+      if (savedProducts) {
+        try {
+          const parsed = JSON.parse(savedProducts);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const protectedProducts = parsed.map((p: Product) => protectProduct(p));
+            setProducts(mergeProductsWithSeeds(protectedProducts));
+          }
+        } catch (err) {
+          console.warn("Error parsing saved products from localStorage:", err);
+        }
+      }
+
       const savedMilestones = localStorage.getItem("hunar_milestones");
       if (savedMilestones) setCompletedMilestones(JSON.parse(savedMilestones));
 
@@ -226,7 +347,9 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
         } catch {}
       }
 
-      const savedUser = localStorage.getItem("hunar_user_account");
+      // 3. User account hydration
+      const savedUser =
+        localStorage.getItem(STORAGE_KEYS.AUTH_USER) || localStorage.getItem("hunar_user_account");
       if (savedUser) {
         const parsed = JSON.parse(savedUser) as UserAccount;
         setCurrentUser(parsed);
@@ -297,6 +420,7 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
     setCurrentUser(target);
     loadUserSavedData(target);
     try {
+      localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(target));
       localStorage.setItem("hunar_user_account", JSON.stringify(target));
       document.cookie = `hunar_user_role=${target.role}; path=/; max-age=604800`;
       document.cookie = `hunar_user_id=${target.id}; path=/; max-age=604800`;
@@ -356,6 +480,7 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
         setCurrentUser(serverUser);
         loadUserSavedData(serverUser);
         try {
+          localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(serverUser));
           localStorage.setItem("hunar_user_account", JSON.stringify(serverUser));
           document.cookie = `hunar_user_role=${serverUser.role}; path=/; max-age=604800`;
           document.cookie = `hunar_user_id=${serverUser.id}; path=/; max-age=604800`;
@@ -397,6 +522,7 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
       setCurrentUser(matched);
       loadUserSavedData(matched);
       try {
+        localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(matched));
         localStorage.setItem("hunar_user_account", JSON.stringify(matched));
         document.cookie = `hunar_user_role=${matched.role}; path=/; max-age=604800`;
         document.cookie = `hunar_user_id=${matched.id}; path=/; max-age=604800`;
@@ -418,6 +544,49 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
       console.error("Login failed:", err);
       return { success: false, error: "An unexpected authentication error occurred." };
     }
+  };
+
+  // Strictly deduplicated registration of an artisan profile across state and persistent storage
+  const registerArtisan = (newArtisan: Creator): Creator => {
+    const secured = protectCreator(newArtisan);
+    setCreators((prev) => {
+      // Check if profile already exists by id, username, email, or userId
+      const alreadyExists = prev.some(
+        (a) =>
+          a.id === secured.id ||
+          (a.username && secured.username && a.username.toLowerCase() === secured.username.toLowerCase()) ||
+          (a.email && secured.email && a.email.toLowerCase() === secured.email.toLowerCase()) ||
+          (a.userId && secured.userId && a.userId === secured.userId)
+      );
+
+      let updated: Creator[];
+      if (alreadyExists) {
+        // Update existing record rather than creating a duplicate entry
+        updated = prev.map((a) =>
+          a.id === secured.id ||
+          (a.username && secured.username && a.username.toLowerCase() === secured.username.toLowerCase()) ||
+          (a.email && secured.email && a.email.toLowerCase() === secured.email.toLowerCase()) ||
+          (a.userId && secured.userId && a.userId === secured.userId)
+            ? protectCreator({ ...a, ...secured, id: a.id, username: a.username || secured.username })
+            : a
+        );
+      } else {
+        // Insert exactly one new record
+        updated = [secured, ...prev];
+      }
+
+      saveCreatorsToStorage(updated);
+      return updated;
+    });
+
+    // Non-blocking sync to server API
+    fetch("/api/creators", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(secured)
+    }).catch((err) => console.warn("Failed to sync registered artisan to server:", err));
+
+    return secured;
   };
 
   // Register a new user account
@@ -480,10 +649,13 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
         userData.name.trim()
       )}&backgroundColor=b4461f,2d583b`;
 
+      const usernameSlug = normalizedEmail.split("@")[0].replace(/[^a-zA-Z0-9_-]/g, "");
+
       const newUser: UserAccount = serverUser || {
         id: generatedUuid,
         name: userData.name.trim(),
         email: normalizedEmail,
+        username: usernameSlug,
         password: userData.password,
         role: userData.role,
         city: userData.city?.trim() || "Delhi NCR",
@@ -492,6 +664,10 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
         tagline: userData.role === "SELLER" ? "Studio Artisan & Craftsman" : "Art Patron & Collector",
         onboardingCompleted: userData.role === "SELLER" ? false : true
       };
+
+      if (!newUser.username) {
+        newUser.username = usernameSlug;
+      }
 
       saveLocalRegisteredUser(newUser);
 
@@ -507,12 +683,13 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
 
       // If new user is a seller, register their creator profile so they appear in creator discovery
       if (newUser.role === "SELLER") {
-        const username = newUser.email.split("@")[0].replace(/[^a-zA-Z0-9_-]/g, "");
         const newCreator: Creator = {
           id: `creator-${newUser.id}`,
           name: newUser.name,
           nameHindi: newUser.name,
-          username,
+          username: newUser.username || usernameSlug,
+          email: newUser.email,
+          userId: newUser.id,
           phone: "+91 98765 43210",
           whatsapp: "919876543210",
           city: newUser.city,
@@ -539,12 +716,13 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
           whatsappInquiryText: "Namaste! I saw your Hunar Card. I would like to inquire about your craft.",
           portfolioImages: []
         };
-        setCreators((prev) => [newCreator, ...prev]);
+        registerArtisan(newCreator);
       }
 
       setCurrentUser(newUser);
       loadUserSavedData(newUser);
       try {
+        localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(newUser));
         localStorage.setItem("hunar_user_account", JSON.stringify(newUser));
         document.cookie = `hunar_user_role=${newUser.role}; path=/; max-age=604800`;
         document.cookie = `hunar_user_id=${newUser.id}; path=/; max-age=604800`;
@@ -576,6 +754,7 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
+      localStorage.removeItem(STORAGE_KEYS.AUTH_USER);
       localStorage.removeItem("hunar_user_account");
       document.cookie = "hunar_user_role=; path=/; max-age=0";
       document.cookie = "hunar_user_id=; path=/; max-age=0";
@@ -716,7 +895,11 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
       createdAt: new Date().toISOString().split("T")[0]
     });
 
-    setProducts((prev) => [newProduct, ...prev]);
+    setProducts((prev) => {
+      const updated = [newProduct, ...prev.filter((p) => p.id !== newProduct.id)];
+      saveProductsToStorage(updated);
+      return updated;
+    });
 
     // Enqueue in TinyFish offline-ready sync queue & in-memory index
     try {
@@ -746,9 +929,11 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
         }
       : updates;
 
-    setProducts((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, ...securedUpdates } : p))
-    );
+    setProducts((prev) => {
+      const updated = prev.map((p) => (p.id === id ? { ...p, ...securedUpdates } : p));
+      saveProductsToStorage(updated);
+      return updated;
+    });
 
     // Enqueue update in TinyFish offline-ready sync queue
     try {
@@ -765,7 +950,11 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
   };
 
   const deleteProduct = (id: string) => {
-    setProducts((prev) => prev.filter((p) => p.id !== id));
+    setProducts((prev) => {
+      const updated = prev.filter((p) => p.id !== id);
+      saveProductsToStorage(updated);
+      return updated;
+    });
     try {
       tinyFish.getCollection<Product>("products").delete(id);
       tinyFish.getSyncQueue().enqueue("products", "delete", { id });
@@ -780,10 +969,10 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
   };
 
   const toggleProductStatus = (id: string) => {
-    setProducts((prev) =>
-      prev.map((p) => {
+    setProducts((prev) => {
+      const updated = prev.map((p) => {
         if (p.id === id) {
-          const nextStatus = p.status === "Live" ? "Draft" : "Live";
+          const nextStatus: Product["status"] = p.status === "Live" ? "Draft" : "Live";
 
           // Enqueue status update in TinyFish offline-ready sync queue
           try {
@@ -800,8 +989,10 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
           return { ...p, status: nextStatus };
         }
         return p;
-      })
-    );
+      });
+      saveProductsToStorage(updated);
+      return updated;
+    });
   };
 
   // Inquiries & Commissions
@@ -893,6 +1084,7 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
           mentorshipAvailability: updates.availability !== undefined ? updates.availability : prev.mentorshipAvailability
         };
         try {
+          localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(updatedUser));
           localStorage.setItem("hunar_user_account", JSON.stringify(updatedUser));
         } catch {
           // ignore
@@ -902,8 +1094,8 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
     }
 
     // 2. Synchronize creators array
-    setCreators((prev) =>
-      prev.map((c) => {
+    setCreators((prev) => {
+      const updated = prev.map((c) => {
         if (
           c.id === mentorId ||
           c.username === currentUser.username ||
@@ -920,8 +1112,10 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
           };
         }
         return c;
-      })
-    );
+      });
+      saveCreatorsToStorage(updated);
+      return updated;
+    });
 
     showToast(
       language === "hi" ? "परामर्श सेटिंग्स सहेजी गईं" : "Mentorship Offering Updated",
@@ -1438,18 +1632,27 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
   };
 
   const registerCreatorFromOnboarding = (newCreatorData: Partial<Creator>): Creator => {
-    const username = (newCreatorData.name || "creator")
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, "-") + `-${Math.floor(Math.random() * 899 + 100)}`;
+    const creatorId =
+      currentUser.id && currentUser.id !== "guest" ? `creator-${currentUser.id}` : `creator-${Date.now()}`;
+    const emailPrefix = currentUser.email ? currentUser.email.split("@")[0].replace(/[^a-zA-Z0-9_-]/g, "") : "";
+    const username =
+      newCreatorData.username ||
+      currentUser.username ||
+      emailPrefix ||
+      (newCreatorData.name || currentUser.name || "creator")
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, "-");
 
-    const fullCreator: Creator = {
-      id: `creator-${Date.now()}`,
-      name: newCreatorData.name || "Artisan Creator",
-      nameHindi: newCreatorData.nameHindi || newCreatorData.name || "कलाकार",
+    const fullCreator: Creator = protectCreator({
+      id: creatorId,
+      name: newCreatorData.name || currentUser.name || "Artisan Creator",
+      nameHindi: newCreatorData.nameHindi || newCreatorData.name || currentUser.name || "कलाकार",
       username,
-      phone: newCreatorData.phone || "+91 98765 43210",
-      whatsapp: "919876543210",
-      city: newCreatorData.city || "Jaipur",
+      email: currentUser.email || newCreatorData.email,
+      userId: currentUser.id && currentUser.id !== "guest" ? currentUser.id : undefined,
+      phone: newCreatorData.phone || currentUser.phone || "+91 98765 43210",
+      whatsapp: currentUser.whatsapp || "919876543210",
+      city: newCreatorData.city || currentUser.city || "Jaipur",
       state: "Rajasthan",
       primaryArtForm: newCreatorData.primaryArtForm || "Visual Arts",
       artFormHindi: newCreatorData.primaryArtForm || "दृश्य कला",
@@ -1459,6 +1662,7 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
       bioHindi: "पारंपरिक एवं प्रामाणिक कला में समर्पित स्थानीय कारीगर।",
       avatarUrl:
         newCreatorData.avatarUrl ||
+        currentUser.avatarUrl ||
         "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
       coverImage: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=1200&auto=format&fit=crop&q=80",
       isVerified: true,
@@ -1475,7 +1679,7 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
       whatsappInquiryText: `Namaste, I saw your Hunar Card. I would like to inquire about your art.`,
       portfolioImages: [
         {
-          id: "new-p1",
+          id: `p-${Date.now()}`,
           title: "Inaugural Signature Craft Work",
           medium: "Organic local materials",
           imageUrl: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=800&auto=format&fit=crop&q=80",
@@ -1483,9 +1687,10 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
           clientQuote: "Outstanding dedication and authentic traditional feel."
         }
       ]
-    };
+    });
 
-    setCreators((prev) => [fullCreator, ...prev]);
+    // Delegate to strictly deduplicated registerArtisan!
+    registerArtisan(fullCreator);
 
     setCurrentUser((prev) => {
       const updated: UserAccount = {
@@ -1496,10 +1701,13 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
         tagline: newCreatorData.primaryArtForm
           ? `${newCreatorData.primaryArtForm} Studio Master`
           : prev.tagline,
+        username,
         onboardingCompleted: true
       };
       try {
+        localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(updated));
         localStorage.setItem("hunar_user_account", JSON.stringify(updated));
+        saveLocalRegisteredUser(updated);
       } catch {
         // ignore
       }
@@ -1507,6 +1715,60 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
     });
 
     return fullCreator;
+  };
+
+  const updateCreatorProfile = (creatorIdOrUsername: string, updates: Partial<Creator>) => {
+    setCreators((prev) => {
+      const updated = prev.map((c) => {
+        if (
+          c.id === creatorIdOrUsername ||
+          c.username.toLowerCase() === creatorIdOrUsername.toLowerCase() ||
+          (currentUser.id && c.id === `creator-${currentUser.id}`)
+        ) {
+          return protectCreator({ ...c, ...updates });
+        }
+        return c;
+      });
+      saveCreatorsToStorage(updated);
+      return updated;
+    });
+
+    if (
+      currentUser.id === creatorIdOrUsername ||
+      `creator-${currentUser.id}` === creatorIdOrUsername ||
+      currentUser.username?.toLowerCase() === creatorIdOrUsername.toLowerCase()
+    ) {
+      setCurrentUser((prev) => {
+        const updated: UserAccount = {
+          ...prev,
+          name: updates.name || prev.name,
+          city: updates.city || prev.city,
+          bio: updates.bio || prev.bio,
+          avatarUrl: updates.avatarUrl || prev.avatarUrl,
+          tagline: updates.primaryArtForm ? `${updates.primaryArtForm} Studio Master` : prev.tagline
+        };
+        try {
+          localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(updated));
+          localStorage.setItem("hunar_user_account", JSON.stringify(updated));
+          saveLocalRegisteredUser(updated);
+        } catch {}
+        return updated;
+      });
+    }
+
+    fetch("/api/creators", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: creatorIdOrUsername, ...updates })
+    }).catch((err) => console.warn("Failed to sync profile update to server:", err));
+
+    showToast(
+      language === "hi" ? "प्रोफ़ाइल सहेजी गई" : "Profile Updated",
+      language === "hi"
+        ? "आपकी शिल्पकार प्रोफ़ाइल सफलतापूर्वक अद्यतन हो गई है।"
+        : "Your artisan studio profile has been permanently updated.",
+      "success"
+    );
   };
 
   return (
@@ -1530,6 +1792,8 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
         hireCreator,
         postOpportunity,
         registerCreatorFromOnboarding,
+        registerArtisan,
+        updateCreatorProfile,
 
         // Auth & Roles
         currentUser,

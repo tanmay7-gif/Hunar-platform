@@ -56,6 +56,7 @@ export default function SellerStudioDashboard() {
     deleteProduct,
     toggleProductStatus,
     updateInquiryStatus,
+    updateCreatorProfile,
     sellerTotalEarnings,
     startOrGetConversation,
     showToast
@@ -71,6 +72,34 @@ export default function SellerStudioDashboard() {
   const [editingInquiryId, setEditingInquiryId] = useState<string | null>(null);
   const [newStatus, setNewStatus] = useState<CustomerInquiry["status"]>("Crafting in Progress");
   const [statusNote, setStatusNote] = useState("");
+
+  // Edit Studio Profile Modal State
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+  const [editName, setEditName] = useState(currentUser.name || "");
+  const [editCity, setEditCity] = useState(currentUser.city || "");
+  const [editBio, setEditBio] = useState(currentUser.bio || "");
+  const [editArtForm, setEditArtForm] = useState(currentUser.artCategory || "Crafts & Studio Art");
+  const [editMinPricing, setEditMinPricing] = useState<number>(2500);
+
+  const handleOpenEditProfile = () => {
+    setEditName(currentUser.name || "");
+    setEditCity(currentUser.city || "");
+    setEditBio(currentUser.bio || "");
+    setEditArtForm(currentUser.artCategory || "Crafts & Studio Art");
+    setIsEditProfileOpen(true);
+  };
+
+  const handleSaveProfile = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateCreatorProfile(`creator-${currentUser.id}`, {
+      name: editName.trim() || currentUser.name,
+      city: editCity.trim() || currentUser.city,
+      bio: editBio.trim() || currentUser.bio,
+      primaryArtForm: editArtForm,
+      minPricing: Number(editMinPricing)
+    });
+    setIsEditProfileOpen(false);
+  };
 
   // Strict user isolation: Filter products strictly belonging to this authenticated artisan
   const sellerProducts = products.filter((p) => p.sellerId === currentUser.id);
@@ -128,6 +157,23 @@ export default function SellerStudioDashboard() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
+          <button
+            onClick={handleOpenEditProfile}
+            className="px-4 py-2.5 rounded-sm bg-[#2A313D] border border-[#3E4756] text-xs font-medium text-[#FAF7F2] hover:bg-[#343C4B] transition-colors duration-150 flex items-center gap-2 cursor-pointer"
+          >
+            <Edit3 className="w-4 h-4 text-[#E5A93B]" />
+            <span>{isHindi ? "प्रोफ़ाइल संपादित करें" : "Edit Studio Profile"}</span>
+          </button>
+
+          <Link
+            href={`/u/${currentUser.username || `creator-${currentUser.id}`}`}
+            target="_blank"
+            className="px-4 py-2.5 rounded-sm bg-[#2A313D] border border-[#3E4756] text-xs font-medium text-[#FAF7F2] hover:bg-[#343C4B] transition-colors duration-150 flex items-center gap-2"
+          >
+            <ExternalLink className="w-4 h-4 text-[#2D583B]" />
+            <span>{isHindi ? "हुनर कार्ड देखें" : "View Lookbook Card"}</span>
+          </Link>
+
           <Link
             href="/dashboard/seller/products"
             className="px-4 py-2.5 rounded-sm bg-[#2A313D] border border-[#3E4756] text-xs font-medium text-[#FAF7F2] hover:bg-[#343C4B] transition-colors duration-150 flex items-center gap-2"
@@ -747,6 +793,124 @@ export default function SellerStudioDashboard() {
         isOpen={isCloudBrowserOpen}
         onClose={() => setIsCloudBrowserOpen(false)}
       />
+
+      {/* Edit Studio Profile Modal */}
+      {isEditProfileOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+          <div className="relative w-full max-w-lg bg-[#FAF7F2] rounded-sm border border-[#E8DEC8] shadow-2xl p-6 sm:p-8 space-y-6">
+            <div className="flex items-center justify-between border-b border-[#E8DEC8] pb-4">
+              <div>
+                <h3 className="text-lg font-serif font-bold text-[#1E2229]">
+                  {isHindi ? "कारीगर स्टूडियो प्रोफ़ाइल संपादित करें" : "Edit Artisan Studio Profile"}
+                </h3>
+                <p className="text-xs text-[#8A7561] mt-0.5">
+                  {isHindi ? "यह विवरण आपके सार्वजनिक हुनर कार्ड पर प्रदर्शित होगा।" : "Changes will be permanently saved to your verified public Hunar Card."}
+                </p>
+              </div>
+              <button
+                onClick={() => setIsEditProfileOpen(false)}
+                className="p-1 rounded-sm text-stone-400 hover:text-stone-700 hover:bg-stone-200/50 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveProfile} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-[#635C53] mb-1.5">
+                  {isHindi ? "स्टूडियो / कलाकार का नाम" : "Studio / Artisan Name"}
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-sm border border-[#E8DEC8] bg-white text-sm text-[#1E2229] focus:outline-none focus:ring-1 focus:ring-[#B4461F]"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-[#635C53] mb-1.5">
+                    {isHindi ? "शहर एवं राज्य" : "City & Region"}
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editCity}
+                    onChange={(e) => setEditCity(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-sm border border-[#E8DEC8] bg-white text-sm text-[#1E2229] focus:outline-none focus:ring-1 focus:ring-[#B4461F]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-[#635C53] mb-1.5">
+                    {isHindi ? "न्यूनतम कमीशन दर (₹)" : "Min. Commission Base (₹)"}
+                  </label>
+                  <input
+                    type="number"
+                    min={500}
+                    step={100}
+                    required
+                    value={editMinPricing}
+                    onChange={(e) => setEditMinPricing(Number(e.target.value))}
+                    className="w-full px-3.5 py-2.5 rounded-sm border border-[#E8DEC8] bg-white text-sm text-[#1E2229] focus:outline-none focus:ring-1 focus:ring-[#B4461F]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-[#635C53] mb-1.5">
+                  {isHindi ? "प्रमुख शिल्प / कला विधा" : "Primary Craft / Art Form"}
+                </label>
+                <select
+                  value={editArtForm}
+                  onChange={(e) => setEditArtForm(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-sm border border-[#E8DEC8] bg-white text-sm text-[#1E2229] focus:outline-none focus:ring-1 focus:ring-[#B4461F]"
+                >
+                  <option value="Pottery">Studio Pottery & Ceramics</option>
+                  <option value="Madhubani & Folk">Madhubani & Folk Craft</option>
+                  <option value="Murals">Urban Wall Murals</option>
+                  <option value="Bridal Mehndi">Bridal & Festive Henna</option>
+                  <option value="Visual Arts">Visual & Fine Arts</option>
+                  <option value="Performing Arts">Folk Music & Instruments</option>
+                  <option value="Crafts & Studio Art">Crafts & Studio Art</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-[#635C53] mb-1.5">
+                  {isHindi ? "कलाकार परिचय (Bio)" : "Artisan Bio & Craft Heritage"}
+                </label>
+                <textarea
+                  rows={3}
+                  value={editBio}
+                  onChange={(e) => setEditBio(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-sm border border-[#E8DEC8] bg-white text-sm text-[#1E2229] focus:outline-none focus:ring-1 focus:ring-[#B4461F] leading-relaxed resize-none"
+                  placeholder="Describe your craft heritage, materials used, and studio background..."
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#E8DEC8]">
+                <button
+                  type="button"
+                  onClick={() => setIsEditProfileOpen(false)}
+                  className="px-4 py-2 rounded-sm text-xs font-medium text-[#635C53] hover:text-[#1E2229] transition-colors cursor-pointer"
+                >
+                  {isHindi ? "रद्द करें" : "Cancel"}
+                </button>
+                <button
+                  type="submit"
+                  className="btn-terracotta px-5 py-2.5 rounded-sm text-xs font-semibold flex items-center gap-2 cursor-pointer shadow-xs"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>{isHindi ? "परिवर्तन सहेजें" : "Save Changes"}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
