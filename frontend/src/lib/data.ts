@@ -302,7 +302,7 @@ export const SEED_CREATORS: Creator[] = [
     bio: "Creates large-scale lime-plaster and acrylic murals for cafes, boutique hotels, and studios. Known for blending vibrant botanical flora with traditional Rajasthani lime-wash techniques.",
     bioHindi: "होटलों, कैफे और वास्तुशिल्प स्थानों के लिए चूना-प्लास्टर और एक्रिलिक में विशाल भित्ति चित्रों के विशेषज्ञ। 14 वर्षों का अनुभव।",
     avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80",
-    coverImage: "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=1200&auto=format&fit=crop&q=80",
+    coverImage: "https://images.unsplash.com/photo-1561055657-b9e0bf0fa360?w=1200&auto=format&fit=crop&q=80",
     isVerified: true,
     minPricing: 8000,
     hourlyRate: 950,
@@ -1693,8 +1693,26 @@ export function mergeCreatorsWithSeeds(
   for (const c of dynamicCreators) {
     if (!c || !c.id) continue;
     if (!matchesSeen(c)) {
-      markSeen(c);
-      result.push(c);
+      const matchingSeed = seedCreators.find(
+        (s) => s.id === c.id || (s.username && c.username && s.username.toLowerCase() === c.username.toLowerCase())
+      );
+      if (matchingSeed) {
+        // Merge with seed to ensure seed portfolioImages & verified artwork are never lost
+        const mergedItem: Creator = {
+          ...matchingSeed,
+          ...c,
+          portfolioImages:
+            c.portfolioImages && c.portfolioImages.length > 0
+              ? c.portfolioImages
+              : matchingSeed.portfolioImages,
+          coverImage: c.coverImage || matchingSeed.coverImage
+        };
+        markSeen(mergedItem);
+        result.push(mergedItem);
+      } else {
+        markSeen(c);
+        result.push(c);
+      }
     }
   }
 

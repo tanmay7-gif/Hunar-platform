@@ -170,9 +170,12 @@ function ArtisanProfileContent() {
             <img
               src={
                 creator.coverImage ||
-                "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=1200&auto=format&fit=crop&q=80"
+                creator.portfolioImages?.[0]?.imageUrl ||
+                (creator.id === "creator-arif"
+                  ? "https://images.unsplash.com/photo-1561055657-b9e0bf0fa360?w=1200&auto=format&fit=crop&q=80"
+                  : "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=1200&auto=format&fit=crop&q=80")
               }
-              alt={`${creator.name} workshop banner`}
+              alt={`${creator.name} craft banner`}
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />

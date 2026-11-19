@@ -15,7 +15,7 @@ import { ProtectedImage } from "@/components/ui/ProtectedImage";
 
 export default function HomePage() {
   const router = useRouter();
-  const { language, creators, currentPersona, opportunities, startOrGetConversation } = useHunar();
+  const { language, creators, currentPersona, opportunities, startOrGetConversation, products } = useHunar();
   const isHindi = language === "hi";
 
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
@@ -218,7 +218,20 @@ export default function HomePage() {
         {/* Creator "Hunar Card" Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-4">
           {filteredCreators.map((creator) => {
-            const primarySample = creator.portfolioImages[0];
+            const creatorProduct = products.find(
+              (p) => p.sellerId === creator.id || p.sellerName?.toLowerCase() === creator.name.toLowerCase()
+            );
+
+            const isArif = creator.id === "creator-arif" || creator.name.toLowerCase().includes("arif");
+
+            // Guaranteed high-resolution craft artwork photo - never shows personal portrait/avatar in project card
+            const artworkImage =
+              (creator.portfolioImages && creator.portfolioImages[0]?.imageUrl) ||
+              creatorProduct?.images?.[0] ||
+              (isArif
+                ? "https://images.unsplash.com/photo-1561055657-b9e0bf0fa360?w=800&auto=format&fit=crop&q=80"
+                : creator.coverImage || "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=800&auto=format&fit=crop&q=80");
+
             return (
               <div
                 key={creator.id}
@@ -227,8 +240,8 @@ export default function HomePage() {
                 {/* Cover & Portfolio Image Preview */}
                 <div className="relative h-60 bg-[#F5EFE6] overflow-hidden">
                   <ProtectedImage
-                    src={primarySample ? primarySample.imageUrl : creator.avatarUrl}
-                    alt={creator.name}
+                    src={artworkImage}
+                    alt={`${creator.name}'s craft artwork`}
                     className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
                     wrapperClassName="w-full h-full"
                   />
