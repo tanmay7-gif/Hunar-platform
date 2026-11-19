@@ -331,7 +331,7 @@ export const SEED_CREATORS: Creator[] = [
         id: "p3",
         title: "Botanical Chai Oasis Mural (Hauz Khas)",
         medium: "Weather-resistant masonry acrylics on exposed brick",
-        imageUrl: "https://images.unsplash.com/photo-1549887534-1541e9326642?w=800&auto=format&fit=crop&q=80",
+        imageUrl: "https://images.unsplash.com/photo-1561055657-b9e0bf0fa360?w=800&auto=format&fit=crop&q=80",
         price: 26000,
         clientQuote: "Turned our cafe patio into the #1 photo spot in the neighborhood."
       },
@@ -339,7 +339,7 @@ export const SEED_CREATORS: Creator[] = [
         id: "p4",
         title: "Old Jaipur Spice Route Wall",
         medium: "Mixed pigment emulsion with gold leaf accents",
-        imageUrl: "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=800&auto=format&fit=crop&q=80",
+        imageUrl: "https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?w=800&auto=format&fit=crop&q=80",
         price: 42000,
         clientQuote: "Captured the soul of Rajasthan with sharp modern craftsmanship."
       }
@@ -1267,7 +1267,7 @@ export const SEED_PRODUCTS: Product[] = [
     price: 24000,
     category: "Mural Design",
     images: [
-      "https://images.unsplash.com/photo-1549887534-1541e9326642?w=800&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1561055657-b9e0bf0fa360?w=800&auto=format&fit=crop&q=80",
       "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800&auto=format&fit=crop&q=80"
     ],
     leadTime: "On-site: 4-6 days",

@@ -178,27 +178,33 @@ export function Navbar() {
             {currentUser && currentUser.id !== "guest" && currentUser.name !== "Guest" ? (
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <div className="flex items-center gap-1.5 bg-[#2A313D] px-2.5 py-0.5 rounded-sm border border-[#3E4756] text-[11px]">
-                  {currentUser.avatarUrl ? (
-                    <img
-                      src={currentUser.avatarUrl}
-                      alt={currentUser.name}
-                      className="w-4 h-4 rounded-full object-cover aspect-square ring-1 ring-[#FAF7F2]/40 shrink-0"
-                    />
-                  ) : (
-                    <div className="w-4 h-4 rounded-full bg-[#E5A93B]/20 text-[#E5A93B] flex items-center justify-center text-[9px] font-bold shrink-0">
-                      {currentUser.name.charAt(0).toUpperCase()}
-                    </div>
-                  )}
-                  <span
-                    className={`font-bold px-1.5 py-0.2 rounded-xs text-[10px] ${
-                      isSeller ? "bg-[#B4461F] text-white" : "bg-[#1E2229] text-[#FAF7F2]"
-                    }`}
+                  <Link
+                    href="/profile"
+                    className="flex items-center gap-1.5 hover:opacity-90 cursor-pointer group"
+                    title="View and edit your profile"
                   >
-                    {currentUser.role}
-                  </span>
-                  <span className="font-semibold text-[#FAF7F2] hidden sm:inline truncate max-w-[130px]">
-                    {currentUser.name}
-                  </span>
+                    {currentUser.avatarUrl ? (
+                      <img
+                        src={currentUser.avatarUrl}
+                        alt={currentUser.name}
+                        className="w-4 h-4 rounded-full object-cover aspect-square ring-1 ring-[#FAF7F2]/40 shrink-0 group-hover:ring-[#E5A93B]"
+                      />
+                    ) : (
+                      <div className="w-4 h-4 rounded-full bg-[#E5A93B]/20 text-[#E5A93B] flex items-center justify-center text-[9px] font-bold shrink-0">
+                        {currentUser.name.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <span
+                      className={`font-bold px-1.5 py-0.2 rounded-xs text-[10px] ${
+                        isSeller ? "bg-[#B4461F] text-white" : "bg-[#1E2229] text-[#FAF7F2]"
+                      }`}
+                    >
+                      {currentUser.role}
+                    </span>
+                    <span className="font-semibold text-[#FAF7F2] group-hover:text-[#E5A93B] transition-colors hidden sm:inline truncate max-w-[130px]">
+                      {currentUser.name}
+                    </span>
+                  </Link>
 
                   {/* 1-Click Role Switch */}
                   <button

@@ -6,7 +6,7 @@ import inquiriesRoutes from "./inquiries.routes";
 import opportunitiesRoutes from "./opportunities.routes";
 import statsRoutes from "./stats.routes";
 import chatRoutes from "./chat";
-import paymentRoutes from "./payment";
+import paymentRoutes from "../payment-gateway/payment.routes";
 import tinyfishRoutes from "./tinyfish";
 import channel3Routes from "./channel3.routes";
 

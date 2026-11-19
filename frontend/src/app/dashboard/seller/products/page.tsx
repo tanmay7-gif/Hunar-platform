@@ -23,7 +23,8 @@ import {
   AlertCircle,
   Wifi,
   WifiOff,
-  RefreshCw
+  RefreshCw,
+  MapPin
 } from "lucide-react";
 import { useTinyFishSyncQueue } from "@tinyfish/core";
 import { ExternalProductImporterModal } from "@/components/tinyfish/ExternalProductImporterModal";
@@ -108,10 +109,10 @@ export default function SellerProductsPage() {
   return (
     <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-10 space-y-10">
       {/* Studio Workbench Header */}
-      <div className="rounded-sm p-6 sm:p-8 border border-[#262A30] bg-[#121417] shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
+      <div className="w-full max-w-full overflow-hidden rounded-2xl p-6 sm:p-8 border border-[#262A30] bg-[#121417] shadow-[0_4px_20px_rgba(0,0,0,0.15)] box-border">
+        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 w-full min-w-0 max-w-full">
+          <div className="space-y-2 min-w-0 flex-1 max-w-full">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="px-2.5 py-0.5 rounded-xs text-[10px] font-semibold uppercase tracking-wider bg-[#B4461F] text-white">
                 Studio Workbench
               </span>
@@ -120,21 +121,36 @@ export default function SellerProductsPage() {
               </span>
             </div>
 
-            {/* Single-Line Artisan Identity Header */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="font-serif text-2xl font-bold text-white">
+            {/* Artisan Identity Header with Styled Location Pill */}
+            <div className="min-w-0 max-w-full">
+              <h1 className="font-serif text-2xl sm:text-3xl font-bold text-white tracking-tight truncate">
                 {currentUser.name || "Rohit Sharma"}
               </h1>
-              <span className="text-[#756E65] text-lg font-light">•</span>
-              <span className="text-sm font-medium text-[#A59D92] self-center">
-                {currentUser.city || "Khurja / Delhi NCR"}
-              </span>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 border border-orange-200/80 text-orange-800 text-xs sm:text-sm font-medium shadow-xs mt-1.5">
+                <MapPin className="w-3.5 h-3.5 text-orange-500 shrink-0" />
+                <span className="truncate">
+                  {(() => {
+                    const rawCity = currentUser.city || "Khurja / Delhi NCR";
+                    const parts = rawCity.split("/").map((p) => p.trim());
+                    if (parts.length > 1) {
+                      return (
+                        <>
+                          <span>{parts[0]}</span>
+                          <span className="text-orange-400 mx-1">/</span>
+                          <span>{parts.slice(1).join(" / ")}</span>
+                        </>
+                      );
+                    }
+                    return rawCity;
+                  })()}
+                </span>
+              </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5 flex-wrap md:flex-nowrap shrink-0">
+          <div className="flex items-center gap-2.5 flex-wrap min-w-0 max-w-full w-full xl:w-auto">
             {/* TinyFish Offline Sync Status Indicator */}
-            <div className="flex items-center gap-2 px-3 py-2 rounded-sm text-xs font-mono border bg-[#1A1D23] border-[#2D323B] text-[#9B948A]">
+            <div className="w-full sm:w-auto max-w-full min-w-0 box-border flex items-center justify-center sm:justify-start gap-2 px-3 py-2 rounded-sm text-xs font-mono border bg-[#1A1D23] border-[#2D323B] text-[#9B948A] shrink-0">
               {isSyncing ? (
                 <>
                   <RefreshCw className="w-3.5 h-3.5 text-[#E5A93B] animate-spin" />
@@ -167,7 +183,7 @@ export default function SellerProductsPage() {
 
             <button
               onClick={() => setIsImporterOpen(true)}
-              className="px-3.5 py-2.5 rounded-sm bg-[#1A1D23] border border-[#2D323B] hover:border-[#C85A32] text-white text-xs font-medium transition-colors duration-150 flex items-center gap-1.5 cursor-pointer shadow-xs"
+              className="w-full sm:w-auto max-w-full min-w-0 box-border px-3.5 py-2.5 rounded-sm bg-[#1A1D23] border border-[#2D323B] hover:border-[#C85A32] text-white text-xs font-medium transition-colors duration-150 flex items-center justify-center sm:justify-start gap-1.5 cursor-pointer shadow-xs shrink-0"
               title="Extract craft listings from Etsy, Instagram, or external URLs via TinyFish Fetch API"
             >
               <Sparkles className="w-3.5 h-3.5 text-[#E5A93B]" />
@@ -176,7 +192,7 @@ export default function SellerProductsPage() {
 
             <button
               onClick={() => setIsAddDrawerOpen(true)}
-              className="px-4 py-2.5 rounded-sm bg-[#1A1D23] border border-[#2D323B] hover:border-[#C85A32] text-white text-xs font-medium transition-colors duration-150 flex items-center gap-1.5 shadow-xs"
+              className="w-full sm:w-auto max-w-full min-w-0 box-border px-4 py-2.5 rounded-sm bg-[#1A1D23] border border-[#2D323B] hover:border-[#C85A32] text-white text-xs font-medium transition-colors duration-150 flex items-center justify-center sm:justify-start gap-1.5 shadow-xs shrink-0"
             >
               <Plus className="w-3.5 h-3.5 text-[#E5A93B]" />
               <span>+ Quick Add Product</span>
@@ -184,7 +200,7 @@ export default function SellerProductsPage() {
 
             <Link
               href="/dashboard/seller/products/new"
-              className="px-4 py-2.5 rounded-sm bg-[#B4461F] hover:bg-[#963715] text-white text-xs font-medium transition-colors duration-150 flex items-center gap-2 border border-[#C85A32] shadow-xs"
+              className="w-full sm:w-auto max-w-full min-w-0 box-border px-4 py-2.5 rounded-sm bg-[#B4461F] hover:bg-[#963715] text-white text-xs font-medium transition-colors duration-150 flex items-center justify-center sm:justify-start gap-2 border border-[#C85A32] shadow-xs shrink-0"
             >
               <Plus className="w-4 h-4" />
               <span>Full Studio Upload</span>
@@ -193,24 +209,24 @@ export default function SellerProductsPage() {
         </div>
 
         {/* Quick Inventory Highlights Bar */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-5 border-t border-[#262A30] text-xs">
-          <div>
-            <span className="text-[#9B948A] text-[10px] uppercase font-semibold">Total Catalog Pieces:</span>
-            <p className="font-semibold text-base text-white mt-0.5">{totalStockCount} units</p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-5 border-t border-[#262A30] text-xs w-full max-w-full min-w-0">
+          <div className="min-w-0">
+            <span className="text-[#9B948A] text-[10px] uppercase font-semibold block truncate">Total Catalog Pieces:</span>
+            <p className="font-semibold text-base text-white mt-0.5 truncate">{totalStockCount} units</p>
           </div>
-          <div>
-            <span className="text-[#9B948A] text-[10px] uppercase font-semibold">Catalog Value:</span>
-            <p className="font-semibold text-base text-[#E5A93B] mt-0.5">₹{totalCatalogValue.toLocaleString("en-IN")}</p>
+          <div className="min-w-0">
+            <span className="text-[#9B948A] text-[10px] uppercase font-semibold block truncate">Catalog Value:</span>
+            <p className="font-semibold text-base text-[#E5A93B] mt-0.5 truncate">₹{totalCatalogValue.toLocaleString("en-IN")}</p>
           </div>
-          <div>
-            <span className="text-[#9B948A] text-[10px] uppercase font-semibold">Active Listings:</span>
-            <p className="font-semibold text-base text-white mt-0.5">
+          <div className="min-w-0">
+            <span className="text-[#9B948A] text-[10px] uppercase font-semibold block truncate">Active Listings:</span>
+            <p className="font-semibold text-base text-white mt-0.5 truncate">
               {sellerProducts.filter((p) => p.status === "Live").length} Live
             </p>
           </div>
-          <div>
-            <span className="text-[#9B948A] text-[10px] uppercase font-semibold">Patron Views:</span>
-            <p className="font-semibold text-base text-[#2D583B] mt-0.5">
+          <div className="min-w-0">
+            <span className="text-[#9B948A] text-[10px] uppercase font-semibold block truncate">Patron Views:</span>
+            <p className="font-semibold text-base text-[#2D583B] mt-0.5 truncate">
               {currentUser.id === "demo-seller-rohit" ? "1,420" : "0"} visits
             </p>
           </div>
@@ -295,14 +311,21 @@ export default function SellerProductsPage() {
               {t("dashboard.emptyInventory")}
             </p>
           </div>
-          <div className="pt-2 flex items-center justify-center gap-3">
+          <div className="pt-2 flex flex-wrap items-center justify-center gap-3 w-full max-w-full min-w-0">
             <button
               onClick={() => setIsAddDrawerOpen(true)}
-              className="btn-terracotta px-5 py-2.5 rounded-sm text-xs font-medium inline-flex items-center gap-2"
+              className="w-full sm:w-auto max-w-full min-w-0 box-border btn-terracotta px-5 py-2.5 rounded-sm text-xs font-medium inline-flex items-center justify-center gap-2 cursor-pointer shadow-xs"
             >
               <Plus className="w-4 h-4" />
               <span>{t("cta.addNewProduct")}</span>
             </button>
+            <Link
+              href="/dashboard/seller/products/new"
+              className="w-full sm:w-auto max-w-full min-w-0 box-border px-5 py-2.5 rounded-sm border border-[#DACABA] bg-white text-[#1E2229] hover:bg-[#FAF7F2] text-xs font-medium inline-flex items-center justify-center gap-2 transition-colors shadow-xs"
+            >
+              <Plus className="w-4 h-4 text-[#B4461F]" />
+              <span>Full Studio Upload</span>
+            </Link>
           </div>
         </div>
       ) : filteredProducts.length === 0 ? (

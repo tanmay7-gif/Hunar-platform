@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useHunar } from "@/context/HunarContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { Conversation, Message, PaymentMethod } from "@/types";
-import { PaymentModal } from "./PaymentModal";
+import { PaymentModal } from "@/payment-gateway";
 import {
   MessageSquare,
   Send,
@@ -59,7 +59,7 @@ export function ChatModule({ initialConversationId, defaultRoleView }: ChatModul
     amount: 2450
   });
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   // Determine current active conversation
   const selectedConvId =
@@ -77,10 +77,13 @@ export function ChatModule({ initialConversationId, defaultRoleView }: ChatModul
     }
   }, [selectedConvId, activeConversationId, setActiveConversationId]);
 
-  // Scroll to bottom on new messages
+  // Scroll strictly inside the message container (without scrolling the window viewport)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [activeConv?.messages]);
+    const container = messagesContainerRef.current;
+    if (container) {
+      container.scrollTop = container.scrollHeight;
+    }
+  }, [activeConv?.id, activeConv?.messages?.length]);
 
   // Filter conversations
   const filteredConversations = conversations.filter((c) => {
@@ -188,7 +191,7 @@ export function ChatModule({ initialConversationId, defaultRoleView }: ChatModul
                 key={conv.id}
                 onClick={() => {
                   setActiveConversationId(conv.id);
-                  router.push(`/dashboard/chat/${conv.id}`);
+                  router.push(`/dashboard/chat/${conv.id}`, { scroll: false });
                 }}
                 className={`w-full p-4 text-left transition-colors duration-150 flex items-start gap-3.5 relative ${isSelected ? "bg-white border-l-4 border-l-[#B4461F] shadow-xs" : "hover:bg-[#F3EADB]"
                   }`}
@@ -266,7 +269,19 @@ export function ChatModule({ initialConversationId, defaultRoleView }: ChatModul
           {/* Top Header: Partner info & Active Product Reference Card */}
           <div className="px-6 py-3.5 bg-[#FAF7F2] border-b border-[#E8DEC8] flex flex-wrap items-center justify-between gap-3 shrink-0">
             {/* Counterpart info */}
-            <div className="flex items-center gap-3 min-w-0">
+            <Link
+              href={
+                currentUser.role === "CUSTOMER"
+                  ? `/artisans/${activeConv.sellerId}`
+                  : `/profile`
+              }
+              className="flex items-center gap-3 min-w-0 hover:opacity-90 group/counterpart cursor-pointer"
+              title={
+                currentUser.role === "CUSTOMER"
+                  ? `View ${activeConv.sellerName}'s artisan profile`
+                  : `View patron profile`
+              }
+            >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={
@@ -279,11 +294,11 @@ export function ChatModule({ initialConversationId, defaultRoleView }: ChatModul
                     ? activeConv.sellerName
                     : activeConv.customerName
                 }
-                className="w-11 h-11 rounded-sm object-cover border border-[#D3CBBE] shrink-0"
+                className="w-11 h-11 rounded-sm object-cover border border-[#D3CBBE] group-hover/counterpart:border-[#B4461F] transition-colors shrink-0"
               />
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-serif font-bold text-sm text-[#1E2229] truncate">
+                  <h3 className="font-serif font-bold text-sm text-[#1E2229] group-hover/counterpart:text-[#B4461F] transition-colors truncate">
                     {currentUser.role === "CUSTOMER"
                       ? activeConv.sellerName
                       : activeConv.customerName}
@@ -306,7 +321,7 @@ export function ChatModule({ initialConversationId, defaultRoleView }: ChatModul
                   <span className="text-[#2D583B] font-medium">Active in Session</span>
                 </p>
               </div>
-            </div>
+            </Link>
 
             {/* Active Product Reference Card + Pay Trigger */}
             <div className="flex items-center gap-3">
@@ -360,14 +375,24 @@ export function ChatModule({ initialConversationId, defaultRoleView }: ChatModul
           </div>
 
           {/* Message History Feed */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-4">
+          <div
+            ref={messagesContainerRef}
+            className="flex-1 overflow-y-auto p-6 space-y-4"
+          >
             {/* Conversation Introduction Banner */}
             <div className="text-center py-4 space-y-1 bg-[#FAF7F2] rounded-sm border border-[#E8DEC8] max-w-lg mx-auto p-4">
               <span className="px-2 py-0.5 rounded-xs text-[10px] font-bold uppercase tracking-wider bg-white text-[#8A7561] border border-[#E8DEC8]">
                 Protected Artisan Channel
               </span>
               <h4 className="font-serif font-bold text-xs text-[#1E2229] pt-1">
-                Direct Discussion with {activeConv.sellerName}
+                Direct Discussion with{" "}
+                <Link
+                  href={`/artisans/${activeConv.sellerId}`}
+                  className="text-[#B4461F] hover:underline cursor-pointer font-bold"
+                  title={`View ${activeConv.sellerName}'s profile`}
+                >
+                  {activeConv.sellerName}
+                </Link>
               </h4>
               <p className="text-[11px] text-[#635C53]">
                 Discuss custom sizing, glaze variations, material sourcing, and dispatch timelines. Payments completed in-chat are protected by Hunar escrow.
@@ -502,7 +527,6 @@ export function ChatModule({ initialConversationId, defaultRoleView }: ChatModul
                 </div>
               );
             })}
-            <div ref={messagesEndRef} />
           </div>
 
           {/* Bottom Action Bar */}

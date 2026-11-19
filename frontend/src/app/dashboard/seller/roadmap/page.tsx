@@ -39,43 +39,163 @@ export default function SellerRoadmapPage() {
 
   const currentSteps = roadmaps[selectedArtForm] || roadmaps["Pottery"] || [];
 
-  // Calculate completed count
-  const allMilestoneIds = currentSteps.flatMap((s) => s.milestones.map((m) => m.id));
+  // Calculate completed count and progression details
+  const allMilestonesList = currentSteps.flatMap((s) => s.milestones);
+  const allMilestoneIds = allMilestonesList.map((m) => m.id);
   const completedCount = allMilestoneIds.filter((id) => completedMilestones[id]).length;
   const progressPercent = allMilestoneIds.length > 0 ? Math.round((completedCount / allMilestoneIds.length) * 100) : 0;
+  const remainingCount = Math.max(0, allMilestonesList.length - completedCount);
+  const currentStage = currentSteps.find((s) => s.milestones.some((m) => !completedMilestones[m.id])) || currentSteps[currentSteps.length - 1];
+  const nextMilestone = allMilestonesList.find((m) => !completedMilestones[m.id]);
 
   return (
     <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-10 space-y-10">
       {/* Header Banner */}
-      <div className="rounded-sm p-6 sm:p-8 border border-[#2C323D] bg-[#1E2229] text-[#FAF7F2] shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-xs text-[10px] font-semibold uppercase tracking-wider bg-[#B4461F] text-white">
+      <div className="rounded-2xl p-6 sm:p-8 border border-[#2C323D] bg-[#1E2229] text-[#FAF7F2] shadow-[0_4px_20px_rgba(0,0,0,0.12)] overflow-hidden">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-orange-500 text-white shadow-xs">
                 Kala Career Engine
               </span>
-              <span className="text-xs text-[#E5A93B] font-mono">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-orange-950/60 text-orange-300 border border-orange-800/60">
                 Milestones to Steady Studio Revenue
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#FAF7F2]">
               {isHindi ? "कला रोडमैप" : "Kala Career Roadmap"}
             </h1>
+            <p className="text-xs sm:text-sm text-stone-300 max-w-2xl leading-relaxed">
+              {isHindi
+                ? "कारीगर से स्थायी व्यवसाय तक का स्पष्ट 6-महीने का मार्ग। प्रत्येक पड़ाव पूरा करें और अपनी स्टूडियो आय बढ़ाएं।"
+                : "A structured 6-month trajectory from heritage craftsmanship to self-sustaining studio revenue. Complete verified milestones to unlock higher-tier commissions."}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Redesigned Progress Hero Card */}
+      <div className="w-full max-w-full rounded-2xl border border-orange-200/80 bg-gradient-to-br from-orange-50/70 via-white to-amber-50/40 shadow-sm p-6 sm:p-7 space-y-5 relative overflow-hidden box-border">
+        {/* Accent Top Border Bar */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-400" />
+
+        {/* Top Row: Title, Stage Badge & Percentage Callout */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs font-bold uppercase tracking-wider text-orange-800">
+                {isHindi ? "स्टूडियो समग्र प्रगति" : "Overall Studio Progress"}
+              </span>
+              <span className="bg-orange-100 text-orange-700 text-xs font-semibold px-3 py-0.5 rounded-full border border-orange-200/80">
+                {progressPercent === 100
+                  ? (isHindi ? "पूर्ण" : "Studio Setup Mastered")
+                  : currentStage
+                  ? `Stage ${currentStage.stageNumber}: In Progress`
+                  : "In Progress"}
+              </span>
+            </div>
+            <h3 className="font-serif font-bold text-lg sm:text-xl text-[#1E2229]">
+              {selectedArtForm} Trajectory
+            </h3>
           </div>
 
-          <div className="bg-[#2A313D] p-5 rounded-sm border border-[#3E4756] min-w-[200px] shrink-0 text-center">
-            <span className="text-[10px] uppercase font-semibold text-[#8A7561] block mb-1">Overall Studio Progress</span>
-            <div className="text-3xl font-serif font-bold text-[#B4461F]">{progressPercent}%</div>
-            <p className="text-[11px] text-[#FAF7F2]/80 mt-1">
-              {completedCount} of {allMilestoneIds.length} milestones completed
-            </p>
-            <div className="w-full h-1.5 bg-[#1E2229] rounded-xs mt-2.5 overflow-hidden">
+          {/* Large Percentage Callout + Circular Progress Ring */}
+          <div className="flex items-center gap-3.5 shrink-0">
+            <div className="text-left sm:text-right">
+              <div className="text-3xl sm:text-4xl font-extrabold text-orange-600 font-serif tabular-nums tracking-tight">
+                {progressPercent}%
+              </div>
+              <span className="text-[10px] text-[#8A7561] font-semibold uppercase tracking-wider block">
+                {completedCount} of {allMilestonesList.length} Milestones
+              </span>
+            </div>
+
+            <div className="relative w-12 h-12 sm:w-14 sm:h-14 shrink-0">
+              <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                <path
+                  className="text-orange-100"
+                  strokeWidth="3.5"
+                  stroke="currentColor"
+                  fill="none"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                />
+                <path
+                  className="text-orange-500 transition-all duration-700 ease-out"
+                  strokeDasharray={`${progressPercent}, 100`}
+                  strokeWidth="3.5"
+                  strokeLinecap="round"
+                  stroke="currentColor"
+                  fill="none"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                />
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center text-orange-600 font-bold text-xs">
+                <Sparkles className="w-3.5 h-3.5 text-[#E5A93B]" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Upgraded Progress Bar with Milestone Segment Step Dots */}
+        <div className="space-y-1.5">
+          <div className="relative w-full">
+            <div className="h-3.5 bg-orange-100/90 rounded-full overflow-hidden relative shadow-inner">
               <div
-                className="h-full bg-[#B4461F] rounded-xs transition-all duration-300"
+                className="h-full bg-gradient-to-r from-orange-500 via-orange-500 to-amber-500 rounded-full transition-all duration-700 ease-out shadow-xs"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
+
+            {/* Subtle Milestone Step Dots (7 segments for 7 milestones) */}
+            {allMilestonesList.length > 1 && (
+              <div className="absolute inset-0 flex items-center justify-between px-1.5 pointer-events-none">
+                {allMilestonesList.map((m, idx) => {
+                  const isDone = completedMilestones[m.id];
+                  return (
+                    <div
+                      key={m.id || idx}
+                      className={`w-2 h-2 rounded-full border transition-all ${
+                        isDone
+                          ? "bg-white border-orange-600 shadow-xs ring-1 ring-orange-500/30"
+                          : "bg-orange-200/90 border-white/80"
+                      }`}
+                      title={`Milestone ${idx + 1}: ${m.task}`}
+                    />
+                  );
+                })}
+              </div>
+            )}
           </div>
+        </div>
+
+        {/* Clear Milestone Breakdown Sub-Row */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs pt-1 border-t border-orange-100/80">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/80 text-xs font-semibold">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <span>{completedCount} of {allMilestonesList.length} milestones completed</span>
+            </span>
+
+            <span className="text-[#635C53] font-medium text-xs">
+              {remainingCount === 0
+                ? (isHindi ? "🎉 सभी पड़ाव पूर्ण हो चुके हैं!" : "🎉 All milestones completed!")
+                : isHindi
+                ? `${remainingCount} पड़ाव बाकी हैं स्टूडियो पूर्णता हेतु`
+                : `${remainingCount} milestones left to complete your studio setup`}
+            </span>
+          </div>
+
+          {/* Next Milestone Motivating Cue */}
+          {nextMilestone && (
+            <div className="text-[11px] text-[#635C53] flex items-center gap-1.5 truncate max-w-md">
+              <span className="font-semibold text-orange-700 shrink-0">
+                {isHindi ? "अगला पड़ाव:" : "Next Milestone:"}
+              </span>
+              <span className="text-[#1E2229] font-medium truncate" title={nextMilestone.task}>
+                {isHindi && nextMilestone.taskHindi ? nextMilestone.taskHindi : nextMilestone.task}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 

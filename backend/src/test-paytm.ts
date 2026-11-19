@@ -1,4 +1,4 @@
-import { PaymentController } from "./controllers/payment.controller";
+import { PaymentController } from "./payment-gateway";
 
 async function runPaytmTests() {
   console.log("=== Testing Paytm Staging Integration ===");

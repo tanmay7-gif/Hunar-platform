@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Product } from "@/types";
 import { useHunar } from "@/context/HunarContext";
@@ -86,20 +87,25 @@ export function BazaarFeed({
               {/* Card Content */}
               <div className="p-6 space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+                  <Link
+                    href={`/artisans/${product.sellerId}`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex items-center gap-2 hover:opacity-85 transition-opacity cursor-pointer group/artisan"
+                    title={`View ${product.sellerName}'s profile`}
+                  >
                     <ProtectedImage
                       src={product.sellerAvatar}
                       alt={product.sellerName}
                       className="w-6 h-6 rounded-full object-cover aspect-square"
                       wrapperClassName="w-6 h-6 rounded-full ring-1 ring-[#E8DEC8] shrink-0"
                     />
-                    <span className="text-xs font-semibold text-[#1E2229] hover:text-[#B4461F] transition-colors duration-150 flex items-center gap-1">
+                    <span className="text-xs font-semibold text-[#1E2229] group-hover/artisan:text-[#B4461F] group-hover/artisan:underline transition-colors duration-150 flex items-center gap-1">
                       {product.sellerName}
                       {product.sellerVerified && (
                         <CheckCircle2 className="w-3.5 h-3.5 text-[#2D583B]" />
                       )}
                     </span>
-                  </div>
+                  </Link>
                   <span className="text-[10px] text-[#635C53] truncate max-w-[100px]">
                     {product.sellerCity.split("/")[0]}
                   </span>

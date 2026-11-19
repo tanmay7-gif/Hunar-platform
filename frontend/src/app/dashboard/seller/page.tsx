@@ -30,7 +30,8 @@ import {
   AlertCircle,
   RefreshCw,
   ShoppingBag,
-  Video
+  Video,
+  MapPin
 } from "lucide-react";
 import { MentorshipManager } from "@/components/seller/MentorshipManager";
 import { MarketIntelligenceBar } from "@/components/tinyfish/MarketIntelligenceBar";
@@ -143,13 +144,29 @@ export default function SellerStudioDashboard() {
               <span className="px-2.5 py-0.5 rounded-xs text-[10px] font-semibold uppercase tracking-wider bg-[#B4461F] text-white">
                 {isHindi ? "कारीगर स्टूडियो (SELLER WORKSPACE)" : "ARTISAN STUDIO WORKSPACE"}
               </span>
-              <span className="text-xs text-[#E5A93B] font-mono">
-                {currentUser.city}
-              </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#FAF7F2] tracking-tight">
               {currentUser.name} {isHindi ? "का शिल्प स्टूडियो" : "'s Craft Studio"}
             </h1>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 border border-orange-200/80 text-orange-800 text-xs sm:text-sm font-medium shadow-xs mt-1.5">
+              <MapPin className="w-3.5 h-3.5 text-orange-500 shrink-0" />
+              <span className="truncate">
+                {(() => {
+                  const rawCity = currentUser.city || "Khurja / Delhi NCR";
+                  const parts = rawCity.split("/").map((p) => p.trim());
+                  if (parts.length > 1) {
+                    return (
+                      <>
+                        <span>{parts[0]}</span>
+                        <span className="text-orange-400 mx-1">/</span>
+                        <span>{parts.slice(1).join(" / ")}</span>
+                      </>
+                    );
+                  }
+                  return rawCity;
+                })()}
+              </span>
+            </div>
             <p className="text-xs text-[#FAF7F2]/80 mt-1.5 leading-relaxed">
               {currentUser.tagline || (isHindi ? "मास्टर सेरेमिक एवं टेराकोटा शिल्पकार" : "Master Ceramicist & Terracotta Sculptor")} • {currentUser.email}
             </p>

@@ -80,6 +80,7 @@ interface HunarContextType {
   registerCreatorFromOnboarding: (newCreator: Partial<Creator>) => Creator;
   registerArtisan: (newArtisan: Creator) => Creator;
   updateCreatorProfile: (creatorIdOrUsername: string, updates: Partial<Creator>) => void;
+  updateUserProfile: (updates: Partial<UserAccount>) => void;
 
   // Role-based auth & Demo account states
   currentUser: UserAccount;
@@ -1771,6 +1772,55 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
+  const updateUserProfile = (updates: Partial<UserAccount>) => {
+    setCurrentUser((prev) => {
+      const updated: UserAccount = {
+        ...prev,
+        ...updates
+      };
+      try {
+        localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(updated));
+        localStorage.setItem("hunar_user_account", JSON.stringify(updated));
+        saveLocalRegisteredUser(updated);
+      } catch {}
+      return updated;
+    });
+
+    // If user is a seller, also synchronize their creator profile
+    if (currentUser.role === "SELLER" || updates.role === "SELLER") {
+      setCreators((prev) => {
+        const updated = prev.map((c) => {
+          if (
+            c.id === currentUser.id ||
+            c.id === `creator-${currentUser.id}` ||
+            (currentUser.username && c.username?.toLowerCase() === currentUser.username.toLowerCase()) ||
+            (currentUser.email && c.email?.toLowerCase() === currentUser.email.toLowerCase())
+          ) {
+            return protectCreator({
+              ...c,
+              name: updates.name || c.name,
+              city: updates.city || c.city,
+              bio: updates.bio || c.bio,
+              avatarUrl: updates.avatarUrl || c.avatarUrl,
+              primaryArtForm: updates.artCategory || c.primaryArtForm
+            });
+          }
+          return c;
+        });
+        saveCreatorsToStorage(updated);
+        return updated;
+      });
+    }
+
+    showToast(
+      language === "hi" ? "प्रोफ़ाइल अपडेट हो गई" : "Profile Updated",
+      language === "hi"
+        ? "आपकी प्रोफ़ाइल जानकारी सुरक्षित कर दी गई है।"
+        : "Your profile details have been successfully saved.",
+      "success"
+    );
+  };
+
   return (
     <HunarContext.Provider
       value={{
@@ -1794,6 +1844,7 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
         registerCreatorFromOnboarding,
         registerArtisan,
         updateCreatorProfile,
+        updateUserProfile,
 
         // Auth & Roles
         currentUser,

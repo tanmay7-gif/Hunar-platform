@@ -220,7 +220,11 @@ export default function DiscoverArtisansPage() {
             >
               {/* Creator Card Top Header */}
               <div className="p-6 pb-5 border-b border-[#E8DEC8] flex items-start justify-between gap-4 bg-[#FAF7F2]">
-                <div className="flex items-center gap-4 min-w-0">
+                <Link
+                  href={`/artisans/${creator.id}`}
+                  className="flex items-center gap-4 min-w-0 hover:opacity-90 transition-opacity cursor-pointer group/artisan"
+                  title={`View ${creator.name}'s profile`}
+                >
                   <ProtectedImage
                     src={creator.avatarUrl}
                     alt={creator.name}
@@ -229,7 +233,7 @@ export default function DiscoverArtisansPage() {
                   />
                   <div className="min-w-0">
                     <div className="flex items-center gap-1.5 mb-0.5">
-                      <h3 className="font-serif font-bold text-lg text-[#1E2229] truncate">
+                      <h3 className="font-serif font-bold text-lg text-[#1E2229] group-hover/artisan:text-[#B4461F] transition-colors truncate">
                         {creator.name}
                       </h3>
                       {creator.isVerified && (
@@ -241,12 +245,27 @@ export default function DiscoverArtisansPage() {
                     <p className="text-xs text-[#B4461F] font-semibold truncate">
                       {creator.primaryArtForm}
                     </p>
-                    <div className="flex items-center gap-1 text-[11px] text-[#635C53] mt-0.5">
-                      <MapPin className="w-3 h-3 text-gray-400 shrink-0" />
-                      <span className="truncate">{creator.city}</span>
+                    <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-orange-50 border border-orange-200/80 text-orange-800 text-[11px] font-medium shadow-2xs mt-1">
+                      <MapPin className="w-3 h-3 text-orange-500 shrink-0" />
+                      <span className="truncate">
+                        {(() => {
+                          const rawCity = creator.city || "Khurja / Delhi NCR";
+                          const parts = rawCity.split("/").map((p) => p.trim());
+                          if (parts.length > 1) {
+                            return (
+                              <>
+                                <span>{parts[0]}</span>
+                                <span className="text-orange-400 mx-0.5">/</span>
+                                <span>{parts.slice(1).join(" / ")}</span>
+                              </>
+                            );
+                          }
+                          return rawCity;
+                        })()}
+                      </span>
                     </div>
                   </div>
-                </div>
+                </Link>
 
                 {/* Bookmark Toggle */}
                 <button

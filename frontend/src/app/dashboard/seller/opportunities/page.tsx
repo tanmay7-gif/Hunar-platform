@@ -26,7 +26,8 @@ import {
   Check,
   Bot,
   Monitor,
-  Globe
+  Globe,
+  PlusCircle
 } from "lucide-react";
 
 export default function SellerOpportunitiesPage() {
@@ -95,41 +96,85 @@ export default function SellerOpportunitiesPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-10 space-y-10">
-      {/* Header Banner */}
-      <div className="rounded-sm p-6 sm:p-8 border border-[#2C323D] bg-[#1E2229] text-[#FAF7F2] shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-xs text-[10px] font-semibold uppercase tracking-wider bg-sky-600 text-white">
-                Live Gigs Radar
-              </span>
-              <span className="text-xs text-sky-400 font-mono">Grassroots Boli & Direct Bids</span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#FAF7F2]">
-              {isHindi ? "अवसर एवं गिग रडार" : "Open Gigs Radar"}
-            </h1>
+      {/* Hero Header Box */}
+      <div className="rounded-2xl p-6 sm:p-8 border border-[#2C323D] bg-[#1E2229] text-[#FAF7F2] shadow-[0_4px_20px_rgba(0,0,0,0.12)] overflow-hidden space-y-6">
+        {/* Tier 1: Title, Badges, and Description */}
+        <div className="w-full min-w-0 space-y-3">
+          {/* Badge Strip */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-orange-500 text-white shadow-xs">
+              {isHindi ? "लाइव गिग रडार" : "Open Gigs Radar"}
+            </span>
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-orange-950/60 text-orange-300 border border-orange-800/60">
+              {isHindi ? "शून्य मध्यस्थ • सीधी बोलियां" : "0% Middlemen • Direct Bids"}
+            </span>
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-[#2A313D] text-stone-300 border border-[#3E4756] hidden sm:inline-flex items-center gap-1">
+              <CheckCircle2 className="w-3 h-3 text-orange-400" />
+              <span>{isHindi ? "सत्यापित कमीशन" : "Verified Commissions"}</span>
+            </span>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          {/* Single-Line Heading */}
+          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-serif font-bold text-[#FAF7F2] tracking-tight whitespace-nowrap overflow-x-auto no-scrollbar py-0.5">
+            Grassroots Boli & Direct Bids
+          </h1>
+
+          {/* Subtitle / Description */}
+          <p className="text-xs sm:text-sm text-stone-300 max-w-3xl leading-relaxed">
+            {isHindi
+              ? "होटलों, कैफे और वास्तुशिल्प परियोजनाओं के लिए खुले अवसर। बिना किसी बिचौलिए के सीधे क्लाइंट को अपनी दर उद्धृत करें और शत-प्रतिशत भुगतान पाएं।"
+              : "Discover verified open commissions, architectural cafe murals, and heritage tenders. Submit direct studio quotations with 0% platform cuts and full milestone protection."}
+          </p>
+        </div>
+
+        {/* Tier 2: Action Controls & Live Stats Bar */}
+        <div className="pt-5 border-t border-[#2C323D] flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          {/* Action CTAs */}
+          <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={() => setIsAgentModalOpen(true)}
-              className="px-3.5 py-2.5 rounded-sm bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold flex items-center gap-2 transition-colors cursor-pointer shadow-sm"
+              className="px-4 py-2.5 rounded-sm bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold flex items-center gap-2 transition-colors cursor-pointer shadow-sm"
               title="Deploy autonomous AI web agent to scout schemes on handicrafts.nic.in, Dastkar, and TRIFED"
             >
-              <Bot className="w-4 h-4 text-sky-200" />
-              <span>Deploy Scout Agent (Web Agent)</span>
+              <Bot className="w-4 h-4 text-orange-200" />
+              <span>Deploy Scout Agent</span>
             </button>
+
             <button
               onClick={() => setIsCloudBrowserOpen(true)}
-              className="px-3.5 py-2.5 rounded-sm bg-[#2A313D] hover:bg-[#343C4B] text-[#FAF7F2] text-xs font-medium flex items-center gap-2 border border-[#3E4756] transition-colors cursor-pointer"
+              className="px-4 py-2.5 rounded-sm bg-[#2A313D] hover:bg-[#343C4B] text-[#FAF7F2] text-xs font-medium flex items-center gap-2 border border-[#3E4756] transition-colors cursor-pointer"
               title="Remote Playwright/CDP cloud browser inspection for official craft portals"
             >
-              <Monitor className="w-3.5 h-3.5 text-sky-400" />
+              <Monitor className="w-3.5 h-3.5 text-orange-400" />
               <span>Cloud Browser (CDP Sandbox)</span>
             </button>
-            <div className="px-3 py-2 rounded-sm bg-sky-950/40 border border-sky-800 text-xs">
-              <span className="text-sky-300 block text-[10px] uppercase font-semibold">Top Studio Fits:</span>
-              <span className="text-sm font-bold text-sky-400">{radarStats.topPicks} Priority Matches</span>
+
+            <Link
+              href="/dashboard/customer/post-gig"
+              className="px-4 py-2.5 rounded-sm bg-[#2A313D] hover:bg-[#343C4B] text-[#FAF7F2] text-xs font-medium flex items-center gap-2 border border-[#3E4756] transition-colors cursor-pointer"
+              title="Post a new gig or custom craft commission"
+            >
+              <PlusCircle className="w-3.5 h-3.5 text-orange-400" />
+              <span>Post a Gig</span>
+            </Link>
+          </div>
+
+          {/* Telemetry Stats Pills */}
+          <div className="flex flex-wrap items-center gap-2.5">
+            <div className="px-3.5 py-2 rounded-sm bg-orange-950/40 border border-orange-800/80 text-xs flex items-center gap-2">
+              <Sparkles className="w-3.5 h-3.5 text-orange-400 shrink-0" />
+              <div>
+                <span className="text-orange-300 block text-[10px] uppercase font-semibold leading-tight">Top Studio Fits</span>
+                <span className="text-xs font-bold text-orange-400 leading-tight">{radarStats.topPicks} Priority Matches</span>
+              </div>
+            </div>
+
+            <div className="px-3.5 py-2 rounded-sm bg-[#2A313D] border border-[#3E4756] text-xs flex items-center gap-2">
+              <Briefcase className="w-3.5 h-3.5 text-stone-400 shrink-0" />
+              <div>
+                <span className="text-stone-400 block text-[10px] uppercase font-semibold leading-tight">Live Opportunities</span>
+                <span className="text-xs font-bold text-[#FAF7F2] leading-tight">{opportunities.length} Active Gigs</span>
+              </div>
             </div>
           </div>
         </div>
@@ -148,7 +193,7 @@ export default function SellerOpportunitiesPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search gigs by title, location (Delhi, Jaipur...), client..."
-              className="w-full pl-9 pr-4 py-2 rounded-sm border border-[#D3CBBE] text-xs bg-[#FDFCF9] text-[#1A1816] focus:outline-none focus:border-sky-500"
+              className="w-full pl-9 pr-4 py-2 rounded-sm border border-[#D3CBBE] text-xs bg-[#FDFCF9] text-[#1A1816] focus:outline-none focus:border-orange-500"
             />
           </div>
 
@@ -158,8 +203,8 @@ export default function SellerOpportunitiesPage() {
               onClick={() => setOnlyTopMatches(!onlyTopMatches)}
               className={`px-3 py-2 rounded-sm text-xs font-semibold transition-colors duration-150 flex items-center gap-1.5 border ${
                 onlyTopMatches
-                  ? "bg-sky-600 text-white border-sky-700"
-                  : "bg-[#FAF7F2] text-[#635C53] border-[#E8DEC8] hover:border-sky-500 hover:text-sky-600"
+                  ? "bg-orange-500 text-white border-orange-600"
+                  : "bg-[#FAF7F2] text-[#635C53] border-[#E8DEC8] hover:border-orange-500 hover:text-orange-600"
               }`}
             >
               <Sparkles className="w-3.5 h-3.5 text-[#E5A93B]" />
@@ -172,7 +217,7 @@ export default function SellerOpportunitiesPage() {
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
-              className="px-3 py-2 rounded-sm border border-[#D3CBBE] text-xs bg-[#FDFCF9] text-[#1A1816] focus:outline-none focus:border-sky-500"
+              className="px-3 py-2 rounded-sm border border-[#D3CBBE] text-xs bg-[#FDFCF9] text-[#1A1816] focus:outline-none focus:border-orange-500"
             >
               {types.map((type) => (
                 <option key={type} value={type}>
@@ -190,13 +235,13 @@ export default function SellerOpportunitiesPage() {
               {filteredOpportunities.length} {isHindi ? "अवसर रडार पर सक्रिय" : "opportunities indexed on radar"}
             </span>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-xs bg-[#FAF7F2] border border-[#E8DEC8] text-[10px] text-[#8A7561]">
-              <span className="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
-              <span className="font-mono text-sky-600 font-semibold">{executionTimeMs}ms</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+              <span className="font-mono text-orange-600 font-semibold">{executionTimeMs}ms</span>
               <span>{isHindi ? "• टाइनीफिश एज रडार स्कोरिंग" : "• TinyFish zero-latency match scored"}</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 text-[11px] text-sky-700 font-medium">
+          <div className="flex items-center gap-2 text-[11px] text-orange-700 font-medium">
             <CheckCircle2 className="w-3.5 h-3.5" />
             <span>{isHindi ? "शून्य बिचौलिया शुल्क • सीधी क्लाइंट बोली" : "0% platform commission on direct bids"}</span>
           </div>
@@ -215,9 +260,9 @@ export default function SellerOpportunitiesPage() {
               key={opp.id}
               className={`bg-white rounded-sm border p-6 sm:p-7 shadow-[0_2px_8px_rgba(0,0,0,0.04)] flex flex-col justify-between space-y-5 transition-all duration-150 ${
                 isTop
-                  ? "border-sky-400 ring-1 ring-sky-400/20 bg-[#FDFAF5]"
+                  ? "border-orange-400 ring-1 ring-orange-400/20 bg-[#FDFAF5]"
                   : isRec
-                  ? "border-sky-300 dark:border-sky-800 ring-1 ring-sky-300/30 bg-sky-50/30"
+                  ? "border-orange-300 dark:border-orange-800 ring-1 ring-orange-300/30 bg-orange-50/30"
                   : "border-[#E8E2D7]"
               }`}
             >
@@ -229,18 +274,18 @@ export default function SellerOpportunitiesPage() {
                     <div
                       className={`px-2.5 py-1 rounded-sm text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 shadow-2xs ${
                         isTop
-                          ? "bg-sky-600 text-white"
+                          ? "bg-orange-500 text-white"
                           : isRec
-                          ? "bg-sky-50 text-sky-700 border border-sky-200"
+                          ? "bg-orange-50 text-orange-700 border border-orange-200"
                           : "bg-[#FAF7F2] text-[#8A7561] border border-[#E8DEC8]"
                       }`}
                       title="TinyFish Deterministic Craft Alignment Score"
                     >
-                      <Sparkles className={`w-3 h-3 ${isRec ? "text-sky-600" : isTop ? "text-[#E5A93B]" : "text-[#8A7561]"}`} />
+                      <Sparkles className={`w-3 h-3 ${isRec ? "text-orange-600" : isTop ? "text-[#E5A93B]" : "text-[#8A7561]"}`} />
                       <span>{opp.match.overallScore}% {isHindi ? "स्टूडियो मिलान" : "Studio Match"}</span>
                     </div>
 
-                    <span className="bg-sky-50 text-sky-700 border border-sky-200 text-xs font-semibold px-2.5 py-1 rounded-sm uppercase tracking-wider">
+                    <span className="bg-orange-50 text-orange-700 border border-orange-200 text-xs font-semibold px-2.5 py-1 rounded-sm uppercase tracking-wider">
                       {opp.type}
                     </span>
 
@@ -251,14 +296,14 @@ export default function SellerOpportunitiesPage() {
                   </div>
 
                   <span className="text-xs text-[#635C53] shrink-0 flex items-center gap-1">
-                    <Calendar className="w-3.5 h-3.5 text-sky-600" />
+                    <Calendar className="w-3.5 h-3.5 text-orange-600" />
                     {opp.deadline}
                   </span>
                 </div>
 
                 {/* Title & Description */}
                 <div>
-                  <h3 className="font-serif font-bold text-lg text-[#1E2229] mb-1.5 hover:text-sky-600 transition-colors">
+                  <h3 className="font-serif font-bold text-lg text-[#1E2229] mb-1.5 hover:text-orange-600 transition-colors">
                     {opp.title}
                   </h3>
                   <p className="text-xs text-[#635C53] line-clamp-2 leading-relaxed">
@@ -270,10 +315,10 @@ export default function SellerOpportunitiesPage() {
                 <div className="p-3 rounded-xs bg-[#FAF7F2] border border-[#E8DEC8] space-y-2 text-[11px]">
                   <div className="flex items-center justify-between text-[#8A7561]">
                     <span className="font-semibold text-[#1E2229] flex items-center gap-1">
-                      <Target className="w-3 h-3 text-sky-600" />
+                      <Target className="w-3 h-3 text-orange-600" />
                       <span>{isHindi ? "शिल्प विधा अनुकूलता:" : "Craft Medium Fit:"}</span>
                     </span>
-                    <span className="text-sky-600 font-bold font-mono">{opp.match.factors.craftScore}%</span>
+                    <span className="text-orange-600 font-bold font-mono">{opp.match.factors.craftScore}%</span>
                   </div>
                   <p className="text-[#635C53] text-[10.5px] leading-tight">
                     {isHindi ? opp.match.craftRationaleHindi : opp.match.craftRationale}
@@ -281,10 +326,10 @@ export default function SellerOpportunitiesPage() {
 
                   <div className="flex items-center justify-between text-[#8A7561] pt-1.5 border-t border-[#E8DEC8]/50">
                     <span className="font-semibold text-[#1E2229] flex items-center gap-1">
-                      <MapPin className="w-3 h-3 text-sky-600" />
+                      <MapPin className="w-3 h-3 text-orange-600" />
                       <span>{isHindi ? "क्षेत्रीय निकटता:" : "Regional Proximity:"}</span>
                     </span>
-                    <span className="text-sky-700 font-bold font-mono">{opp.match.factors.proximityScore}%</span>
+                    <span className="text-orange-700 font-bold font-mono">{opp.match.factors.proximityScore}%</span>
                   </div>
                   <p className="text-[#635C53] text-[10.5px] leading-tight">
                     {isHindi ? opp.match.proximityRationaleHindi : opp.match.proximityRationale}
@@ -303,7 +348,7 @@ export default function SellerOpportunitiesPage() {
                     <p className="text-[10px] text-[#635C53] truncate">{opp.postedByOrg}</p>
                   </div>
                   {opp.postedByVerified && (
-                    <span className="flex items-center gap-1 text-[10px] font-semibold text-sky-700 shrink-0">
+                    <span className="flex items-center gap-1 text-[10px] font-semibold text-orange-700 shrink-0">
                       <ShieldCheck className="w-3.5 h-3.5" />
                       Verified Patron
                     </span>
@@ -315,7 +360,7 @@ export default function SellerOpportunitiesPage() {
                   {opp.match.matchedTags.map((tag) => (
                     <span
                       key={tag}
-                      className="bg-sky-50 text-sky-700 border border-sky-200 text-xs font-semibold px-2.5 py-1 rounded-sm"
+                      className="bg-orange-50 text-orange-700 border border-orange-200 text-xs font-semibold px-2.5 py-1 rounded-sm"
                     >
                       ✓ {tag}
                     </span>
@@ -337,20 +382,20 @@ export default function SellerOpportunitiesPage() {
                   <span className="text-[10px] text-[#8A7561] uppercase font-semibold block">
                     {isHindi ? "अनुमानित बजट / दर:" : "Estimated Payout:"}
                   </span>
-                  <p className="font-serif font-bold text-base text-sky-700">
+                  <p className="font-serif font-bold text-base text-orange-700">
                     ₹{opp.budgetMin.toLocaleString("en-IN")} - ₹{opp.budgetMax.toLocaleString("en-IN")}
                   </p>
                 </div>
 
                 {hasApplied ? (
-                  <span className="px-3 py-1.5 rounded-sm bg-sky-50 text-sky-700 border border-sky-200 text-xs font-semibold flex items-center gap-1.5 shrink-0">
-                    <CheckCircle2 className="w-4 h-4 text-sky-600" />
+                  <span className="px-3 py-1.5 rounded-sm bg-orange-50 text-orange-700 border border-orange-200 text-xs font-semibold flex items-center gap-1.5 shrink-0">
+                    <CheckCircle2 className="w-4 h-4 text-orange-600" />
                     <span>Quote Submitted</span>
                   </span>
                 ) : (
                   <button
                     onClick={() => handleOpenApply(opp)}
-                    className="bg-sky-600 hover:bg-sky-700 text-white font-medium px-4 py-2 rounded-sm transition-colors text-xs flex items-center gap-1.5 shrink-0 cursor-pointer"
+                    className="bg-orange-500 hover:bg-orange-600 text-white font-medium px-4 py-2 rounded-sm transition-colors text-xs flex items-center gap-1.5 shrink-0 cursor-pointer"
                   >
                     <span>Express Interest</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -374,7 +419,7 @@ export default function SellerOpportunitiesPage() {
                 <h3 className="font-serif font-bold text-base text-[#1E2229] mt-0.5">
                   Send Studio Quote & Pitch
                 </h3>
-                <p className="text-xs text-sky-700 font-semibold mt-0.5">{selectedOpportunity.title}</p>
+                <p className="text-xs text-orange-700 font-semibold mt-0.5">{selectedOpportunity.title}</p>
               </div>
               <button
                 onClick={() => setSelectedOpportunity(null)}
@@ -395,7 +440,7 @@ export default function SellerOpportunitiesPage() {
                   min={selectedOpportunity.budgetMin}
                   value={proposedRate}
                   onChange={(e) => setProposedRate(Number(e.target.value))}
-                  className="w-full px-3 py-2 rounded-sm border border-[#D3CBBE] text-xs bg-[#FDFCF9] text-[#1A1816] focus:outline-none focus:border-sky-500"
+                  className="w-full px-3 py-2 rounded-sm border border-[#D3CBBE] text-xs bg-[#FDFCF9] text-[#1A1816] focus:outline-none focus:border-orange-500"
                 />
                 <p className="text-[10px] text-[#635C53] mt-1">
                   Client budget: ₹{selectedOpportunity.budgetMin.toLocaleString("en-IN")} - ₹{selectedOpportunity.budgetMax.toLocaleString("en-IN")}
@@ -412,7 +457,7 @@ export default function SellerOpportunitiesPage() {
                   value={pitch}
                   onChange={(e) => setPitch(e.target.value)}
                   placeholder="Mention previous works, materials you'll use, timeline commitment..."
-                  className="w-full p-3 rounded-sm border border-[#D3CBBE] text-xs bg-[#FDFCF9] text-[#1A1816] focus:outline-none focus:border-sky-500"
+                  className="w-full p-3 rounded-sm border border-[#D3CBBE] text-xs bg-[#FDFCF9] text-[#1A1816] focus:outline-none focus:border-orange-500"
                 />
               </div>
 
@@ -426,7 +471,7 @@ export default function SellerOpportunitiesPage() {
                 </button>
                 <button
                   type="submit"
-                  className="bg-sky-600 hover:bg-sky-700 text-white font-medium px-5 py-2 rounded-sm text-xs transition-colors cursor-pointer"
+                  className="bg-orange-500 hover:bg-orange-600 text-white font-medium px-5 py-2 rounded-sm text-xs transition-colors cursor-pointer"
                 >
                   Submit Studio Quote
                 </button>

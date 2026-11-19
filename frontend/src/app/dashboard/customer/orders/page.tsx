@@ -181,7 +181,14 @@ export default function CustomerOrdersPage() {
                       {order.productTitle || "Custom Artisan Commission"}
                     </h3>
                     <p className="text-xs text-[#635C53]">
-                      Artisan: <span className="font-semibold text-[#1E2229]">{order.sellerName}</span>
+                      Artisan:{" "}
+                      <Link
+                        href={`/artisans/${order.sellerId}`}
+                        className="font-semibold text-[#1E2229] hover:text-[#B4461F] hover:underline cursor-pointer"
+                        title={`View ${order.sellerName}'s profile`}
+                      >
+                        {order.sellerName}
+                      </Link>
                     </p>
                   </div>
                 </div>

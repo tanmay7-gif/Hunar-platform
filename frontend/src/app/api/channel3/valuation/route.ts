@@ -48,7 +48,7 @@ const MOCK_CHANNEL3_BENCHMARKS: Record<string, Channel3Product[]> = {
       priceUsd: 28.0,
       currency: "INR",
       merchant: "Society6",
-      imageUrl: "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=400&q=80",
+      imageUrl: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=400&q=80",
       url: "https://society6.com/madhubani-canvas",
       category: "Madhubani Folk Art",
       isCommercialAlternative: true,

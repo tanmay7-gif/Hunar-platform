@@ -133,7 +133,15 @@ export default function SavedCollectionsPage() {
                           {prod.title}
                         </h3>
                         <p className="text-xs text-[#635C53] mt-0.5">
-                          By <span className="font-semibold text-[#1E2229]">{prod.sellerName}</span> • {prod.sellerCity}
+                          By{" "}
+                          <Link
+                            href={`/artisans/${prod.sellerId}`}
+                            className="font-semibold text-[#1E2229] hover:text-[#B4461F] hover:underline cursor-pointer"
+                            title={`View ${prod.sellerName}'s artisan profile`}
+                          >
+                            {prod.sellerName}
+                          </Link>{" "}
+                          • {prod.sellerCity}
                         </p>
                       </div>
 
@@ -195,16 +203,20 @@ export default function SavedCollectionsPage() {
                     className="bg-white rounded-sm border border-[#E8DEC8] p-6 sm:p-7 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-md transition-all duration-150 space-y-5"
                   >
                     <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-center gap-3.5">
+                      <Link
+                        href={`/artisans/${creator.id}`}
+                        className="flex items-center gap-3.5 hover:opacity-90 transition-opacity cursor-pointer group/artisan"
+                        title={`View ${creator.name}'s profile`}
+                      >
                         <ProtectedImage
                           src={creator.avatarUrl}
                           alt={creator.name}
                           className="w-14 h-14 rounded-full object-cover aspect-square"
-                          wrapperClassName="w-14 h-14 rounded-full ring-1 ring-[#E8DEC8] shrink-0"
+                          wrapperClassName="w-14 h-14 rounded-full ring-1 ring-[#E8DEC8] group-hover/artisan:ring-[#B4461F] transition-colors shrink-0"
                         />
                         <div>
                           <div className="flex items-center gap-1.5 mb-0.5">
-                            <h3 className="font-serif font-bold text-base text-[#1E2229]">
+                            <h3 className="font-serif font-bold text-base text-[#1E2229] group-hover/artisan:text-[#B4461F] transition-colors">
                               {creator.name}
                             </h3>
                             {creator.isVerified && (
@@ -214,7 +226,7 @@ export default function SavedCollectionsPage() {
                           <p className="text-xs text-[#B4461F] font-semibold">{creator.primaryArtForm}</p>
                           <p className="text-[11px] text-[#635C53]">{creator.city}</p>
                         </div>
-                      </div>
+                      </Link>
 
                       <button
                         onClick={() => toggleSaveCreator(creator.id)}

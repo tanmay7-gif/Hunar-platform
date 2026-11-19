@@ -55,8 +55,8 @@ export function MentorshipManager({ isHindi = false }: MentorshipManagerProps) {
   );
   const [title, setTitle] = useState<string>(
     currentUser.mentorshipTitle ||
-      matchingCreator.mentorshipTitle ||
-      "Khurja Terracotta Glazing & Kiln Setup"
+    matchingCreator.mentorshipTitle ||
+    "Khurja Terracotta Glazing & Kiln Setup"
   );
   const [duration, setDuration] = useState<number>(
     currentUser.mentorshipDuration || matchingCreator.mentorshipDuration || 45
@@ -66,17 +66,17 @@ export function MentorshipManager({ isHindi = false }: MentorshipManagerProps) {
   );
   const [availability, setAvailability] = useState<string>(
     currentUser.mentorshipAvailability ||
-      matchingCreator.mentorshipAvailability ||
-      "Saturdays & Sundays, 4 PM – 7 PM"
+    matchingCreator.mentorshipAvailability ||
+    "Saturdays & Sundays, 4 PM – 7 PM"
   );
   const [agenda, setAgenda] = useState<string[]>(
     currentUser.mentorshipTopics ||
-      matchingCreator.mentorshipTopics || [
-        "Wheel-throwing centering & balance precision",
-        "Wood-fired kiln temperature management (Cone 04-06)",
-        "Formulating food-safe, non-toxic studio glazes",
-        "Packaging fragile ceramic dinnerware for courier transit"
-      ]
+    matchingCreator.mentorshipTopics || [
+      "Wheel-throwing centering & balance precision",
+      "Wood-fired kiln temperature management (Cone 04-06)",
+      "Formulating food-safe, non-toxic studio glazes",
+      "Packaging fragile ceramic dinnerware for courier transit"
+    ]
   );
   const [newTopicInput, setNewTopicInput] = useState("");
   const [bookingFilter, setBookingFilter] = useState<"ALL" | "CONFIRMED" | "COMPLETED">("ALL");
@@ -112,6 +112,7 @@ export function MentorshipManager({ isHindi = false }: MentorshipManagerProps) {
       (currentUser.username && b.mentorId === "creator-rohit") ||
       b.mentorName === currentUser.name
   );
+
 
   const filteredBookings = sellerBookings.filter((b) => {
     if (bookingFilter === "ALL") return true;
@@ -266,9 +267,8 @@ export function MentorshipManager({ isHindi = false }: MentorshipManagerProps) {
             </p>
             <div className="mt-1 flex items-center gap-2">
               <span
-                className={`w-2.5 h-2.5 rounded-full ${
-                  enabled ? "bg-[#2D583B] animate-pulse" : "bg-[#8A7561]"
-                }`}
+                className={`w-2.5 h-2.5 rounded-full ${enabled ? "bg-[#2D583B] animate-pulse" : "bg-[#8A7561]"
+                  }`}
               />
               <span className="text-sm font-semibold text-[#1E2229]">
                 {enabled
@@ -276,8 +276,8 @@ export function MentorshipManager({ isHindi = false }: MentorshipManagerProps) {
                     ? "सक्रिय • बुकिंग चालू"
                     : "Live on Hunar Card"
                   : isHindi
-                  ? "निष्क्रिय (Opted Out)"
-                  : "Paused / Inactive"}
+                    ? "निष्क्रिय (Opted Out)"
+                    : "Paused / Inactive"}
               </span>
             </div>
             <p className="text-[11px] text-[#635C53] mt-0.5">
@@ -312,15 +312,13 @@ export function MentorshipManager({ isHindi = false }: MentorshipManagerProps) {
                 <button
                   type="button"
                   onClick={() => setEnabled(!enabled)}
-                  className={`w-11 h-6 rounded-full transition-colors duration-200 relative focus:outline-hidden ${
-                    enabled ? "bg-[#2D583B]" : "bg-[#D5CEBF]"
-                  }`}
+                  className={`w-11 h-6 rounded-full transition-colors duration-200 relative focus:outline-hidden ${enabled ? "bg-[#2D583B]" : "bg-[#D5CEBF]"
+                    }`}
                   aria-label="Toggle mentorship availability"
                 >
                   <span
-                    className={`block w-4 h-4 rounded-full bg-white transition-transform duration-200 shadow-sm absolute top-1 ${
-                      enabled ? "right-1" : "left-1"
-                    }`}
+                    className={`block w-4 h-4 rounded-full bg-white transition-transform duration-200 shadow-sm absolute top-1 ${enabled ? "right-1" : "left-1"
+                      }`}
                   />
                 </button>
               </div>
@@ -366,11 +364,10 @@ export function MentorshipManager({ isHindi = false }: MentorshipManagerProps) {
                       key={mins}
                       type="button"
                       onClick={() => setDuration(mins)}
-                      className={`py-2 px-3 rounded-sm text-xs font-semibold border transition-all duration-150 flex flex-col items-center gap-0.5 ${
-                        duration === mins
+                      className={`py-2 px-3 rounded-sm text-xs font-semibold border transition-all duration-150 flex flex-col items-center gap-0.5 ${duration === mins
                           ? "bg-[#1E2229] text-white border-[#1E2229]"
                           : "bg-white text-[#635C53] border-[#E8DEC8] hover:border-[#B4461F]"
-                      }`}
+                        }`}
                     >
                       <span>{mins} Mins</span>
                       <span className="text-[9px] opacity-75 font-normal">
@@ -405,11 +402,10 @@ export function MentorshipManager({ isHindi = false }: MentorshipManagerProps) {
                       key={preset}
                       type="button"
                       onClick={() => setFee(preset)}
-                      className={`text-[10px] px-2 py-0.5 rounded-xs border transition-colors duration-150 ${
-                        fee === preset
+                      className={`text-[10px] px-2 py-0.5 rounded-xs border transition-colors duration-150 ${fee === preset
                           ? "bg-[#FAF0E6] text-[#B4461F] border-[#F3CFBF] font-semibold"
                           : "bg-white text-[#635C53] border-[#E8DEC8]"
-                      }`}
+                        }`}
                     >
                       ₹{preset}
                     </button>
@@ -618,17 +614,16 @@ export function MentorshipManager({ isHindi = false }: MentorshipManagerProps) {
                 <button
                   key={filter}
                   onClick={() => setBookingFilter(filter)}
-                  className={`px-3 py-1.5 rounded-sm text-xs font-medium transition-colors duration-150 ${
-                    bookingFilter === filter
+                  className={`px-3 py-1.5 rounded-sm text-xs font-medium transition-colors duration-150 ${bookingFilter === filter
                       ? "bg-[#1E2229] text-white"
                       : "bg-[#FAF7F2] text-[#635C53] hover:text-[#1E2229] border border-[#E8DEC8]"
-                  }`}
+                    }`}
                 >
                   {filter === "ALL"
                     ? `All (${sellerBookings.length})`
                     : filter === "CONFIRMED"
-                    ? `Confirmed (${upcomingCount})`
-                    : `Completed (${sellerBookings.filter((b) => b.status === "COMPLETED").length})`}
+                      ? `Confirmed (${upcomingCount})`
+                      : `Completed (${sellerBookings.filter((b) => b.status === "COMPLETED").length})`}
                 </button>
               ))}
             </div>
@@ -673,13 +668,12 @@ export function MentorshipManager({ isHindi = false }: MentorshipManagerProps) {
                               {booking.learnerName}
                             </h4>
                             <span
-                              className={`px-2 py-0.5 rounded-xs text-[10px] font-bold uppercase tracking-wider ${
-                                isConfirmed
+                              className={`px-2 py-0.5 rounded-xs text-[10px] font-bold uppercase tracking-wider ${isConfirmed
                                   ? "bg-[#2D583B] text-white"
                                   : isCompleted
-                                  ? "bg-[#FAF7F2] text-[#635C53] border border-[#E8DEC8]"
-                                  : "bg-[#B4461F] text-white"
-                              }`}
+                                    ? "bg-[#FAF7F2] text-[#635C53] border border-[#E8DEC8]"
+                                    : "bg-[#B4461F] text-white"
+                                }`}
                             >
                               {booking.status} • ₹{booking.feePaid} Paid
                             </span>

@@ -145,15 +145,15 @@ export function MarketIntelligenceBar() {
       {/* Top Banner / Trigger */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-sky-500/20 border border-sky-400/40 flex items-center justify-center text-sky-400">
+          <div className="w-9 h-9 rounded-full bg-orange-500/20 border border-orange-400/40 flex items-center justify-center text-orange-400">
             <Scale className="w-4 h-4" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-sky-400 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-orange-400 uppercase tracking-wider">
                 Market Intelligence Hub
               </span>
-              <span className="px-1.5 py-0.2 rounded text-[10px] bg-sky-500/30 text-sky-300 border border-sky-400/40 font-mono">
+              <span className="px-1.5 py-0.2 rounded text-[10px] bg-orange-500/30 text-orange-300 border border-orange-400/40 font-mono">
                 Channel3 + TinyFish
               </span>
             </div>
@@ -173,13 +173,13 @@ export function MarketIntelligenceBar() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              className="w-full pl-8 pr-3 py-1.5 text-xs bg-[#16191F] border border-[#2C323D] rounded-xs text-[#FAF7F2] placeholder-stone-500 focus:outline-none focus:border-sky-500"
+              className="w-full pl-8 pr-3 py-1.5 text-xs bg-[#16191F] border border-[#2C323D] rounded-xs text-[#FAF7F2] placeholder-stone-500 focus:outline-none focus:border-orange-500"
             />
           </div>
           <button
             onClick={() => handleSearch()}
             disabled={loading}
-            className="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white text-xs font-medium rounded-xs flex items-center gap-1.5 transition-colors disabled:opacity-50 whitespace-nowrap cursor-pointer"
+            className="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white text-xs font-medium rounded-xs flex items-center gap-1.5 transition-colors disabled:opacity-50 whitespace-nowrap cursor-pointer"
           >
             {loading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
             <span>Fetch Radar</span>
@@ -190,8 +190,8 @@ export function MarketIntelligenceBar() {
       {/* Channel3 Retail-to-Handmade Benchmark Index Ticker */}
       <div className="mt-3 pt-3 border-t border-[#2C323D]/60 space-y-2">
         <div className="flex items-center justify-between text-[11px]">
-          <span className="text-sky-300 font-medium flex items-center gap-1.5">
-            <TrendingUp className="w-3.5 h-3.5 text-sky-400" />
+          <span className="text-orange-300 font-medium flex items-center gap-1.5">
+            <TrendingUp className="w-3.5 h-3.5 text-orange-400" />
             <span>Channel3 Retail Price Index (Mass-Market vs Authentic Handmade):</span>
           </span>
           <span className="text-stone-400 text-[10px] hidden sm:inline font-mono">
@@ -206,7 +206,7 @@ export function MarketIntelligenceBar() {
               onClick={() => handleInspectChannel3Category(metric)}
               className={`px-2.5 py-1.5 rounded-xs border transition-colors whitespace-nowrap text-left flex items-center gap-2 cursor-pointer ${
                 activeTrendCategory === metric.category && isOpen && activeTab === "CHANNEL3"
-                  ? "bg-sky-500/25 border-sky-400 text-sky-200"
+                  ? "bg-orange-500/25 border-orange-400 text-orange-200"
                   : "bg-[#16191F] border-[#2C323D] text-stone-300 hover:border-stone-500"
               }`}
             >
@@ -214,7 +214,7 @@ export function MarketIntelligenceBar() {
                 <span className="font-semibold block text-[#FAF7F2]">{metric.category}</span>
                 <span className="text-[10px] text-stone-400 block">
                   Retail: ₹{metric.averageCommercialPrice.toLocaleString("en-IN")} ➔ Handmade:{" "}
-                  <strong className="text-sky-300">₹{metric.suggestedHandmadePrice.toLocaleString("en-IN")}</strong>
+                  <strong className="text-orange-300">₹{metric.suggestedHandmadePrice.toLocaleString("en-IN")}</strong>
                 </span>
               </div>
               <span className="px-1.5 py-0.5 rounded-xs text-[9px] font-bold bg-[#2D583B]/60 text-[#71C28D] border border-[#2D583B]">
@@ -253,7 +253,7 @@ export function MarketIntelligenceBar() {
                 onClick={() => setActiveTab("CHANNEL3")}
                 className={`text-xs font-semibold px-2.5 py-1 rounded-xs cursor-pointer transition-colors ${
                   activeTab === "CHANNEL3"
-                    ? "bg-sky-600 text-white"
+                    ? "bg-orange-500 text-white"
                     : "bg-[#16191F] text-stone-400 hover:text-white"
                 }`}
               >
@@ -264,7 +264,7 @@ export function MarketIntelligenceBar() {
                 onClick={() => setActiveTab("TINYFISH")}
                 className={`text-xs font-semibold px-2.5 py-1 rounded-xs cursor-pointer transition-colors ${
                   activeTab === "TINYFISH"
-                    ? "bg-sky-600 text-white"
+                    ? "bg-orange-500 text-white"
                     : "bg-[#16191F] text-stone-400 hover:text-white"
                 }`}
               >
@@ -282,7 +282,7 @@ export function MarketIntelligenceBar() {
 
           {loading ? (
             <div className="py-8 flex flex-col items-center justify-center gap-2 text-stone-400 text-xs">
-              <RefreshCw className="w-5 h-5 animate-spin text-sky-400" />
+              <RefreshCw className="w-5 h-5 animate-spin text-orange-400" />
               <span>Querying Channel3 product market data and heritage pricing index...</span>
             </div>
           ) : activeTab === "CHANNEL3" ? (
@@ -291,7 +291,7 @@ export function MarketIntelligenceBar() {
               <div className="space-y-3 animate-in fade-in duration-150">
                 <div className="p-3 bg-[#16191F] border border-[#2C323D] rounded-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
-                    <span className="text-[10px] text-sky-400 font-mono font-semibold uppercase tracking-wider block">
+                    <span className="text-[10px] text-orange-400 font-mono font-semibold uppercase tracking-wider block">
                       Category Valuation: {channel3Valuation.category}
                     </span>
                     <h4 className="text-xs font-medium text-[#FAF7F2]">
@@ -326,7 +326,7 @@ export function MarketIntelligenceBar() {
                           />
                         )}
                         <div className="flex items-center justify-between text-[10px] text-stone-400">
-                          <span className="font-medium text-sky-300 flex items-center gap-1">
+                          <span className="font-medium text-orange-300 flex items-center gap-1">
                             <Building2 className="w-3 h-3 text-stone-400" />
                             <span>{item.merchant || "Commercial Retail"}</span>
                           </span>
@@ -351,7 +351,7 @@ export function MarketIntelligenceBar() {
                             href={item.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-sky-400 hover:underline inline-flex items-center gap-1 text-[10px]"
+                            className="text-orange-400 hover:underline inline-flex items-center gap-1 text-[10px]"
                           >
                             <span>Inspect</span>
                             <ExternalLink className="w-2.5 h-2.5" />

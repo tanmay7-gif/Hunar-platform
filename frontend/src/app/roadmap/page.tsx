@@ -59,23 +59,31 @@ export default function KalaRoadmapPage() {
           </div>
 
           {/* Overall Progress Tracker Badge */}
-          <div className="p-5 rounded-sm bg-white border border-[#E8E2D7] shadow-[0_2px_8px_rgba(0,0,0,0.04)] shrink-0 w-full md:w-64">
-            <div className="flex items-center justify-between text-xs mb-2">
-              <span className="font-semibold text-[#1A1816] flex items-center gap-1.5">
-                <Target className="w-3.5 h-3.5 text-[#B4461F]" />
-                {isHindi ? "रोडमैप पूर्णता" : "Milestones Done"}
+          <div className="p-5 rounded-2xl border border-orange-200/80 bg-gradient-to-br from-orange-50/70 via-white to-amber-50/40 shadow-sm shrink-0 w-full md:w-80 space-y-3 box-border">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-bold text-orange-800 flex items-center gap-1.5">
+                <Target className="w-4 h-4 text-orange-600" />
+                {isHindi ? "स्टूडियो समग्र प्रगति" : "Overall Studio Progress"}
               </span>
-              <span className="font-bold text-[#B4461F]">{progressPercent}%</span>
+              <span className="font-serif font-extrabold text-xl text-orange-600 tabular-nums">
+                {progressPercent}%
+              </span>
             </div>
-            <div className="w-full h-2 rounded-xs bg-[#FAF0E6] overflow-hidden">
+            <div className="w-full h-3 rounded-full bg-orange-100 overflow-hidden relative shadow-inner">
               <div
-                className="h-full bg-[#B4461F] rounded-xs transition-all duration-300"
+                className="h-full bg-gradient-to-r from-orange-500 via-orange-500 to-amber-500 rounded-full transition-all duration-700 ease-out shadow-xs"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
-            <p className="text-[11px] text-[#635C53] mt-2 text-right">
-              {completedCount} of {allMilestones.length} {isHindi ? "पड़ाव पूरे हुए" : "milestones completed"}
-            </p>
+            <div className="flex items-center justify-between text-[11px] pt-0.5">
+              <span className="inline-flex items-center gap-1 text-emerald-800 font-semibold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/80">
+                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                <span>{completedCount} of {allMilestones.length} done</span>
+              </span>
+              <span className="text-[#635C53] font-medium">
+                {allMilestones.length - completedCount} milestones left
+              </span>
+            </div>
           </div>
         </div>
 

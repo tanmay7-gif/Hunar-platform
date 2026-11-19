@@ -1,20 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { tinyFishFrontendService, TinyFishFetchResult } from "@/lib/tinyfish-agent";
 import { useHunar } from "@/context/HunarContext";
 import {
-  FileText,
   Sparkles,
   Link as LinkIcon,
   X,
   CheckCircle2,
   RefreshCw,
   Package,
-  Layers,
-  ArrowRight,
-  Eye,
-  ExternalLink
 } from "lucide-react";
 import { ProtectedImage } from "@/components/ui/ProtectedImage";
 
@@ -33,6 +28,17 @@ export function ExternalProductImporterModal({
   const [url, setUrl] = useState("https://etsy.com/listing/handmade-madhubani-tree-of-life");
   const [loading, setLoading] = useState(false);
   const [extractedResult, setExtractedResult] = useState<TinyFishFetchResult | null>(null);
+
+  // Close on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    if (isOpen) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -70,7 +76,7 @@ export function ExternalProductImporterModal({
       status: "Live"
     });
 
-    showToast("Product Imported", `"${data.title}" added to your live studio catalog.`);
+    showToast("Product Imported", `"${data.title}" added to your live studio catalog.`, "success");
     if (onImportComplete) {
       onImportComplete(data);
     }
@@ -78,177 +84,207 @@ export function ExternalProductImporterModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-      <div className="bg-[#1E2229] border border-[#2C323D] rounded-sm max-w-2xl w-full p-6 text-[#FAF7F2] shadow-2xl relative space-y-5 animate-in fade-in zoom-in-95 duration-150">
-        {/* Header */}
-        <div className="flex items-start justify-between">
-          <div className="space-y-1">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-xl max-h-[85vh] flex flex-col overflow-hidden rounded-2xl bg-white text-stone-900 shadow-xl border border-stone-200 animate-in fade-in zoom-in-95 duration-150"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* 1. Pinned Header */}
+        <div className="shrink-0 flex items-center justify-between px-5 py-3.5 border-b border-stone-200 bg-white">
+          <div className="space-y-0.5">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-[#E5A93B] bg-[#E5A93B]/10 border border-[#E5A93B]/30 px-2 py-0.5 rounded-xs">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-orange-700 bg-orange-100 border border-orange-200 px-2 py-0.5 rounded-full">
                 TinyFish Fetch API
               </span>
-              <span className="text-xs text-stone-400">Structured Web Page Extraction</span>
+              <span className="text-xs text-stone-500 font-medium hidden sm:inline">
+                Structured Web Extraction
+              </span>
             </div>
-            <h2 className="text-xl font-serif font-bold text-[#FAF7F2]">
+            <h2 className="text-base sm:text-lg font-serif font-bold text-stone-900 leading-snug">
               Import Craft Listing from External URL
             </h2>
-            <p className="text-xs text-stone-300">
-              Extract clean markdown, craft techniques, pricing, and high-res imagery directly from Etsy, Instagram, or artisan blogs.
+            <p className="text-[11px] text-stone-500">
+              Extract craft techniques, pricing, materials, and photos directly into your catalog.
             </p>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="text-stone-400 hover:text-white p-1 cursor-pointer"
+            aria-label="Close modal"
+            className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors cursor-pointer shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Input Form */}
-        <form onSubmit={handleFetch} className="space-y-3">
-          <label className="block text-xs font-medium text-stone-300">
-            External Product or Exhibition URL
-          </label>
-          <div className="flex items-center gap-2">
-            <div className="relative flex-1">
-              <LinkIcon className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
-              <input
-                type="url"
-                required
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                placeholder="https://etsy.com/listing/... or portfolio URL"
-                className="w-full pl-9 pr-3 py-2 text-xs bg-[#16191F] border border-[#2C323D] rounded-xs text-[#FAF7F2] placeholder-stone-500 focus:outline-none focus:border-[#B4461F]"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-4 py-2 bg-[#B4461F] hover:bg-[#963816] text-white text-xs font-semibold rounded-xs flex items-center gap-2 transition-colors disabled:opacity-50 whitespace-nowrap cursor-pointer"
-            >
-              {loading ? (
-                <>
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                  <span>Extracting...</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Extract via TinyFish</span>
-                </>
-              )}
-            </button>
-          </div>
-          <p className="text-[11px] text-stone-400">
-            Try test links: <code className="text-[#E5A93B]">https://etsy.com/listing/handmade-madhubani-tree-of-life</code> or any craft shop URL.
-          </p>
-        </form>
-
-        {/* Extraction Preview Card */}
-        {extractedResult && extractedResult.extractedData && (
-          <div className="p-4 bg-[#16191F] border border-[#2C323D] rounded-xs space-y-4">
-            <div className="flex items-center justify-between border-b border-[#2C323D] pb-3">
-              <div className="flex items-center gap-2 text-xs text-[#4E9B6E]">
-                <CheckCircle2 className="w-4 h-4" />
-                <span className="font-semibold">Structured Extraction Successful</span>
-              </div>
-              <span className="text-[10px] font-mono text-stone-400">
-                Engine: TinyFish Fetch API (JSON Schema)
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Product Thumbnail */}
-              <div className="relative aspect-square rounded-xs overflow-hidden border border-[#2C323D] bg-stone-900">
-                <ProtectedImage
-                  src={
-                    extractedResult.extractedData.images?.[0] ||
-                    "https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?w=800&auto=format&fit=crop&q=80"
-                  }
-                  alt={extractedResult.extractedData.title}
-                  className="w-full h-full object-cover"
-                  wrapperClassName="w-full h-full"
+        {/* 2. Scrollable Content Area */}
+        <div className="flex-1 min-h-0 overflow-y-auto px-5 py-4 space-y-3">
+          {/* Input Form */}
+          <form onSubmit={handleFetch} className="space-y-2">
+            <label className="block text-xs font-semibold text-stone-700">
+              External Product or Exhibition URL
+            </label>
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1 min-w-0">
+                <LinkIcon className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 shrink-0" />
+                <input
+                  type="url"
+                  required
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  placeholder="https://etsy.com/listing/... or portfolio URL"
+                  className="w-full pl-9 pr-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 transition-all"
                 />
-                <span className="absolute bottom-1 right-1 z-20 text-[9px] px-1 bg-black/70 text-white rounded">
-                  Extracted Image
+              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-3.5 py-2 bg-orange-600 hover:bg-orange-700 text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-colors disabled:opacity-50 whitespace-nowrap cursor-pointer shadow-xs shrink-0"
+              >
+                {loading ? (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    <span>Extracting...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                    <span>Extract via TinyFish</span>
+                  </>
+                )}
+              </button>
+            </div>
+            <p className="text-[11px] text-stone-500 flex items-center gap-1">
+              <span>Try test link:</span>
+              <button
+                type="button"
+                onClick={() => setUrl("https://etsy.com/listing/handmade-madhubani-tree-of-life")}
+                className="text-orange-600 hover:underline font-mono text-[10px] truncate max-w-[280px] sm:max-w-none text-left cursor-pointer"
+              >
+                handmade-madhubani-tree-of-life
+              </button>
+            </p>
+          </form>
+
+          {/* Extracted Preview Card */}
+          {extractedResult && extractedResult.extractedData && (
+            <div className="p-3.5 bg-orange-50/50 border border-orange-200/90 rounded-xl space-y-3">
+              <div className="flex items-center justify-between border-b border-orange-200/60 pb-2">
+                <div className="flex items-center gap-1.5 text-xs text-emerald-700 font-semibold">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>Structured Extraction Successful</span>
+                </div>
+                <span className="text-[10px] font-mono text-stone-500">
+                  Engine: TinyFish Fetch API
                 </span>
               </div>
 
-              {/* Data Fields */}
-              <div className="md:col-span-2 space-y-2 text-xs">
-                <div>
-                  <span className="text-[10px] text-stone-400 uppercase tracking-wider">Product Title</span>
-                  <h4 className="font-semibold text-sm text-[#FAF7F2]">
-                    {extractedResult.extractedData.title}
-                  </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-start">
+                {/* Product Thumbnail - Constrained height */}
+                <div className="relative h-32 sm:h-36 max-h-40 w-full rounded-lg overflow-hidden border border-orange-200/80 bg-stone-100 shrink-0">
+                  <ProtectedImage
+                    src={
+                      extractedResult.extractedData.images?.[0] ||
+                      "https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?w=800&auto=format&fit=crop&q=80"
+                    }
+                    alt={extractedResult.extractedData.title}
+                    className="max-h-40 w-full h-full object-cover rounded-lg"
+                    wrapperClassName="w-full h-full"
+                  />
+                  <span className="absolute bottom-1 right-1 z-20 text-[9px] font-medium px-1.5 py-0.5 bg-black/70 text-white rounded">
+                    Extracted Image
+                  </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 pt-1">
+                {/* Data Fields */}
+                <div className="sm:col-span-2 space-y-2 text-xs min-w-0">
                   <div>
-                    <span className="text-[10px] text-stone-400">Extracted Price</span>
-                    <p className="font-bold text-[#E5A93B] text-base">
-                      ₹{extractedResult.extractedData.price?.toLocaleString()}
-                    </p>
+                    <span className="text-[10px] text-stone-500 uppercase tracking-wider font-semibold">
+                      Product Title
+                    </span>
+                    <h4 className="font-semibold text-sm text-stone-900 leading-snug line-clamp-2">
+                      {extractedResult.extractedData.title}
+                    </h4>
                   </div>
-                  <div>
-                    <span className="text-[10px] text-stone-400">Technique / Category</span>
-                    <p className="text-stone-200">
-                      {extractedResult.extractedData.craftTechnique || extractedResult.extractedData.category}
-                    </p>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-stone-400">Lead Time</span>
-                    <p className="text-stone-200">{extractedResult.extractedData.leadTime}</p>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-stone-400">Stock Ready</span>
-                    <p className="text-stone-200">{extractedResult.extractedData.stock} units</p>
-                  </div>
-                </div>
 
-                {extractedResult.extractedData.materials && (
-                  <div className="pt-1">
-                    <span className="text-[10px] text-stone-400">Raw Materials:</span>
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {extractedResult.extractedData.materials.map((m: string, i: number) => (
-                        <span key={i} className="px-1.5 py-0.5 rounded-xs bg-[#2C323D] text-[10px] text-stone-300">
-                          {m}
-                        </span>
-                      ))}
+                  <div className="grid grid-cols-2 gap-2 pt-0.5">
+                    <div className="p-1.5 bg-white rounded-lg border border-orange-100">
+                      <span className="text-[10px] text-stone-500 block">Extracted Price</span>
+                      <p className="font-bold text-orange-600 text-sm font-serif">
+                        ₹{extractedResult.extractedData.price?.toLocaleString()}
+                      </p>
+                    </div>
+                    <div className="p-1.5 bg-white rounded-lg border border-orange-100">
+                      <span className="text-[10px] text-stone-500 block">Technique / Category</span>
+                      <p className="text-stone-800 font-medium text-xs truncate">
+                        {extractedResult.extractedData.craftTechnique || extractedResult.extractedData.category}
+                      </p>
+                    </div>
+                    <div className="p-1.5 bg-white rounded-lg border border-orange-100">
+                      <span className="text-[10px] text-stone-500 block">Lead Time</span>
+                      <p className="text-stone-800 text-xs truncate">{extractedResult.extractedData.leadTime}</p>
+                    </div>
+                    <div className="p-1.5 bg-white rounded-lg border border-orange-100">
+                      <span className="text-[10px] text-stone-500 block">Stock Ready</span>
+                      <p className="text-stone-800 text-xs">{extractedResult.extractedData.stock} units</p>
                     </div>
                   </div>
-                )}
+
+                  {extractedResult.extractedData.materials && (
+                    <div className="pt-0.5">
+                      <span className="text-[10px] text-stone-500 font-medium">Materials:</span>
+                      <div className="flex flex-wrap gap-1 mt-0.5">
+                        {extractedResult.extractedData.materials.map((m: string, i: number) => (
+                          <span
+                            key={i}
+                            className="px-1.5 py-0.5 rounded-full bg-white border border-stone-200 text-[10px] text-stone-700 font-medium"
+                          >
+                            {m}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Markdown Narrative Excerpt */}
+              <div className="p-2.5 bg-white border border-stone-200 rounded-lg text-[11px] text-stone-700 leading-relaxed font-mono max-h-20 overflow-y-auto">
+                <span className="text-[10px] text-orange-700 font-bold font-sans block uppercase tracking-wider mb-0.5">
+                  Clean Markdown Output:
+                </span>
+                {extractedResult.content}
               </div>
             </div>
+          )}
+        </div>
 
-            {/* Markdown Narrative Excerpt */}
-            <div className="p-3 bg-[#1E2229] border border-[#2C323D]/60 rounded-xs text-[11px] text-stone-300 leading-relaxed font-mono max-h-24 overflow-y-auto">
-              <span className="text-[10px] text-[#E5A93B] block uppercase tracking-wider mb-1 font-sans">
-                Clean Markdown Output:
-              </span>
-              {extractedResult.content}
-            </div>
-
-            {/* Actions */}
-            <div className="flex items-center justify-end gap-3 pt-2">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-3 py-1.5 text-xs text-stone-400 hover:text-white transition-colors cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleApplyToCatalog}
-                className="px-4 py-2 bg-[#2D583B] hover:bg-[#23452e] text-white text-xs font-semibold rounded-xs flex items-center gap-2 transition-colors cursor-pointer shadow-sm"
-              >
-                <Package className="w-3.5 h-3.5" />
-                <span>Save to Studio Catalog (₹{extractedResult.extractedData.price})</span>
-              </button>
-            </div>
-          </div>
-        )}
+        {/* 3. Pinned Footer */}
+        <div className="shrink-0 flex items-center justify-end gap-3 px-5 py-3.5 border-t border-stone-200 bg-gray-50/80">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 text-xs font-semibold text-stone-600 hover:text-stone-900 transition-colors cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleApplyToCatalog}
+            disabled={!extractedResult?.extractedData || loading}
+            className="px-4 py-2 bg-orange-600 hover:bg-orange-700 disabled:bg-stone-200 disabled:text-stone-400 disabled:cursor-not-allowed text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
+          >
+            <Package className="w-3.5 h-3.5" />
+            <span>
+              {extractedResult?.extractedData
+                ? `Save to Inventory (₹${extractedResult.extractedData.price?.toLocaleString() || "3,500"})`
+                : "Save / Import to Inventory"}
+            </span>
+          </button>
+        </div>
       </div>
     </div>
   );

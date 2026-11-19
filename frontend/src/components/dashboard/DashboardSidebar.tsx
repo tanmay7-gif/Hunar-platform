@@ -26,7 +26,8 @@ import {
   ExternalLink,
   ChevronRight,
   Video,
-  MessageSquare
+  MessageSquare,
+  MapPin
 } from "lucide-react";
 
 interface DashboardSidebarProps {
@@ -287,23 +288,36 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
           </button>
         </div>
 
-        {/* Active Persona Card */}
-        <div className="px-3 py-2 rounded-sm border bg-[#FFFFFF] border-[#E8E2D7] flex items-center gap-2.5">
+        {/* Active Persona Card -> Clickable Profile Link */}
+        <Link
+          href="/profile"
+          onClick={onCloseMobile}
+          className="px-3 py-2 rounded-sm border bg-[#FFFFFF] hover:bg-[#F9F7F3] border-[#E8E2D7] hover:border-[#1E2229] transition-all flex items-center gap-2.5 cursor-pointer group shadow-2xs"
+          title="View and edit your profile"
+        >
           <img
             src={activeProfile.avatar}
             alt={activeProfile.name}
-            className="w-9 h-9 object-cover rounded-full aspect-square ring-2 ring-[#EFECE6] shrink-0"
+            className="w-9 h-9 object-cover rounded-full aspect-square ring-2 ring-[#EFECE6] shrink-0 group-hover:ring-[#1E2229]/40 transition-all"
           />
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
-              <p className="text-xs font-bold text-[#1A1816] truncate">{activeProfile.name}</p>
+              <p className="text-xs font-bold text-[#1A1816] group-hover:text-[#B4461F] truncate transition-colors">
+                {activeProfile.name}
+              </p>
               <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-[#B4461F]" />
             </div>
-            <p className="text-[10px] text-gray-500 truncate">
-              {activeProfile.city}
-            </p>
+            <div className="flex items-center justify-between gap-1 mt-0.5">
+              <span className="inline-flex items-center gap-1 text-[10px] text-orange-800 font-medium bg-orange-50 border border-orange-200/80 px-2 py-0.5 rounded-full max-w-[130px] truncate">
+                <MapPin className="w-2.5 h-2.5 text-orange-500 shrink-0" />
+                <span className="truncate">{activeProfile.city}</span>
+              </span>
+              <span className="text-[9px] text-[#B4461F] font-semibold opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                Profile →
+              </span>
+            </div>
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* Navigation Menu Links */}

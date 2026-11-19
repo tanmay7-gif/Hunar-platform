@@ -73,7 +73,7 @@ export default function NewProductUploadPage() {
       label: "Terracotta Planter Master (Cloudinary Protected)"
     },
     {
-      url: "https://images.unsplash.com/photo-1549887534-1541e9326642?w=800&auto=format&fit=crop&q=80",
+      url: "https://images.unsplash.com/photo-1561055657-b9e0bf0fa360?w=800&auto=format&fit=crop&q=80",
       label: "Botanical Wall Mural Sample"
     }
   ];
