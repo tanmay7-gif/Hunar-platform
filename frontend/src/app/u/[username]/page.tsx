@@ -173,16 +173,17 @@ function HunarCardContent() {
                   wrapperClassName="w-28 h-28 sm:w-32 sm:h-32 rounded-sm border-2 border-white shadow-[0_2px_8px_rgba(0,0,0,0.08)] bg-white shrink-0"
                 />
                 <div className="pb-1">
-                  <div className="flex items-center gap-2">
-                    <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#1E2229]">
-                      {isHindi ? creator.nameHindi : creator.name}
-                    </h1>
-                    {creator.isVerified && (
-                      <span className="p-1 rounded-xs bg-[#2D583B] text-white" title="Verified Artisan">
-                        <CheckCircle className="w-3.5 h-3.5 text-[#E5A93B]" />
-                      </span>
-                    )}
-                  </div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#1E2229]">
+                        {isHindi ? creator.nameHindi : creator.name}
+                      </h1>
+                      {creator.isVerified && (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs" title="Verified Artisan & Master Seller">
+                          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                          <span>Verified Seller</span>
+                        </span>
+                      )}
+                    </div>
                   <p className="text-xs sm:text-sm font-semibold text-[#B4461F] mt-0.5">
                     {isHindi ? creator.artFormHindi : creator.primaryArtForm} • {creator.city}
                   </p>

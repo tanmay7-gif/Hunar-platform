@@ -41,10 +41,20 @@ import {
 
 export const STORAGE_KEYS = {
   AUTH_USER: "hunar_user",
+  ACTIVE_SESSION: "hunar_active_session",
   ARTISANS: "hunar_registered_artisans",
   PRODUCTS: "hunar_registered_products",
   USERS: "hunar_registered_users"
 } as const;
+
+export const GUEST_USER: UserAccount = {
+  id: "guest",
+  name: "Guest",
+  email: "",
+  role: "CUSTOMER",
+  city: "Delhi NCR",
+  avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80"
+};
 
 interface ToastState {
   id: string;
@@ -162,7 +172,25 @@ const HunarContext = createContext<HunarContextType | undefined>(undefined);
 export function HunarProvider({ children }: { children: React.ReactNode }) {
   const { currentLanguage: language, setLanguage, toggleLanguage, t } = useLanguage();
   const [currentPersona, setCurrentPersona] = useState<Persona>(MOCK_PERSONAS[0]);
-  const [currentUser, setCurrentUser] = useState<UserAccount>(DEMO_ACCOUNTS[0]);
+  const [currentUser, setCurrentUser] = useState<UserAccount>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const storedSession =
+          localStorage.getItem(STORAGE_KEYS.ACTIVE_SESSION) ||
+          localStorage.getItem(STORAGE_KEYS.AUTH_USER) ||
+          localStorage.getItem("hunar_user_account");
+        if (storedSession) {
+          const parsed = JSON.parse(storedSession);
+          if (parsed && parsed.id && parsed.id !== "guest") {
+            return parsed;
+          }
+        }
+      } catch (e) {
+        console.warn("Failed to load active session from localStorage:", e);
+      }
+    }
+    return GUEST_USER;
+  });
   const [creators, setCreators] = useState<Creator[]>(() => {
     if (typeof window !== "undefined") {
       try {
@@ -349,14 +377,24 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
       }
 
       // 3. User account hydration
-      const savedUser =
-        localStorage.getItem(STORAGE_KEYS.AUTH_USER) || localStorage.getItem("hunar_user_account");
-      if (savedUser) {
-        const parsed = JSON.parse(savedUser) as UserAccount;
-        setCurrentUser(parsed);
-        loadUserSavedData(parsed);
+      const savedSession =
+        localStorage.getItem(STORAGE_KEYS.ACTIVE_SESSION) ||
+        localStorage.getItem(STORAGE_KEYS.AUTH_USER) ||
+        localStorage.getItem("hunar_user_account");
+      if (savedSession) {
+        try {
+          const parsed = JSON.parse(savedSession) as UserAccount;
+          if (parsed && parsed.id && parsed.id !== "guest") {
+            setCurrentUser(parsed);
+            loadUserSavedData(parsed);
+          } else {
+            setCurrentUser(GUEST_USER);
+          }
+        } catch {
+          setCurrentUser(GUEST_USER);
+        }
       } else {
-        loadUserSavedData(DEMO_ACCOUNTS[0]);
+        setCurrentUser(GUEST_USER);
       }
     } catch {
       // ignore in SSR
@@ -394,12 +432,19 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
 
   // Local helper for persistent registered custom accounts
   const getLocalRegisteredUsers = (): UserAccount[] => {
-    if (typeof window === "undefined") return [];
+    if (typeof window === "undefined") return DEMO_ACCOUNTS;
     try {
-      const raw = localStorage.getItem("hunar_registered_users");
-      return raw ? JSON.parse(raw) : [];
+      const raw = localStorage.getItem(STORAGE_KEYS.USERS);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(DEMO_ACCOUNTS));
+      return DEMO_ACCOUNTS;
     } catch {
-      return [];
+      return DEMO_ACCOUNTS;
     }
   };
 
@@ -409,18 +454,20 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
       const current = getLocalRegisteredUsers();
       const filtered = current.filter((u) => u.email.toLowerCase() !== user.email.toLowerCase());
       filtered.push(user);
-      localStorage.setItem("hunar_registered_users", JSON.stringify(filtered));
+      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(filtered));
     } catch {
       // ignore
     }
   };
 
-  // Dedicated 1-Click Demo Profiles Login
+  // Internal helper for programmatic role login
   const loginAsDemo = (role: "SELLER" | "CUSTOMER"): UserAccount => {
-    const target = role === "SELLER" ? DEMO_ACCOUNTS[0] : DEMO_ACCOUNTS[1];
+    const allUsers = getLocalRegisteredUsers();
+    const target = allUsers.find((u) => u.role === role) || (role === "SELLER" ? DEMO_ACCOUNTS[0] : DEMO_ACCOUNTS[1]);
     setCurrentUser(target);
     loadUserSavedData(target);
     try {
+      localStorage.setItem(STORAGE_KEYS.ACTIVE_SESSION, JSON.stringify(target));
       localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(target));
       localStorage.setItem("hunar_user_account", JSON.stringify(target));
       document.cookie = `hunar_user_role=${target.role}; path=/; max-age=604800`;
@@ -429,14 +476,6 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // ignore
     }
-
-    showToast(
-      language === "hi" ? "डेमो खाता सक्रिय" : "Demo Profile Active",
-      language === "hi"
-        ? `${target.name} (${target.role === "SELLER" ? "कारीगर स्टूडियो" : "कला संरक्षक"}) के रूप में प्रवेश किया गया`
-        : `Signed in as demo: ${target.name} (${target.role})`,
-      "info"
-    );
 
     return target;
   };
@@ -465,69 +504,43 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
         const data = await res.json();
         if (res.ok && data.success && data.data) {
           serverUser = data.data;
-        } else {
+        } else if (!res.ok) {
           serverError = data.error || "Invalid email or password.";
         }
       } catch (e) {
         console.warn("Server auth endpoint unavailable, falling back to local verification:", e);
       }
 
-      // If server responded with an error (e.g. 401), honor it strictly
-      if (serverError && !serverUser) {
-        return { success: false, error: serverError };
-      }
-
-      if (serverUser) {
-        setCurrentUser(serverUser);
-        loadUserSavedData(serverUser);
-        try {
-          localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(serverUser));
-          localStorage.setItem("hunar_user_account", JSON.stringify(serverUser));
-          document.cookie = `hunar_user_role=${serverUser.role}; path=/; max-age=604800`;
-          document.cookie = `hunar_user_id=${serverUser.id}; path=/; max-age=604800`;
-          document.cookie = `hunar_user_name=${encodeURIComponent(serverUser.name)}; path=/; max-age=604800`;
-        } catch {
-          // ignore
-        }
-
-        showToast(
-          language === "hi" ? "लॉगिन सफल" : "Authentication Successful",
-          language === "hi"
-            ? `${serverUser.name} (${serverUser.role === "SELLER" ? "कारीगर स्टूडियो" : "कला संरक्षक"}) के रूप में स्वागत है`
-            : `Signed in as ${serverUser.name} (${serverUser.role})`,
-          "success"
-        );
-
-        return { success: true, user: serverUser };
-      }
-
       // 2. Client-side local verification fallback
       const localUsers = getLocalRegisteredUsers();
-      const allKnown = [...DEMO_ACCOUNTS, ...localUsers];
-      const matched = allKnown.find((a) => a.email.toLowerCase() === normalizedEmail);
+      const matched = localUsers.find((a) => a.email.toLowerCase() === normalizedEmail);
 
-      if (!matched) {
+      const targetUser = serverUser || matched;
+
+      if (!targetUser) {
         return {
           success: false,
           error: "No account found with this email. Please check your credentials or register."
         };
       }
 
-      if (matched.password && matched.password !== password) {
+      if (targetUser.password && targetUser.password !== password) {
         return {
           success: false,
           error: "Invalid email or password."
         };
       }
 
-      setCurrentUser(matched);
-      loadUserSavedData(matched);
+      saveLocalRegisteredUser(targetUser);
+      setCurrentUser(targetUser);
+      loadUserSavedData(targetUser);
       try {
-        localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(matched));
-        localStorage.setItem("hunar_user_account", JSON.stringify(matched));
-        document.cookie = `hunar_user_role=${matched.role}; path=/; max-age=604800`;
-        document.cookie = `hunar_user_id=${matched.id}; path=/; max-age=604800`;
-        document.cookie = `hunar_user_name=${encodeURIComponent(matched.name)}; path=/; max-age=604800`;
+        localStorage.setItem(STORAGE_KEYS.ACTIVE_SESSION, JSON.stringify(targetUser));
+        localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(targetUser));
+        localStorage.setItem("hunar_user_account", JSON.stringify(targetUser));
+        document.cookie = `hunar_user_role=${targetUser.role}; path=/; max-age=604800`;
+        document.cookie = `hunar_user_id=${targetUser.id}; path=/; max-age=604800`;
+        document.cookie = `hunar_user_name=${encodeURIComponent(targetUser.name)}; path=/; max-age=604800`;
       } catch {
         // ignore
       }
@@ -535,12 +548,12 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
       showToast(
         language === "hi" ? "लॉगिन सफल" : "Authentication Successful",
         language === "hi"
-          ? `${matched.name} (${matched.role === "SELLER" ? "कारीगर स्टूडियो" : "कला संरक्षक"}) के रूप में स्वागत है`
-          : `Signed in as ${matched.name} (${matched.role})`,
+          ? `${targetUser.name} (${targetUser.role === "SELLER" ? "कारीगर स्टूडियो" : "कला संरक्षक"}) के रूप में स्वागत है`
+          : `Signed in as ${targetUser.name} (${targetUser.role === "SELLER" ? "Artisan Studio" : "Patron"})`,
         "success"
       );
 
-      return { success: true, user: matched };
+      return { success: true, user: targetUser };
     } catch (err) {
       console.error("Login failed:", err);
       return { success: false, error: "An unexpected authentication error occurred." };
@@ -723,6 +736,7 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
       setCurrentUser(newUser);
       loadUserSavedData(newUser);
       try {
+        localStorage.setItem(STORAGE_KEYS.ACTIVE_SESSION, JSON.stringify(newUser));
         localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(newUser));
         localStorage.setItem("hunar_user_account", JSON.stringify(newUser));
         document.cookie = `hunar_user_role=${newUser.role}; path=/; max-age=604800`;
@@ -755,6 +769,8 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
+      // Clear ONLY session identifiers - strictly preserve hunar_registered_users
+      localStorage.removeItem(STORAGE_KEYS.ACTIVE_SESSION);
       localStorage.removeItem(STORAGE_KEYS.AUTH_USER);
       localStorage.removeItem("hunar_user_account");
       document.cookie = "hunar_user_role=; path=/; max-age=0";
@@ -765,15 +781,7 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
     }
 
     // Reset to clean unauthenticated guest state
-    const guestUser: UserAccount = {
-      id: "guest",
-      name: "Guest",
-      email: "",
-      role: "CUSTOMER",
-      city: "Delhi NCR",
-      avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80"
-    };
-    setCurrentUser(guestUser);
+    setCurrentUser(GUEST_USER);
     setSavedProductIds([]);
     setSavedCreatorIds([]);
 
@@ -785,23 +793,31 @@ export function HunarProvider({ children }: { children: React.ReactNode }) {
   };
 
   const switchDemoRole = (role: "SELLER" | "CUSTOMER") => {
-    const target = role === "SELLER" ? DEMO_ACCOUNTS[0] : DEMO_ACCOUNTS[1];
-    setCurrentUser(target);
-    loadUserSavedData(target);
-    try {
-      localStorage.setItem("hunar_user_account", JSON.stringify(target));
-      document.cookie = `hunar_user_role=${target.role}; path=/; max-age=604800`;
-      document.cookie = `hunar_user_id=${target.id}; path=/; max-age=604800`;
-      document.cookie = `hunar_user_name=${encodeURIComponent(target.name)}; path=/; max-age=604800`;
-    } catch {
-      // ignore
+    const updatedUser: UserAccount = {
+      ...currentUser,
+      role
+    };
+    setCurrentUser(updatedUser);
+    loadUserSavedData(updatedUser);
+    if (updatedUser.id !== "guest") {
+      saveLocalRegisteredUser(updatedUser);
+      try {
+        localStorage.setItem(STORAGE_KEYS.ACTIVE_SESSION, JSON.stringify(updatedUser));
+        localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(updatedUser));
+        localStorage.setItem("hunar_user_account", JSON.stringify(updatedUser));
+        document.cookie = `hunar_user_role=${updatedUser.role}; path=/; max-age=604800`;
+        document.cookie = `hunar_user_id=${updatedUser.id}; path=/; max-age=604800`;
+        document.cookie = `hunar_user_name=${encodeURIComponent(updatedUser.name)}; path=/; max-age=604800`;
+      } catch {
+        // ignore
+      }
     }
 
     showToast(
-      language === "hi" ? "भूमिका बदली गई" : "Demo Account Switched",
+      language === "hi" ? "भूमिका बदली गई" : "Mode Switched",
       language === "hi"
-        ? `अब आप ${target.name} (${target.role}) के रूप में सक्रिय हैं`
-        : `Active account switched to ${target.name} (${target.role})`,
+        ? `अब आप ${updatedUser.role === "SELLER" ? "कारीगर स्टूडियो" : "कला संरक्षक"} के रूप में देख रहे हैं`
+        : `Active mode switched to ${updatedUser.role === "SELLER" ? "Artisan Studio" : "Patron"}`,
       "info"
     );
   };

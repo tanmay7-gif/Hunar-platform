@@ -66,6 +66,20 @@ export function DashboardTopbar({
 
   // Get current breadcrumb and page subtitle based on pathname
   const getContextInfo = () => {
+    if (pathname.startsWith("/dashboard/protection")) {
+      return {
+        badge: "Creator Security",
+        title: "Creator & Artwork Protection Hub",
+        subtitle: "Digital SHA-256 Certificates, Attribution & Moderation Review Queue"
+      };
+    }
+    if (pathname.startsWith("/dashboard/delivery")) {
+      return {
+        badge: "Asset-Light Logistics",
+        title: "Artisan Delivery & Shipping Hub",
+        subtitle: "Pre-negotiated Courier Rates, AWB Tracking & Delivery Margins"
+      };
+    }
     if (isSeller) {
       if (pathname === "/dashboard/seller") {
         return {
@@ -279,13 +293,13 @@ export function DashboardTopbar({
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-sm text-xs font-medium border border-[#D9D0C3] bg-white text-[#1A1816] hover:bg-[#FAF7F2] transition-colors duration-150"
               title={
                 isSeller
-                  ? "Switch to Patron / Customer view (Priya Nair)"
-                  : "Switch to Artisan / Seller view (Rohit Sharma)"
+                  ? "Switch to Patron / Customer view"
+                  : "Switch to Artisan / Seller view"
               }
             >
               <RefreshCw className="w-3.5 h-3.5 text-[#E5A93B]" />
               <span className="hidden md:inline">
-                {isSeller ? "Patron Demo" : "Artisan Demo"}
+                {isSeller ? "Patron Mode" : "Artisan Mode"}
               </span>
             </button>
 

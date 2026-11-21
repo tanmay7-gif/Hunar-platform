@@ -27,7 +27,9 @@ import {
   Menu,
   X,
   ExternalLink,
-  LogOut
+  LogOut,
+  Truck,
+  ShieldCheck
 } from "lucide-react";
 
 export function Navbar() {
@@ -92,6 +94,18 @@ export function Navbar() {
       label: t("nav.roadmap"),
       icon: Milestone,
       exact: false
+    },
+    {
+      href: "/dashboard/delivery",
+      label: "Logistics",
+      icon: Truck,
+      exact: false
+    },
+    {
+      href: "/dashboard/protection",
+      label: "Protection",
+      icon: ShieldCheck,
+      exact: false
     }
   ];
 
@@ -120,6 +134,12 @@ export function Navbar() {
       label: t("nav.orders"),
       icon: ShoppingBag,
       badge: activeOrdersCount > 0 ? `${activeOrdersCount}` : null,
+      exact: false
+    },
+    {
+      href: "/dashboard/delivery",
+      label: "Delivery",
+      icon: Truck,
       exact: false
     },
     {
@@ -218,7 +238,7 @@ export function Navbar() {
                   >
                     <RefreshCw className="w-2.5 h-2.5 inline" />
                     <span className="hidden md:inline">
-                      {isSeller ? "Patron Demo" : "Artisan Demo"}
+                      {isSeller ? "Patron Mode" : "Artisan Mode"}
                     </span>
                   </button>
                 </div>
@@ -242,7 +262,7 @@ export function Navbar() {
                 <Link
                   href="/login"
                   className="text-xs text-[#FAF7F2] hover:text-[#E5A93B] flex items-center gap-1 px-2.5 py-0.5 rounded-sm border border-[#3E4756] bg-[#2A313D] transition-colors duration-150"
-                  title="Sign in with email or demo"
+                  title="Sign in to your account"
                 >
                   <User className="w-3.5 h-3.5 text-[#E5A93B]" />
                   <span>{t("cta.signIn")}</span>
@@ -383,12 +403,23 @@ export function Navbar() {
             </>
           )}
 
-          <Link
-            href="/login"
-            className="px-3 py-2 rounded-sm border border-[#D9D0C3] text-xs font-medium text-[#1A1816] hover:bg-[#EFEAE1] transition-colors duration-150"
-          >
-            Demo Logins
-          </Link>
+          {currentUser && currentUser.id !== "guest" && currentUser.email ? (
+            <Link
+              href="/profile"
+              className="px-3 py-2 rounded-sm border border-[#D9D0C3] text-xs font-medium text-[#1A1816] hover:bg-[#EFEAE1] transition-colors duration-150 flex items-center gap-1.5"
+            >
+              <User className="w-3.5 h-3.5 text-orange-600" />
+              <span className="truncate max-w-[100px]">{currentUser.name}</span>
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className="px-3.5 py-2 rounded-sm bg-orange-600 text-white hover:bg-orange-700 text-xs font-semibold transition-colors duration-150 shadow-xs flex items-center gap-1.5"
+            >
+              <User className="w-3.5 h-3.5" />
+              <span>{t("cta.signIn")}</span>
+            </Link>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -480,7 +511,7 @@ export function Navbar() {
               onClick={() => handleRoleToggle(isSeller ? "CUSTOMER" : "SELLER")}
               className="w-full text-center px-4 py-2 rounded-sm border border-[#D9D0C3] text-xs font-medium text-[#1A1816] hover:bg-[#EFEAE1]"
             >
-              Switch to {isSeller ? "Patron Demo" : "Artisan Demo"}
+              Switch to {isSeller ? "Patron Mode" : "Artisan Mode"}
             </button>
 
             {currentUser && currentUser.id !== "guest" && currentUser.name !== "Guest" && (

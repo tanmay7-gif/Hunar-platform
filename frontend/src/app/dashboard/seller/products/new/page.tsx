@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useHunar } from "@/context/HunarContext";
@@ -20,9 +20,15 @@ import {
   Eye,
   HelpCircle,
   Tag,
-  ShieldCheck
+  ShieldCheck,
+  Lock,
+  Hash,
+  AlertTriangle
 } from "lucide-react";
 import { getProtectedImageUrl } from "@/lib/imageProtection";
+import { computeSha256, generateArtworkId, saveArtworkRecord } from "@/protection/utils/fingerprint";
+import { generateWatermarkedPreview } from "@/protection/utils/watermark";
+import { ArtworkRecord } from "@/protection/types";
 
 export default function NewProductUploadPage() {
   const router = useRouter();
@@ -83,6 +89,31 @@ export default function NewProductUploadPage() {
   const [dragActive, setDragActive] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Digital Protection & Attribution State
+  const [artworkId, setArtworkId] = useState<string>(() => generateArtworkId());
+  const [sha256Hash, setSha256Hash] = useState<string>("");
+  const [watermarkedPreview, setWatermarkedPreview] = useState<string>("");
+  const [ownershipDeclared, setOwnershipDeclared] = useState<boolean>(false);
+  const [declarationError, setDeclarationError] = useState<string>("");
+
+  useEffect(() => {
+    let isCancelled = false;
+    const currentImg = customImageUrl.trim() || selectedImage;
+    if (!currentImg) return;
+
+    computeSha256(currentImg).then((hash) => {
+      if (!isCancelled) setSha256Hash(hash);
+    });
+
+    generateWatermarkedPreview(currentImg, currentUser.name || "Artisan").then((wm) => {
+      if (!isCancelled) setWatermarkedPreview(wm);
+    });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [selectedImage, customImageUrl, currentUser.name]);
+
   const categories: Product["category"][] = [
     "Terracotta & Pottery",
     "Madhubani Folk Art",
@@ -126,13 +157,45 @@ export default function NewProductUploadPage() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !price) return;
 
+    if (!ownershipDeclared) {
+      setDeclarationError(
+        isHindi
+          ? "कृपया कलाकृति प्रकाशित करने से पहले स्वामित्व घोषणा स्वीकार करें।"
+          : "Please confirm the mandatory ownership declaration checkbox before publishing."
+      );
+      return;
+    }
+
     setIsSubmitting(true);
 
-    const imageToUse = customImageUrl.trim() ? customImageUrl.trim() : selectedImage;
+    const rawImage = customImageUrl.trim() ? customImageUrl.trim() : selectedImage;
+    const computedHash = sha256Hash || (await computeSha256(rawImage));
+    const publicPreview = watermarkedPreview || (await generateWatermarkedPreview(rawImage, currentUser.name));
+
+    const protectionRecord: ArtworkRecord = {
+      id: artworkId,
+      title,
+      creatorId: currentUser.id,
+      creatorName: currentUser.name,
+      creatorCity: currentUser.city,
+      creatorAvatar: currentUser.avatarUrl,
+      creatorVerified: true,
+      uploadedAt: new Date().toISOString(),
+      sha256Hash: computedHash,
+      ownershipDeclared: true,
+      ownershipDeclarationText: "I confirm that I created this original work or hold full permission to upload and sell it on Hunar.",
+      rawOriginalUrl: rawImage,
+      watermarkedPreviewUrl: publicPreview,
+      dimensions,
+      category,
+      status: "Registered"
+    };
+
+    saveArtworkRecord(protectionRecord);
 
     const product = addProduct({
       title,
@@ -140,7 +203,7 @@ export default function NewProductUploadPage() {
       description: description || "Authentic handmade creation crafted in studio with traditional materials.",
       price: Number(price),
       category,
-      images: [imageToUse],
+      images: [publicPreview || rawImage],
       leadTime,
       stock: availability === "Custom Order Only" ? 0 : Number(stock),
       deliveryFormat,
@@ -153,8 +216,18 @@ export default function NewProductUploadPage() {
       sellerAvatar: currentUser.avatarUrl,
       sellerPhone: currentUser.phone || "+91 98118 76543",
       sellerWhatsapp: currentUser.whatsapp || "919811876543",
-      sellerVerified: true
+      sellerVerified: true,
+      artworkId,
+      sha256Hash: computedHash,
+      ownershipDeclared: true,
+      rawOriginalUrl: rawImage
     });
+
+    showToast(
+      "Artwork Protected & Published",
+      `Assigned ID: ${artworkId} with SHA-256 fingerprint verified.`,
+      "success"
+    );
 
     setIsSubmitting(false);
     router.push("/dashboard/seller/products");
@@ -454,25 +527,71 @@ export default function NewProductUploadPage() {
                 />
               </div>
 
-              {/* Dynamic Watermark Security Shield Notice */}
-              <div className="p-3.5 bg-[#FAF7F2] border border-[#E8E2D7] rounded-sm flex items-start gap-3">
-                <ShieldCheck className="w-4 h-4 text-[#B4461F] shrink-0 mt-0.5" />
-                <div className="text-xs space-y-1 w-full">
-                  <p className="font-semibold text-[#1A1816]">
-                    Backend-Enforced Cloudinary Dynamic Watermarking & Resolution Limiting
-                  </p>
-                  <p className="text-[#635C53] leading-relaxed">
-                    Master image assets are never delivered in their raw high-resolution format. All public lookbook views and product cards are automatically watermarked (<code className="bg-[#EFE9DF] px-1 py-0.5 rounded text-[11px] font-mono text-[#8A7561]">Hunar • {currentUser.name}</code>) and restricted to 800px max width via Cloudinary URL transformation.
-                  </p>
-                  {((customImageUrl && customImageUrl.includes("res.cloudinary.com")) || selectedImage.includes("res.cloudinary.com")) && (
-                    <div className="mt-2 pt-2 border-t border-[#E8E2D7] text-[11px] text-[#635C53]">
-                      <span className="font-medium text-[#1A1816]">Transformed Public Derivative:</span>
-                      <p className="font-mono text-[10px] text-[#B4461F] break-all mt-0.5 bg-white p-2 border border-[#E8E2D7] rounded-xs select-all">
-                        {getProtectedImageUrl(customImageUrl.trim() || selectedImage, { watermarkText: `Hunar • ${currentUser.name}` })}
-                      </p>
-                    </div>
-                  )}
+              {/* Dynamic Watermark & Cryptographic Fingerprint Card */}
+              <div className="p-4 bg-orange-50/70 border border-orange-200/90 rounded-xl space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-orange-600" />
+                    <span className="font-serif font-bold text-xs text-[#1E2229]">
+                      Hunar Digital Attribution & Protection (Phase 1 MVP)
+                    </span>
+                  </div>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-orange-100 text-orange-900 border border-orange-200">
+                    {artworkId}
+                  </span>
                 </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div className="p-2.5 rounded-lg bg-white border border-orange-200/70 space-y-1">
+                    <span className="text-[10px] uppercase font-bold text-gray-500 block">SHA-256 File Hash</span>
+                    <p className="font-mono text-[10px] text-emerald-800 break-all select-all leading-tight">
+                      {sha256Hash || "Computing client-side digest..."}
+                    </p>
+                  </div>
+
+                  <div className="p-2.5 rounded-lg bg-white border border-orange-200/70 space-y-1">
+                    <span className="text-[10px] uppercase font-bold text-gray-500 block">Public Derivative Protection</span>
+                    <p className="text-[11px] text-[#635C53] leading-snug">
+                      Public marketplace cards will use a compressed preview watermarked with:{" "}
+                      <strong className="text-orange-950 font-mono text-[10px]">
+                        {currentUser.name} | Original Artwork | Hunar
+                      </strong>
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Mandatory Ownership Declaration */}
+              <div className="p-4 bg-white border-2 border-orange-300 rounded-xl space-y-2">
+                <label className="flex items-start gap-3 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={ownershipDeclared}
+                    onChange={(e) => {
+                      setOwnershipDeclared(e.target.checked);
+                      if (e.target.checked) setDeclarationError("");
+                    }}
+                    className="mt-0.5 w-4 h-4 text-orange-600 rounded border-gray-300 focus:ring-orange-500 shrink-0 cursor-pointer"
+                  />
+                  <div className="space-y-0.5">
+                    <span className="text-xs font-bold text-[#1E2229] flex items-center gap-1.5">
+                      <span>Mandatory Creator Ownership Declaration *</span>
+                      <span className="px-1.5 py-0.2 rounded-xs bg-orange-100 text-orange-800 text-[10px] uppercase font-bold">
+                        Required
+                      </span>
+                    </span>
+                    <p className="text-xs text-[#635C53] leading-relaxed">
+                      &quot;I confirm that I created this original work or hold full permission to upload and sell it on Hunar.&quot;
+                    </p>
+                  </div>
+                </label>
+
+                {declarationError && (
+                  <div className="p-2.5 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-1.5">
+                    <AlertTriangle className="w-3.5 h-3.5 text-red-600 shrink-0" />
+                    <span>{declarationError}</span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -488,7 +607,7 @@ export default function NewProductUploadPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="btn-terracotta w-full sm:w-auto px-6 py-2.5 rounded-sm text-xs font-medium transition-colors duration-150"
+                className="btn-terracotta w-full sm:w-auto px-6 py-2.5 rounded-sm text-xs font-medium transition-colors duration-150 disabled:opacity-50 cursor-pointer"
               >
                 <span>{isSubmitting ? "Publishing..." : (isHindi ? "कैटलॉग में प्रकाशित करें" : "Publish to Studio Catalog")}</span>
               </button>

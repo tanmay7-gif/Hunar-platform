@@ -232,13 +232,14 @@ export default function DiscoverArtisansPage() {
                     wrapperClassName="w-16 h-16 rounded-full ring-1 ring-[#E8DEC8] group-hover:ring-[#B4461F] transition-colors shrink-0"
                   />
                   <div className="min-w-0">
-                    <div className="flex items-center gap-1.5 mb-0.5">
+                    <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
                       <h3 className="font-serif font-bold text-lg text-[#1E2229] group-hover/artisan:text-[#B4461F] transition-colors truncate">
                         {creator.name}
                       </h3>
                       {creator.isVerified && (
-                        <span title="Verified Master Artisan">
-                          <CheckCircle2 className="w-4 h-4 text-[#2D583B] shrink-0" />
+                        <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs" title="Verified Master Seller">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                          <span>Verified Seller</span>
                         </span>
                       )}
                     </div>

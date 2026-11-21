@@ -27,7 +27,8 @@ import {
   ChevronRight,
   Video,
   MessageSquare,
-  MapPin
+  MapPin,
+  Truck
 } from "lucide-react";
 
 interface DashboardSidebarProps {
@@ -159,6 +160,24 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
       exact: false
     },
     {
+      title: "Creator Protection Hub",
+      href: "/dashboard/protection",
+      icon: ShieldCheck,
+      badge: "SHA-256",
+      badgeColor: "bg-orange-600 text-white",
+      sublabel: "Watermarks & Review Queue",
+      exact: false
+    },
+    {
+      title: "Delivery & Logistics Hub",
+      href: "/dashboard/delivery",
+      icon: Truck,
+      badge: "Asset-Light",
+      badgeColor: "bg-orange-600 text-white",
+      sublabel: "AWB Booking & Shipping Margins",
+      exact: false
+    },
+    {
       title: "Admin Logistics & Hubs",
       href: "/dashboard/admin",
       icon: ShieldCheck,
@@ -214,6 +233,24 @@ export function DashboardSidebar({ mobileOpen = false, onCloseMobile }: Dashboar
       badge: "3",
       badgeColor: "bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium px-2 py-0.5 rounded-sm",
       sublabel: t("nav.ordersSub"),
+      exact: false
+    },
+    {
+      title: "Delivery & Tracking",
+      href: "/dashboard/delivery",
+      icon: Truck,
+      badge: "Live",
+      badgeColor: "bg-orange-600 text-white",
+      sublabel: "Live Courier AWB Tracker",
+      exact: false
+    },
+    {
+      title: "Artwork Protection & IP",
+      href: "/dashboard/protection",
+      icon: ShieldCheck,
+      badge: "Verified",
+      badgeColor: "bg-orange-50 text-orange-800 border border-orange-200",
+      sublabel: "Digital Certificates & Report Copy",
       exact: false
     },
     {

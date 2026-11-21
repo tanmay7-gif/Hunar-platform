@@ -80,6 +80,7 @@ export default function SignupPage() {
     if (result.success && result.user) {
       // Ensure user account is synchronously persisted in localStorage
       try {
+        localStorage.setItem(STORAGE_KEYS.ACTIVE_SESSION, JSON.stringify(result.user));
         localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(result.user));
         localStorage.setItem("hunar_user_account", JSON.stringify(result.user));
       } catch {
@@ -154,16 +155,16 @@ export default function SignupPage() {
               {/* ARTISAN / SELLER CARD */}
               <div
                 onClick={() => setRole("SELLER")}
-                className={`p-4 rounded-sm border cursor-pointer transition-colors duration-150 relative ${
+                className={`p-4 rounded-xl border cursor-pointer transition-all duration-150 relative ${
                   role === "SELLER"
-                    ? "border-[#B4461F] bg-[#FAF7F2] ring-1 ring-[#B4461F]"
-                    : "border-[#E8E2D7] bg-white hover:border-[#B4461F]/50"
+                    ? "border-orange-500 bg-orange-50/60 ring-1 ring-orange-500 shadow-xs"
+                    : "border-[#E8E2D7] bg-white hover:border-orange-300"
                 }`}
               >
                 <div className="flex items-start gap-3">
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                      role === "SELLER" ? "bg-[#B4461F] text-white" : "bg-gray-100 text-gray-600"
+                      role === "SELLER" ? "bg-orange-600 text-white" : "bg-gray-100 text-gray-600"
                     }`}
                   >
                     <Store className="w-4 h-4" />
@@ -173,7 +174,7 @@ export default function SignupPage() {
                       <span className="font-serif font-bold text-sm text-[#1E2229]">
                         {isHindi ? "कारीगर / शिल्पी (Seller)" : "Artisan / Creator (Seller)"}
                       </span>
-                      {role === "SELLER" && <CheckCircle2 className="w-3.5 h-3.5 text-[#B4461F]" />}
+                      {role === "SELLER" && <CheckCircle2 className="w-3.5 h-3.5 text-orange-600" />}
                     </div>
                     <p className="text-[11px] text-[#635C53] mt-0.5 leading-snug">
                       {isHindi
@@ -187,16 +188,16 @@ export default function SignupPage() {
               {/* CUSTOMER / PATRON CARD */}
               <div
                 onClick={() => setRole("CUSTOMER")}
-                className={`p-4 rounded-sm border cursor-pointer transition-colors duration-150 relative ${
+                className={`p-4 rounded-xl border cursor-pointer transition-all duration-150 relative ${
                   role === "CUSTOMER"
-                    ? "border-[#2D583B] bg-[#EEF4F0] ring-1 ring-[#2D583B]"
-                    : "border-[#E8E2D7] bg-white hover:border-[#2D583B]/50"
+                    ? "border-orange-500 bg-orange-50/60 ring-1 ring-orange-500 shadow-xs"
+                    : "border-[#E8E2D7] bg-white hover:border-orange-300"
                 }`}
               >
                 <div className="flex items-start gap-3">
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                      role === "CUSTOMER" ? "bg-[#2D583B] text-white" : "bg-gray-100 text-gray-600"
+                      role === "CUSTOMER" ? "bg-orange-600 text-white" : "bg-gray-100 text-gray-600"
                     }`}
                   >
                     <Heart className="w-4 h-4" />
@@ -206,7 +207,7 @@ export default function SignupPage() {
                       <span className="font-serif font-bold text-sm text-[#1E2229]">
                         {isHindi ? "कला संरक्षक (Customer)" : "Patron / Collector (Customer)"}
                       </span>
-                      {role === "CUSTOMER" && <CheckCircle2 className="w-3.5 h-3.5 text-[#2D583B]" />}
+                      {role === "CUSTOMER" && <CheckCircle2 className="w-3.5 h-3.5 text-orange-600" />}
                     </div>
                     <p className="text-[11px] text-[#635C53] mt-0.5 leading-snug">
                       {isHindi
@@ -245,14 +246,14 @@ export default function SignupPage() {
                   setName(e.target.value);
                   if (errorMessage) setErrorMessage("");
                 }}
-                className="w-full px-4 py-2.5 rounded-sm bg-[#FDFCF9] border border-[#D3CBBE] text-sm text-[#1A1816] focus:outline-none focus:border-[#1E2229]"
+                className="w-full px-4 py-2.5 rounded-lg bg-[#FDFCF9] border border-gray-300 text-sm text-[#1A1816] focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-gray-400"
               />
             </div>
 
             {/* Email Field */}
             <div>
-              <label className="block text-xs font-medium text-[#1A1816] mb-1 flex items-center gap-1.5">
-                <Mail className="w-3.5 h-3.5 text-[#8A7561]" />
+              <label className="block text-xs font-semibold text-[#1A1816] mb-1 flex items-center gap-1.5">
+                <Mail className="w-3.5 h-3.5 text-orange-600" />
                 <span>{isHindi ? "ईमेल पता: *" : "Email Address: *"}</span>
               </label>
               <input
@@ -264,14 +265,14 @@ export default function SignupPage() {
                   setEmail(e.target.value);
                   if (errorMessage) setErrorMessage("");
                 }}
-                className="w-full px-4 py-2.5 rounded-sm bg-[#FDFCF9] border border-[#D3CBBE] text-sm text-[#1A1816] focus:outline-none focus:border-[#1E2229]"
+                className="w-full px-4 py-2.5 rounded-lg bg-[#FDFCF9] border border-gray-300 text-sm text-[#1A1816] focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-gray-400"
               />
             </div>
 
             {/* Password Field */}
             <div>
-              <label className="block text-xs font-medium text-[#1A1816] mb-1 flex items-center gap-1.5">
-                <Lock className="w-3.5 h-3.5 text-[#8A7561]" />
+              <label className="block text-xs font-semibold text-[#1A1816] mb-1 flex items-center gap-1.5">
+                <Lock className="w-3.5 h-3.5 text-orange-600" />
                 <span>{isHindi ? "पासवर्ड (न्यूनतम ६ अक्षर): *" : "Password (min 6 characters): *"}</span>
               </label>
               <input
@@ -283,14 +284,14 @@ export default function SignupPage() {
                   setPassword(e.target.value);
                   if (errorMessage) setErrorMessage("");
                 }}
-                className="w-full px-4 py-2.5 rounded-sm bg-[#FDFCF9] border border-[#D3CBBE] text-sm text-[#1A1816] focus:outline-none focus:border-[#1E2229]"
+                className="w-full px-4 py-2.5 rounded-lg bg-[#FDFCF9] border border-gray-300 text-sm text-[#1A1816] focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
               />
             </div>
 
             {/* City / Location Field */}
             <div>
-              <label className="block text-xs font-medium text-[#1A1816] mb-1 flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-[#8A7561]" />
+              <label className="block text-xs font-semibold text-[#1A1816] mb-1 flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-orange-600" />
                 <span>{isHindi ? "शहर / शिल्प क्लस्टर:" : "City / Craft Cluster:"}</span>
               </label>
               <input
@@ -298,7 +299,7 @@ export default function SignupPage() {
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
                 placeholder="e.g. Khurja, Madhubani, Jaipur, Delhi NCR"
-                className="w-full px-4 py-2.5 rounded-sm bg-[#FDFCF9] border border-[#D3CBBE] text-sm text-[#1A1816] focus:outline-none focus:border-[#1E2229]"
+                className="w-full px-4 py-2.5 rounded-lg bg-[#FDFCF9] border border-gray-300 text-sm text-[#1A1816] focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-gray-400"
               />
               <div className="flex flex-wrap gap-1.5 mt-2">
                 {popularCities.map((c) => (
@@ -306,10 +307,10 @@ export default function SignupPage() {
                     key={c}
                     type="button"
                     onClick={() => setCity(c)}
-                    className={`px-2 py-0.5 rounded-xs text-[10px] font-mono border transition-colors ${
+                    className={`px-2 py-0.5 rounded-md text-[10px] font-mono border transition-colors cursor-pointer ${
                       city === c
-                        ? "bg-[#1E2229] text-white border-[#1E2229]"
-                        : "bg-[#FAF7F2] text-[#635C53] border-[#E8E2D7] hover:border-[#1E2229]"
+                        ? "bg-orange-50 text-orange-800 border-orange-300 font-semibold"
+                        : "bg-[#FAF7F2] text-[#635C53] border-gray-200 hover:border-orange-300"
                     }`}
                   >
                     {c}
@@ -322,7 +323,7 @@ export default function SignupPage() {
             <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-[#E8E2D7]">
               <p className="text-xs text-[#635C53]">
                 {isHindi ? "पहले से खाता है? " : "Already have an account? "}
-                <Link href="/login" className="font-semibold text-[#B4461F] hover:underline">
+                <Link href="/login" className="font-semibold text-orange-600 hover:text-orange-700 hover:underline">
                   {isHindi ? "साइन इन करें" : "Sign In"}
                 </Link>
               </p>
@@ -330,9 +331,7 @@ export default function SignupPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full sm:w-auto px-6 py-2.5 rounded-sm font-medium text-xs text-white transition-colors duration-150 flex items-center justify-center gap-2 shadow-xs disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer ${
-                  role === "SELLER" ? "bg-[#1E2229] hover:bg-[#111418]" : "bg-[#2D583B] hover:bg-[#23452E]"
-                }`}
+                className="w-full sm:w-auto px-6 py-2.5 rounded-lg font-semibold text-xs text-white bg-orange-600 hover:bg-orange-700 active:bg-orange-800 transition-colors duration-150 flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 {loading && (
                   <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

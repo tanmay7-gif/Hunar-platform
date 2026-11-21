@@ -199,6 +199,14 @@ export default function CustomerOrdersPage() {
                   >
                     {stageInfo.label}
                   </span>
+                  <Link
+                    href="/dashboard/delivery"
+                    className="p-2 rounded-sm border border-orange-300 text-orange-700 hover:bg-orange-50 transition-colors shadow-xs flex items-center gap-1.5 text-xs font-medium cursor-pointer"
+                    title="Live Courier Delivery Tracking"
+                  >
+                    <Truck className="w-4 h-4 text-orange-600" />
+                    <span>Track Delivery</span>
+                  </Link>
                   <button
                     type="button"
                     onClick={() => {

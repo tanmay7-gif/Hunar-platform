@@ -100,7 +100,7 @@ export default function UserProfilePage() {
               className="text-[11px] font-semibold text-[#B4461F] hover:underline flex items-center gap-1"
             >
               <RefreshCw className="w-3 h-3" />
-              <span>{isSeller ? "Switch to Patron Demo" : "Switch to Artisan Demo"}</span>
+              <span>{isSeller ? "Switch to Patron Mode" : "Switch to Artisan Mode"}</span>
             </button>
           </div>
         </div>

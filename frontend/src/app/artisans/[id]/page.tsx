@@ -211,10 +211,16 @@ function ArtisanProfileContent() {
                 </div>
 
                 <div className="pb-1">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#1E2229]">
                       {creator.name}
                     </h1>
+                    {creator.isVerified && (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs" title="Verified Master Craftsman & Seller">
+                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Verified Seller</span>
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center gap-2 flex-wrap mt-1.5">
                     <span className="text-xs font-semibold text-[#B4461F]">

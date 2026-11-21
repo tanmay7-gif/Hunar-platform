@@ -28,9 +28,15 @@ import {
   Truck,
   DollarSign,
   Star,
-  RefreshCw
+  RefreshCw,
+  ShieldCheck,
+  Flag
 } from "lucide-react";
 import { ProtectedImage } from "@/components/ui/ProtectedImage";
+import { ArtworkRecordModal } from "@/protection/components/ArtworkRecordModal";
+import { ReportStolenModal } from "@/protection/components/ReportStolenModal";
+import { getProductArtworkRecord } from "@/protection/utils/fingerprint";
+import { ArtworkRecord } from "@/protection/types";
 
 export default function CustomerDashboardPage() {
   const router = useRouter();
@@ -74,6 +80,12 @@ export default function CustomerDashboardPage() {
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [commissionModalProduct, setCommissionModalProduct] = useState<Product | null>(null);
   const [selectedArtisanProfile, setSelectedArtisanProfile] = useState<Creator | null>(null);
+
+  // Digital Protection Modal State
+  const [selectedProtectionRecord, setSelectedProtectionRecord] = useState<ArtworkRecord | null>(null);
+  const [isRecordModalOpen, setIsRecordModalOpen] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [reportTarget, setReportTarget] = useState<{ id?: string; title?: string; url?: string }>({});
 
   // Commission Form State
   const [commissionRequirements, setCommissionRequirements] = useState("");
@@ -861,10 +873,13 @@ export default function CustomerDashboardPage() {
                         wrapperClassName="w-10 h-10 rounded-sm border border-[#B4461F] shrink-0"
                       />
                       <div>
-                        <p className="font-medium text-xs text-[#1E2229] flex items-center gap-1">
-                          {quickViewProduct.sellerName}
-                          <CheckCircle2 className="w-3.5 h-3.5 text-[#2D583B]" />
-                        </p>
+                        <div className="font-medium text-xs text-[#1E2229] flex items-center gap-1.5 flex-wrap">
+                          <span>{quickViewProduct.sellerName}</span>
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                            <span>Verified Seller</span>
+                          </span>
+                        </div>
                         <p className="text-[11px] text-[#635C53]">{quickViewProduct.sellerCity}</p>
                       </div>
                     </div>
@@ -880,6 +895,48 @@ export default function CustomerDashboardPage() {
                 <p className="text-xs text-[#635C53] leading-relaxed font-normal">
                   {quickViewProduct.description}
                 </p>
+              </div>
+
+              {/* Digital Protection Record & Report Strip */}
+              <div className="p-3.5 rounded-xl bg-orange-50/70 border border-orange-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-orange-600 shrink-0" />
+                  <div>
+                    <span className="font-semibold text-orange-950 block">Cryptographic Protection Record</span>
+                    <span className="text-[10px] text-[#635C53] font-mono">
+                      {quickViewProduct.artworkId || `HUN-ART-2026-${quickViewProduct.id.slice(0, 5)}`} • SHA-256 Verified
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedProtectionRecord(getProductArtworkRecord(quickViewProduct));
+                      setIsRecordModalOpen(true);
+                    }}
+                    className="px-3 py-1.5 rounded-lg bg-white border border-orange-200 text-orange-900 font-semibold text-xs hover:bg-orange-100 transition-colors cursor-pointer shadow-2xs"
+                  >
+                    View Protection Record
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setReportTarget({
+                        id: quickViewProduct.artworkId || quickViewProduct.id,
+                        title: quickViewProduct.title,
+                        url: typeof window !== "undefined" ? `${window.location.origin}/products/${quickViewProduct.id}` : ""
+                      });
+                      setIsReportModalOpen(true);
+                    }}
+                    className="inline-flex items-center gap-1 text-gray-400 hover:text-rose-600 font-semibold text-xs px-2 py-1 transition-colors cursor-pointer"
+                    title="Report Stolen Artwork"
+                  >
+                    <Flag className="w-3.5 h-3.5 text-gray-400 hover:text-rose-600" />
+                    <span>Report Copy</span>
+                  </button>
+                </div>
               </div>
 
               {/* 2 Clear Action Buttons */}
@@ -1016,6 +1073,34 @@ export default function CustomerDashboardPage() {
           </div>
         </div>
       )}
+
+      {/* Digital Protection Record Certificate Modal */}
+      <ArtworkRecordModal
+        isOpen={isRecordModalOpen}
+        onClose={() => {
+          setIsRecordModalOpen(false);
+          setSelectedProtectionRecord(null);
+        }}
+        record={selectedProtectionRecord}
+        onReportStolen={(rec) => {
+          setIsRecordModalOpen(false);
+          setReportTarget({
+            id: rec.id,
+            title: rec.title,
+            url: typeof window !== "undefined" ? `${window.location.origin}/products/${rec.productId || rec.id}` : ""
+          });
+          setIsReportModalOpen(true);
+        }}
+      />
+
+      {/* Report Stolen Artwork Modal */}
+      <ReportStolenModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        initialArtworkId={reportTarget.id}
+        initialArtworkTitle={reportTarget.title}
+        initialListingUrl={reportTarget.url}
+      />
     </div>
   );
 }

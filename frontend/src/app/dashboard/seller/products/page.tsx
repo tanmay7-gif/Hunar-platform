@@ -24,11 +24,17 @@ import {
   Wifi,
   WifiOff,
   RefreshCw,
-  MapPin
+  MapPin,
+  ShieldCheck,
+  Flag
 } from "lucide-react";
 import { useTinyFishSyncQueue } from "@tinyfish/core";
 import { ExternalProductImporterModal } from "@/components/tinyfish/ExternalProductImporterModal";
 import { ProtectedImage } from "@/components/ui/ProtectedImage";
+import { ArtworkRecordModal } from "@/protection/components/ArtworkRecordModal";
+import { ReportStolenModal } from "@/protection/components/ReportStolenModal";
+import { getProductArtworkRecord } from "@/protection/utils/fingerprint";
+import { ArtworkRecord } from "@/protection/types";
 
 export default function SellerProductsPage() {
   const {
@@ -65,6 +71,12 @@ export default function SellerProductsPage() {
   const [editPrice, setEditPrice] = useState<number>(0);
   const [editStock, setEditStock] = useState<number>(1);
   const [editLeadTime, setEditLeadTime] = useState<string>("");
+
+  // Protection Modal State
+  const [selectedRecord, setSelectedRecord] = useState<ArtworkRecord | null>(null);
+  const [isRecordModalOpen, setIsRecordModalOpen] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [reportTarget, setReportTarget] = useState<{ id?: string; title?: string; url?: string }>({});
 
   const sellerProducts = products.filter((p) => p.sellerId === currentUser.id);
 
@@ -180,6 +192,15 @@ export default function SellerProductsPage() {
                 </>
               )}
             </div>
+
+            <Link
+              href="/dashboard/protection"
+              className="w-full sm:w-auto max-w-full min-w-0 box-border px-3.5 py-2.5 rounded-sm bg-[#1A1D23] border border-orange-500/40 hover:border-orange-500 text-orange-200 text-xs font-semibold transition-colors duration-150 flex items-center justify-center sm:justify-start gap-1.5 shadow-xs shrink-0"
+              title="Creator & Artwork Protection Hub (SHA-256 Certificates, Review Queue)"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-orange-400" />
+              <span>Protection Hub</span>
+            </Link>
 
             <button
               onClick={() => setIsImporterOpen(true)}
@@ -454,6 +475,39 @@ export default function SellerProductsPage() {
                     </div>
                   </div>
 
+                  {/* Digital Protection Record & Report Flag */}
+                  <div className="flex items-center justify-between pt-2 border-t border-[#EFECE6] text-[11px]">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedRecord(getProductArtworkRecord(product, currentUser.name));
+                        setIsRecordModalOpen(true);
+                      }}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-orange-50 hover:bg-orange-100 border border-orange-200/80 text-orange-800 text-[11px] font-semibold transition-colors cursor-pointer"
+                      title="View SHA-256 fingerprint & artwork certificate"
+                    >
+                      <ShieldCheck className="w-3.5 h-3.5 text-orange-600" />
+                      <span>Protection Record</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setReportTarget({
+                          id: product.artworkId || product.id,
+                          title: product.title,
+                          url: typeof window !== "undefined" ? `${window.location.origin}/products/${product.id}` : ""
+                        });
+                        setIsReportModalOpen(true);
+                      }}
+                      className="inline-flex items-center gap-1 text-gray-400 hover:text-rose-600 font-medium transition-colors cursor-pointer"
+                      title="Report suspicious copy or theft"
+                    >
+                      <Flag className="w-3 h-3 text-gray-400 hover:text-rose-600" />
+                      <span>Report Stolen</span>
+                    </button>
+                  </div>
+
                   {/* Actions Bar */}
                   <div className="flex items-center justify-between pt-3 border-t border-[#EFECE6] text-xs">
                     <button
@@ -556,6 +610,17 @@ export default function SellerProductsPage() {
                       </td>
                       <td className="py-3.5 px-4 text-right">
                         <div className="flex items-center justify-end gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedRecord(getProductArtworkRecord(product, currentUser.name));
+                              setIsRecordModalOpen(true);
+                            }}
+                            className="p-1 rounded hover:bg-orange-50 text-orange-600 cursor-pointer"
+                            title="View SHA-256 Protection Record & Certificate"
+                          >
+                            <ShieldCheck className="w-4 h-4" />
+                          </button>
                           <button
                             onClick={() => toggleProductStatus(product.id)}
                             className="p-1 rounded hover:bg-gray-100 text-gray-600"
@@ -912,6 +977,34 @@ export default function SellerProductsPage() {
       <ExternalProductImporterModal
         isOpen={isImporterOpen}
         onClose={() => setIsImporterOpen(false)}
+      />
+
+      {/* Artwork Protection Certificate Record Modal */}
+      <ArtworkRecordModal
+        isOpen={isRecordModalOpen}
+        onClose={() => {
+          setIsRecordModalOpen(false);
+          setSelectedRecord(null);
+        }}
+        record={selectedRecord}
+        onReportStolen={(rec) => {
+          setIsRecordModalOpen(false);
+          setReportTarget({
+            id: rec.id,
+            title: rec.title,
+            url: typeof window !== "undefined" ? `${window.location.origin}/products/${rec.productId || rec.id}` : ""
+          });
+          setIsReportModalOpen(true);
+        }}
+      />
+
+      {/* Report Stolen Artwork Modal */}
+      <ReportStolenModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        initialArtworkId={reportTarget.id}
+        initialArtworkTitle={reportTarget.title}
+        initialListingUrl={reportTarget.url}
       />
     </div>
   );

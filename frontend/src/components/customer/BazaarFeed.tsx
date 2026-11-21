@@ -99,10 +99,13 @@ export function BazaarFeed({
                       className="w-6 h-6 rounded-full object-cover aspect-square"
                       wrapperClassName="w-6 h-6 rounded-full ring-1 ring-[#E8DEC8] shrink-0"
                     />
-                    <span className="text-xs font-semibold text-[#1E2229] group-hover/artisan:text-[#B4461F] group-hover/artisan:underline transition-colors duration-150 flex items-center gap-1">
-                      {product.sellerName}
+                    <span className="text-xs font-semibold text-[#1E2229] group-hover/artisan:text-[#B4461F] group-hover/artisan:underline transition-colors duration-150 flex items-center gap-1.5 flex-wrap">
+                      <span>{product.sellerName}</span>
                       {product.sellerVerified && (
-                        <CheckCircle2 className="w-3.5 h-3.5 text-[#2D583B]" />
+                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200" title="Verified Seller">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                          <span>Verified</span>
+                        </span>
                       )}
                     </span>
                   </Link>

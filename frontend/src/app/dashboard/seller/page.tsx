@@ -31,7 +31,8 @@ import {
   RefreshCw,
   ShoppingBag,
   Video,
-  MapPin
+  MapPin,
+  Truck
 } from "lucide-react";
 import { MentorshipManager } from "@/components/seller/MentorshipManager";
 import { MarketIntelligenceBar } from "@/components/tinyfish/MarketIntelligenceBar";
@@ -189,6 +190,14 @@ export default function SellerStudioDashboard() {
           >
             <ExternalLink className="w-4 h-4 text-[#2D583B]" />
             <span>{isHindi ? "हुनर कार्ड देखें" : "View Lookbook Card"}</span>
+          </Link>
+
+          <Link
+            href="/dashboard/delivery"
+            className="px-4 py-2.5 rounded-sm bg-[#2A313D] border border-[#3E4756] text-xs font-medium text-[#FAF7F2] hover:bg-[#343C4B] transition-colors duration-150 flex items-center gap-2"
+          >
+            <Truck className="w-4 h-4 text-[#E5A93B]" />
+            <span>Delivery & Tracking</span>
           </Link>
 
           <Link

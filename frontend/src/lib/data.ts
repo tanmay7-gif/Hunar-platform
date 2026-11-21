@@ -200,6 +200,10 @@ export interface Product {
   sellerWhatsapp: string;
   sellerVerified: boolean;
   createdAt: string;
+  artworkId?: string;
+  sha256Hash?: string;
+  ownershipDeclared?: boolean;
+  rawOriginalUrl?: string;
 }
 
 export interface CustomerInquiry {
